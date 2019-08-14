@@ -16,6 +16,9 @@ class Netresearch_OPS_Model_Payment_BankTransfer
     /** info source path */
     protected $_infoBlockType = 'ops/info_redirect';
 
+    /** form block type  */
+    protected $_formBlockType = 'ops/form_bankTransfer';
+
     /** payment code */
     protected $_code = 'ops_bankTransfer';
 
@@ -37,7 +40,7 @@ class Netresearch_OPS_Model_Payment_BankTransfer
         $pm = $brand = trim('Bank transfer' . (('*' == $countryId) ? '' : ' ' . $countryId));
 
         $payment = Mage::getSingleton('checkout/session')->getQuote()->getPayment();
-        $payment->setAdditionalInformation('PM',    $pm);
+        $payment->setAdditionalInformation('PM', $pm);
         $payment->setAdditionalInformation('BRAND', $brand);
 
         parent::assignData($data);

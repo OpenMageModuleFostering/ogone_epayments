@@ -40,7 +40,6 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
             Mage::throwException(Mage::helper('ops')->__('%s is not a refund status!', $this->getStatus()));
         }
 
-
         /** @var Mage_Sales_Model_Order_Payment $payment */
         $payment = $this->getMethodInstance()->getInfoInstance();
 
@@ -65,37 +64,7 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
                 $this->closeRefundTransaction($creditMemo);
                 $this->addFinalStatusComment();
             } elseif ($this->getStatus() == Netresearch_OPS_Model_Status::REFUND_REFUSED) {
-                $order = $creditMemo->getOrder();
-                $creditMemo->cancel()->save();
-                $this->closeRefundTransaction($creditMemo);
-                $invoice = Mage::getModel('sales/order_invoice')->load($creditMemo->getInvoiceId());
-                $invoice->setIsUsedForRefund(0)
-                    ->setBaseTotalRefunded(
-                        $invoice->getBaseTotalRefunded() - $creditMemo->getBaseGrandTotal()
-                    );
-                $creditMemo->setInvoice($invoice);
-                /** @var Mage_Sales_Model_Order_Creditmemo_Item $item */
-                foreach ($creditMemo->getAllItems() as $item) {
-                    $item->getOrderItem()->setAmountRefunded(
-                        $item->getOrderItem()->getAmountRefunded() - $item->getRowTotal()
-                    );
-                    $item->getOrderItem()->setBaseAmountRefunded(
-                        $item->getOrderItem()->getBaseAmountRefunded() - $item->getBaseRowTotal()
-                    );
-                }
-                $order->setTotalRefunded($order->getTotalRefunded() - $creditMemo->getBaseGrandTotal());
-                $order->setBaseTotalRefunded($order->getBaseTotalRefunded() - $creditMemo->getBaseGrandTotal());
-
-                $this->addRefusedStatusComment();
-                $state = Mage_Sales_Model_Order::STATE_COMPLETE;
-                if ($order->canShip() || $order->canInvoice()) {
-                    $state = Mage_Sales_Model_Order::STATE_PROCESSING;
-                }
-                $order->setState(
-                    $state,
-                    true,
-                    $this->getRefusedStatusComment(Mage::helper('ops')->__('Refund refused by Ingenico ePayments.'))
-                );
+                $order = $this->processRefundRefused($creditMemo);
             } else {
                 $this->addIntermediateStatusComment();
             }
@@ -117,19 +86,11 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
                 }
             }
         }
-        if ($this->getShouldRegisterFeedback()) {
-            $transactionSave = Mage::getModel('core/resource_transaction')
-                ->addObject($order)
-                ->addObject($payment)
-                ->addObject($creditMemo);
 
-            if ($creditMemo->getInvoice()) {
-                $transactionSave->addObject($creditMemo->getInvoice());
-            }
-            $transactionSave->save();
+        if ($this->getShouldRegisterFeedback()) {
+            $this->registerFeedBack($order, $payment, $creditMemo);
         }
 
-        return;
     }
 
     /**
@@ -164,6 +125,69 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
             $refundTransaction->setIsClosed(true)
                 ->save();
         }
+    }
+
+    /**
+     * process refund refused response
+     *
+     * @param $creditMemo
+     * @return mixed
+     */
+    protected function processRefundRefused($creditMemo)
+    {
+        $order = $creditMemo->getOrder();
+        $creditMemo->cancel()->save();
+        $this->closeRefundTransaction($creditMemo);
+        $invoice = Mage::getModel('sales/order_invoice')->load($creditMemo->getInvoiceId());
+        $invoice->setIsUsedForRefund(0)
+            ->setBaseTotalRefunded(
+                $invoice->getBaseTotalRefunded() - $creditMemo->getBaseGrandTotal()
+            );
+        $creditMemo->setInvoice($invoice);
+        /** @var Mage_Sales_Model_Order_Creditmemo_Item $item */
+        foreach ($creditMemo->getAllItems() as $item) {
+            $item->getOrderItem()->setAmountRefunded(
+                $item->getOrderItem()->getAmountRefunded() - $item->getRowTotal()
+            );
+            $item->getOrderItem()->setBaseAmountRefunded(
+                $item->getOrderItem()->getBaseAmountRefunded() - $item->getBaseRowTotal()
+            );
+        }
+        $order->setTotalRefunded($order->getTotalRefunded() - $creditMemo->getBaseGrandTotal());
+        $order->setBaseTotalRefunded($order->getBaseTotalRefunded() - $creditMemo->getBaseGrandTotal());
+
+        $this->addRefusedStatusComment();
+        $state = Mage_Sales_Model_Order::STATE_COMPLETE;
+        if ($order->canShip() || $order->canInvoice()) {
+            $state = Mage_Sales_Model_Order::STATE_PROCESSING;
+        }
+        $order->setState(
+            $state,
+            true,
+            $this->getRefusedStatusComment(Mage::helper('ops')->__('Refund refused by Ingenico ePayments.'))
+        );
+
+        return $order;
+    }
+
+    /**
+     * register feedback
+     *
+     * @param $order
+     * @param $payment
+     * @param $creditMemo
+     */
+    protected function registerFeedBack($order, $payment, $creditMemo)
+    {
+        $transactionSave = Mage::getModel('core/resource_transaction')
+            ->addObject($order)
+            ->addObject($payment)
+            ->addObject($creditMemo);
+
+        if ($creditMemo->getInvoice()) {
+            $transactionSave->addObject($creditMemo->getInvoice());
+        }
+        $transactionSave->save();
     }
 
 }

@@ -79,10 +79,11 @@ class Netresearch_OPS_Test_Controller_Adminhtml_KwixoshippingControllerTest
         $postData = array(
             'form_key' => '1234',
             'flatrate' => array(
-                'kwixo_shipping_type' => 1,
-                'kwixo_shipping_speed' => 1,
+                'kwixo_shipping_type' => 2,
+                'kwixo_shipping_speed' => 2,
                 'kwixo_shipping_details' => 'foo'
-            )
+            ),
+            'foobar' => 'barfoo'
         );
         $this->getRequest()->setPost($postData);
         $this->getRequest()->setMethod('POST');
@@ -94,8 +95,8 @@ class Netresearch_OPS_Test_Controller_Adminhtml_KwixoshippingControllerTest
         // assure that saving the data worked properly
 
         $this->assertEquals('flatrate', $kwixoModel->getShippingCode());
-        $this->assertEquals(1, $kwixoModel->getKwixoShippingType());
-        $this->assertEquals(1, $kwixoModel->getKwixoShippingSpeed());
+        $this->assertEquals(2, $kwixoModel->getKwixoShippingType());
+        $this->assertEquals(2, $kwixoModel->getKwixoShippingSpeed());
         $this->assertEquals('foo', $kwixoModel->getKwixoShippingDetails());
     }
 
@@ -111,7 +112,8 @@ class Netresearch_OPS_Test_Controller_Adminhtml_KwixoshippingControllerTest
                 'kwixo_shipping_type' => -1,
                 'kwixo_shipping_speed' => 'abc',
                 'kwixo_shipping_details' => 'foo'
-            )
+            ),
+            'foobar' => 'barfoo'
         );
         $this->getRequest()->setPost($postData);
         $this->getRequest()->setMethod('POST');
@@ -126,23 +128,6 @@ class Netresearch_OPS_Test_Controller_Adminhtml_KwixoshippingControllerTest
         $this->assertNotEquals(-1, $kwixoModel->getKwixoShippingType());
         $this->assertNotEquals('abc', $kwixoModel->getKwixoShippingSpeed());
         $this->assertNotEquals('foo', $kwixoModel->getKwixoShippingDetails());
-    }
-
-    public function testDeleteNotFoundAction()
-    {
-        $this->dispatch('adminhtml/kwixoshipping/delete', array());
-        $headers = $this->getResponse()->getHeaders();
-        $notFound = false;
-        foreach ($headers as $header) {
-            if ($header['name'] == 'Status'
-                && $header['value'] == '404 File not found'
-            ) {
-                $notFound = true;
-                break;
-            }
-        }
-        $this->assertTrue($notFound);
-
     }
 
 } 

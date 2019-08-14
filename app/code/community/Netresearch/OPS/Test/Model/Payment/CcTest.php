@@ -103,7 +103,7 @@ class Netresearch_OPS_Test_Model_Payment_CcTest extends EcomDev_PHPUnit_Test_Cas
     public function testIsApplicableToQuoteTrueWithZeroAmount()
     {
         $versionInfo = Mage::getVersionInfo();
-        if ((array_key_exists('minor',$versionInfo))
+        if ((array_key_exists('minor', $versionInfo))
             && (Mage::getEdition() === Mage::EDITION_COMMUNITY && $versionInfo['minor'] > '7')
             || (Mage::getEdition() === Mage::EDITION_ENTERPRISE && $versionInfo['minor'] > '13')
         )
@@ -141,7 +141,7 @@ class Netresearch_OPS_Test_Model_Payment_CcTest extends EcomDev_PHPUnit_Test_Cas
     public function testIsApplicableToQuoteFeatureModelTrue()
     {
         $versionInfo = Mage::getVersionInfo();
-        if ((array_key_exists('minor',$versionInfo))
+        if ((array_key_exists('minor', $versionInfo))
             && (Mage::getEdition() === Mage::EDITION_COMMUNITY && $versionInfo['minor'] > '7')
             || (Mage::getEdition() === Mage::EDITION_ENTERPRISE && $versionInfo['minor'] > '13')
         )
@@ -160,7 +160,7 @@ class Netresearch_OPS_Test_Model_Payment_CcTest extends EcomDev_PHPUnit_Test_Cas
             $this->replaceByMock('helper', 'ops/version', $helperMock);
 
             $quote = Mage::getModel('sales/quote');
-            $this->assertTrue($this->_model->isApplicableToQuote($quote,'1'));
+            $this->assertTrue($this->_model->isApplicableToQuote($quote, '1'));
         }
     }
 

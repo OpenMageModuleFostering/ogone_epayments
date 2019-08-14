@@ -59,20 +59,20 @@ class Netresearch_OPS_Model_Source_Kwixo_ShipMethodType
             array(
                 'value' => self::COLLECTION_POINT,
                 'label' => Mage::helper('ops/data')->__(
-                        'Collection point (Kiala...)'
-                    )
+                    'Collection point (Kiala...)'
+                )
             ),
             array(
                 'value' => self::COLLECT_AT_AIRPORT,
                 'label' => Mage::helper('ops/data')->__(
-                        'Collect at airport, train station or travel agency'
-                    )
+                    'Collect at airport, train station or travel agency'
+                )
             ),
             array(
                 'value' => self::TRANSPORTER,
                 'label' => Mage::helper('ops/data')->__(
-                        'Transporter (La Poste, UPS...)'
-                    )
+                    'Transporter (La Poste, UPS...)'
+                )
             ),
             array(
                 'value' => self::DOWNLOAD,

@@ -12,8 +12,12 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
     extends Mage_Adminhtml_Controller_Action
 {
 
-    private $_block = 'ops/adminhtml_kwixocategory_edit';
+    protected $_block = 'ops/adminhtml_kwixocategory_edit';
 
+    /**
+     * @param bool $getRootInstead
+     * @return bool
+     */
     protected function _initCategory($getRootInstead = false)
     {
         $categoryId = (int)$this->getRequest()->getParam('id', false);
@@ -194,7 +198,8 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         } catch (Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
         }
-        $this->_redirect('*/*/index/',
+        $this->_redirect(
+            '*/*/index/',
             array('_current' => true, "id" => $post['category_id'], "store" => $post['storeId'])
         );
     }

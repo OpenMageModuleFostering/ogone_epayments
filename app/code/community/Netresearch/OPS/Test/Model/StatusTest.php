@@ -78,7 +78,7 @@ class Netresearch_OPS_Test_Model_StatusTest extends EcomDev_PHPUnit_Test_Case
             Netresearch_OPS_Model_Status::AUTHORIZED_WAITING_EXTERNAL_RESULT,
             Netresearch_OPS_Model_Status::AUTHORIZATION_WAITING,
             Netresearch_OPS_Model_Status::AUTHORIZED_UNKNOWN,
-            Netresearch_OPS_Model_Status::STAND_BY_SUSPECTED_FRAUD,
+            Netresearch_OPS_Model_Status::STAND_BY,
             Netresearch_OPS_Model_Status::OK_WITH_SHEDULED_PAYMENTS,
             Netresearch_OPS_Model_Status::NOT_OK_WITH_SHEDULED_PAYMENTS,
             Netresearch_OPS_Model_Status::AUTHORISATION_TO_BE_REQUESTED_MANUALLY

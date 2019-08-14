@@ -190,7 +190,7 @@ class Netresearch_OPS_Test_Model_Response_Type_AuthorizeTest
 
         $this->assertEquals(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, $order->getState());
         $this->assertNotEmpty($order->getAllStatusHistory());
-        $this->assertEquals($response['status'],  $order->getPayment()->getAdditionalInformation('status'));
+        $this->assertEquals($response['status'], $order->getPayment()->getAdditionalInformation('status'));
     }
 
     /**
@@ -203,7 +203,7 @@ class Netresearch_OPS_Test_Model_Response_Type_AuthorizeTest
         $order = Mage::getModel('sales/order')->load(30);
 
         $response = array(
-            'status'   => 55,
+            'status'   => Netresearch_OPS_Model_Status::AUTHORIZED_WAITING_EXTERNAL_RESULT,
             'payid'    => 12345678,
             'payidsub' => 3,
             'amount'   => 33.33
@@ -216,7 +216,7 @@ class Netresearch_OPS_Test_Model_Response_Type_AuthorizeTest
         $this->assertEquals(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW, $order->getState());
         $this->assertEquals(Mage_Sales_Model_Order::STATUS_FRAUD, $order->getStatus());
         $this->assertNotEmpty($order->getAllStatusHistory());
-        $this->assertEquals($response['status'],  $order->getPayment()->getAdditionalInformation('status'));
+        $this->assertEquals($response['status'], $order->getPayment()->getAdditionalInformation('status'));
     }
 
     /**
@@ -229,7 +229,7 @@ class Netresearch_OPS_Test_Model_Response_Type_AuthorizeTest
 
         $order = Mage::getModel('sales/order')->load(31);
         $response = array(
-            'status'   => 55,
+            'status'   => Netresearch_OPS_Model_Status::AUTHORIZED_WAITING_EXTERNAL_RESULT,
             'payid'    => 1234567897,
             'payidsub' => 3,
             'amount'   => 33.33
@@ -242,7 +242,7 @@ class Netresearch_OPS_Test_Model_Response_Type_AuthorizeTest
         $this->assertEquals(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW, $order->getState());
         $this->assertEquals(Mage_Sales_Model_Order::STATUS_FRAUD, $order->getStatus());
         $this->assertNotEmpty($order->getAllStatusHistory());
-        $this->assertEquals($response['status'],  $order->getPayment()->getAdditionalInformation('status'));
+        $this->assertEquals($response['status'], $order->getPayment()->getAdditionalInformation('status'));
     }
 
     public function testStatusAuthorizationUnclear()

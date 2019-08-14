@@ -25,26 +25,36 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
     public function _getOrderDescriptionShorterThen100Chars()
     {
         $items = array(
-            new Varien_Object(array(
+            new Varien_Object(
+                array(
                 'parent_item' => false,
                 'name'       => 'abc'
-            )),
-            new Varien_Object(array(
+                )
+            ),
+            new Varien_Object(
+                array(
                 'parent_item' => true,
                 'name'       => 'def'
-            )),
-            new Varien_Object(array(
+                )
+            ),
+            new Varien_Object(
+                array(
                 'parent_item' => false,
                 'name'       => 'ghi'
-            )),
-            new Varien_Object(array(
+                )
+            ),
+            new Varien_Object(
+                array(
                 'parent_item' => false,
                 'name'       => 'Dubbelwerkende cilinder Boring ø70 Stang ø40 3/8'
-            )),
-            new Varien_Object(array(
+                )
+            ),
+            new Varien_Object(
+                array(
                 'parent_item' => false,
-                'name'       => '0123456789012345678901234567890123456789012xxxxxx'
-            )),
+                'name'       => '0123456789012345678901234567890123456789'
+                )
+            ),
         );
 
         $order = $this->getModelMock('sales/order', array('getAllItems'));
@@ -54,7 +64,7 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
 
         $result = Mage::getModel('ops/payment_abstract')->_getOrderDescription($order);
         $this->assertEquals(
-            'abc, ghi, Dubbelwerkende cilinder Boring 70 Stang 40 3/8, 012345678901234567890123456789012345678901',
+            'abc, ghi, Dubbelwerkende cilinder Boring ø70 Stang ø40 3/8, 0123456789012345678901234567890123456789',
             $result
         );
     }
@@ -65,14 +75,18 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
     public function _getOrderDescriptionLongerThen100Chars()
     {
         $items = array(
-            new Varien_Object(array(
+            new Varien_Object(
+                array(
                 'parent_item' => false,
                 'name'       => '1bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi1' //54 chars
-            )),
-            new Varien_Object(array(
+                )
+            ),
+            new Varien_Object(
+                array(
                 'parent_item' => false,
-                'name'       => '2bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi2' //54 chars
-            ))
+                'name'       => '2bcdefghij abcdefghij abcdefghij abcdefghij' //54 chars
+                )
+            )
         );
 
         $order = $this->getModelMock('sales/order', array('getAllItems'));
@@ -82,7 +96,7 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
 
         $result = Mage::getModel('ops/payment_abstract')->_getOrderDescription($order);
         $this->assertEquals(
-            '1bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi1, 2bcdefghij abcdefghij abcdefghij abcdefghij ',
+            '1bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi1, 2bcdefghij abcdefghij abcdefghij abcdefghij',
             $result
         );
     }
@@ -93,11 +107,13 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
     public function _getOrderDescriptionLongerThen100CharsOneItem()
     {
         $items = array(
-            new Varien_Object(array(
+            new Varien_Object(
+                array(
                 'parent_item' => false,
                 'name'       => '1bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi1 '.
-                                '2bcdefghij abcdefghij abcdefghij abcdefghij abcdefghi2'
-            ))
+                                '2bcdefghij abcdefghij abcdefghij abcdefghij a'
+                )
+            )
         );
 
         $order = $this->getModelMock('sales/order', array('getAllItems'));
@@ -592,9 +608,12 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
         $apiClientMock->expects($this->any())
             ->method('performRequest')
             ->will(
-                $this->returnValue(array(
+                $this->returnValue(
+                    array(
                                         'STATUS' => 666
-                                   )));
+                    )
+                )
+            );
         $this->replaceByMock('model', 'ops/api_directlink', $apiClientMock);
         $order = Mage::getModel('sales/order')->load(11);
         $order->getPayment()->setAdditionalInformation('status', 5);
@@ -640,11 +659,14 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
         $apiClientMock->expects($this->any())
             ->method('performRequest')
             ->will(
-                $this->returnValue(array(
+                $this->returnValue(
+                    array(
                                         'STATUS' => Netresearch_OPS_Model_Status::DELETION_WAITING,
                                         'PAYID'  => '4711',
                                         'PAYIDSUB' => '0815'
-                                   )));
+                    )
+                )
+            );
         $this->replaceByMock('model', 'ops/api_directlink', $apiClientMock);
         $order = Mage::getModel('sales/order')->load(11);
         $order->getPayment()->setAdditionalInformation('status', 5);
@@ -688,11 +710,14 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
         $apiClientMock->expects($this->any())
             ->method('performRequest')
             ->will(
-                $this->returnValue(array(
+                $this->returnValue(
+                    array(
                                         'STATUS' => Netresearch_OPS_Model_Status::AUTHORIZED_AND_CANCELLED,
                                         'PAYID'  => '4711',
                                         'PAYIDSUB' => '0815'
-                                   )));
+                    )
+                )
+            );
         $this->replaceByMock('model', 'ops/api_directlink', $apiClientMock);
         $order = Mage::getModel('sales/order')->load(11);
         $order->getPayment()->setAdditionalInformation('status', 5);
@@ -818,6 +843,23 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
         $this->assertTrue(Mage::getModel('ops/payment_abstract')->canReviewPayment($order->getPayment()));
     }
 
+    public function testGetFrontendGateWay()
+    {
+        $gateway = Mage::getModel('ops/config')->getFrontendGatewayPath();
+        $payment = Mage::getModel('ops/payment_cc');
+        $url = $payment->getFrontendGateWay();
+        $this->assertTrue(strpos($url, '_utf8') >= 0);
+        $this->assertEquals($gateway, $url);
+    }
+
+    public function testSetEncoding()
+    {
+        $payment = Mage::getModel('ops/payment_cc');
+        $payment->setEncoding('test_foo');
+
+        $this->assertEquals('test_foo', $payment->getEncoding());
+    }
+
     protected function getOwnerParams()
     {
         return $ownerParams = array(
@@ -845,7 +887,4 @@ class Netresearch_OPS_Test_Model_Payment_AbstractTest extends EcomDev_PHPUnit_Te
 
         return $paramValues;
     }
-
-
-
 }

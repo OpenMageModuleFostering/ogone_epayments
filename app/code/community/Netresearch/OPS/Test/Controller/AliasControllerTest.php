@@ -3,7 +3,7 @@ class Netresearch_OPS_Test_Controller_AliasControllerTest
     extends EcomDev_PHPUnit_Test_Case_Controller
 {
 
-    public function testAcceptAliasAction()
+    protected function prepareAliasControllerTest()
     {
         $quote = Mage::getModel('sales/quote');
         $payment = Mage::getModel('sales/quote_payment');
@@ -15,18 +15,37 @@ class Netresearch_OPS_Test_Controller_AliasControllerTest
         $this->replaceByMock('singleton', 'checkout/session', $sessionMock);
         $aliasHelperMock = $this->getHelperMock('ops/alias', array('saveAlias', 'setAliasToPayment'));
         $this->replaceByMock('helper', 'ops/alias', $aliasHelperMock);
-        $routeToDispatch = 'ops/alias/accept';
-        $params = array('Alias_AliasId' => '4711');
+        return 'ops/alias/accept';
+    }
+    
+    
+    public function testAcceptAliasActionSuccess()
+    {
+        
+        $routeToDispatch = $this->prepareAliasControllerTest();
+        $params = array('Alias_AliasId' => '4711', 'Alias_OrderId' => '0');
         $this->dispatch($routeToDispatch, $params);
         $result = $this->getResponse()->getOutputBody();
         $this->assertEquals($result, "<script type='application/javascript'>window.onload =  function() {  top.document.fire('alias:success', '4711'); };</script>");
 
-        $params = array('Alias_AliasId' => '4711', 'Card_CVC' => '123');
+        $params = array('Alias_AliasId' => '4711', 'Card_CVC' => '123', 'Alias_OrderId' => '0');
         $this->dispatch($routeToDispatch, $params);
         $result = $this->getResponse()->getOutputBody();
         $this->assertEquals($result, "<script type='application/javascript'>window.onload =  function() {  top.document.fire('alias:success', '4711'); };</script>");
+    
+        
 
     }
+    
+    public function testAcceptAliasActionException()
+    {
+        $routeToDispatch = $this->prepareAliasControllerTest();
+        
+        $this->dispatch($routeToDispatch, array('Alias_OrderId' => '0'));
+        $result = $this->getResponse()->getOutputBody();
+        $this->assertEquals($result, "<script type='application/javascript'>window.onload =  function() {  top.document.fire('alias:failure'); };</script>");
+    }
+
 
     /**
      * @loadFixture orders.yaml

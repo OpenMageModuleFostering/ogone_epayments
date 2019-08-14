@@ -22,6 +22,7 @@ class Netresearch_OPS_Block_Form_Kwixo_Comptant extends Netresearch_OPS_Block_Fo
     protected function _construct()
     {
         parent::_construct();
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->setTemplate(self::FRONTEND_TEMPLATE);
     }
 

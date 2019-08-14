@@ -69,12 +69,7 @@ class Netresearch_OPS_ApiController extends Netresearch_OPS_Controller_Abstract
     {
 
         $params = $this->getRequest()->getParams();
-        Mage::log(
-            "Incoming Request on Directlink: " . serialize($params),
-            null,
-            'incoming.log',
-            true
-        );
+
         try {
             if (Mage::helper('ops/subscription')->isSubscriptionFeedback($params)) {
                 $this->getSubscriptionManager()->processSubscriptionFeedback($params);

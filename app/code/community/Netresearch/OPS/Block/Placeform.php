@@ -31,11 +31,10 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
     protected $formFields;
     protected $question;
 
-    public function __construct()
-    {
-        
-    }
 
+    /**
+     * @return Netresearch_OPS_Model_Config
+     */
     public function getConfig()
     {
         return Mage::getModel('ops/config');
@@ -58,10 +57,13 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
      */
     protected function _getApi()
     {
+        $methodInstance = null;
         $order = Mage::getModel('sales/order')->loadByIncrementId($this->getCheckout()->getLastRealOrderId());
-        if ($order && !is_null($order->getId())) {
-            return $order->getPayment()->getMethodInstance();
+        if ($order && null != $order->getId()) {
+            $methodInstance = $order->getPayment()->getMethodInstance();
         }
+
+        return $methodInstance;
     }
 
     /**
@@ -102,7 +104,8 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
      */
     public function getFormData()
     {
-        if (is_null($this->formFields) && $this->_getOrder() && !is_null($this->_getOrder()->getId())) {
+        if (null == $this->formFields && $this->_getOrder()
+            && null != $this->_getOrder()->getId()) {
             $this->formFields = $this->_getApi()->getFormFields($this->_getOrder(), $this->getRequest()->getParams());
         }
         return $this->formFields;
@@ -121,7 +124,9 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         $question = $this->getQuestion();
 
         if ($this->getRequest()->isPost() || empty($question)) {
-            $formAction = $this->getConfig()->getFrontendGatewayPath();
+            /** @var Netresearch_OPS_Model_Payment_Abstract $method */
+            $method     = $this->_getOrder()->getPayment()->getMethodInstance();
+            $formAction = $method->getFrontendGateWay();
         } else {
             $formAction = Mage::getUrl(
                 '*/*/*', array('_secure' => Mage::app()->getFrontController()->getRequest()->isSecure())
@@ -131,33 +136,52 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         return $formAction;
     }
 
+    /**
+     * @return bool|null
+     */
     public function hasMissingParams()
     {
-        if (is_null($this->_getOrder())) {
+        if (null === $this->_getOrder()) {
             return null;
         }
-        if (is_null($this->hasMissingParams)) {
-            $this->hasMissingParams = $this->_getApi()->hasFormMissingParams($this->_getOrder(), $this->getRequest()->getParams(), $this->getFormData());
+        if (null === $this->hasMissingParams) {
+            $this->hasMissingParams = $this->_getApi()
+                ->hasFormMissingParams(
+                    $this->_getOrder(),
+                    $this->getRequest()->getParams(),
+                    $this->getFormData()
+                );
         }
         return $this->hasMissingParams;
     }
 
+    /**
+     * @return string
+     */
     public function getQuestion()
     {
-        if (is_null($this->question) && $this->_getOrder() && !is_null($this->_getOrder()->getId())) {
-            $this->question = $this->_getApi()->getQuestion($this->_getOrder(), $this->getRequest()->getParams());
+        if (null === $this->question && $this->_getOrder() && null != $this->_getOrder()->getId()) {
+            $this->question = $this->_getApi()->getQuestion();
         }
         return $this->question;
     }
 
+    /**
+     * @return array
+     */
     public function getQuestionedFormFields()
     {
         if (is_null($this->missingFormFields) && $this->_getOrder() && !is_null($this->_getOrder()->getId())) {
-            $this->missingFormFields = $this->_getApi()->getQuestionedFormFields($this->_getOrder(), $this->getRequest()->getParams());
+            $this->missingFormFields = $this->_getApi()
+                ->getQuestionedFormFields($this->_getOrder());
         }
+
         return $this->missingFormFields;
     }
 
+    /**
+     * @return bool
+     */
     public function isIframeTarget()
     {
         return $this->getConfig()->getConfigData('template') === Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME;

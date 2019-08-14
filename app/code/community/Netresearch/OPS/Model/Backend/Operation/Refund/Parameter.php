@@ -20,7 +20,8 @@ class Netresearch_OPS_Model_Backend_Operation_Refund_Parameter
     {
         $opsPaymentMethodClass = get_class($opsPaymentMethod);
         $opsPmsRequiringSpecialParams = $this->getOpsConfig()
-                                             ->getMethodsRequiringAdditionalParametersFor(Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE
+                                             ->getMethodsRequiringAdditionalParametersFor(
+                                                 Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE
                                              );
 
         return (in_array($opsPaymentMethodClass, array_values($opsPmsRequiringSpecialParams)));
@@ -33,20 +34,21 @@ class Netresearch_OPS_Model_Backend_Operation_Refund_Parameter
      */
     protected function setAdditionalParamsModelFor(Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod)
     {
-        if ($opsPaymentMethod instanceof Netresearch_OPS_Model_Payment_OpenInvoiceNl) {
+        if ($opsPaymentMethod instanceof Netresearch_OPS_Model_Payment_OpenInvoice_Abstract) {
             $this->additionalParamsModel = Mage::getModel('ops/backend_operation_refund_additional_openInvoiceNl');
         }
     }
 
     protected function addPmSpecificParams(Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Varien_Object $payment, $amount
-    ) {
+    ) 
+    {
         if ($this->isPmRequiringAdditionalParams($opsPaymentMethod)) {
             $this->setAdditionalParamsModelFor($opsPaymentMethod);
             if ($this->additionalParamsModel instanceof
                 Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Interface
             ) {
-                $params = $this->additionalParamsModel->extractAdditionalParams(Mage::registry('current_creditmemo'));
+                $params = $this->additionalParamsModel->extractAdditionalParams($payment);
                 $this->requestParams = array_merge($this->requestParams, $params);
             }
         }

@@ -36,6 +36,7 @@ class Netresearch_OPS_Block_Info_Cc extends Netresearch_OPS_Block_Info_Redirect
     protected function _construct()
     {
         parent::_construct();
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->setTemplate('ops/info/cc.phtml');
     }
 }

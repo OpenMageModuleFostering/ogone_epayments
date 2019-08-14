@@ -32,6 +32,7 @@ class Netresearch_OPS_Helper_Order_Refund extends Netresearch_OPS_Helper_Order_A
 
     /**
      * @param Varien_Object $payment
+     * @return $this
      */
     public function setPayment(Varien_Object $payment)
     {
@@ -41,7 +42,8 @@ class Netresearch_OPS_Helper_Order_Refund extends Netresearch_OPS_Helper_Order_A
     }
 
     /**
-     * @param float $amount
+     * @param $amount
+     * @return $this
      */
     public function setAmount($amount)
     {
@@ -94,8 +96,9 @@ class Netresearch_OPS_Helper_Order_Refund extends Netresearch_OPS_Helper_Order_A
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Payment $payment
-     * @param float $amount
+     * @param $payment
+     * @param $amount
+     * @return mixed
      */
     public function prepareOperation($payment, $amount)
     {
@@ -124,7 +127,8 @@ class Netresearch_OPS_Helper_Order_Refund extends Netresearch_OPS_Helper_Order_A
      *
      * @return Mage_Sales_Model_Order_Payment_Transaction|null
      */
-    public function getOpenRefundTransaction($payment){
+    public function getOpenRefundTransaction($payment)
+    {
         /** @var Mage_Sales_Model_Resource_Order_Payment_Transaction_Collection $refundTransactions */
         $refundTransactions = Mage::getModel('sales/order_payment_transaction')->getCollection();
         $transaction = $refundTransactions->addPaymentIdFilter($payment->getId())

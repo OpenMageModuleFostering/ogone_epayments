@@ -22,9 +22,11 @@ class Netresearch_OPS_Helper_Quote extends Mage_Core_Helper_Abstract
      */
     public function cleanUpOldPaymentInformation()
     {
-        $allowedTimestamp = new Zend_Db_Expr(sprintf(
-            'NOW() - INTERVAL %d MINUTE', self::MINUTES_IN_PAST
-        ));
+        $allowedTimestamp = new Zend_Db_Expr(
+            sprintf(
+                'NOW() - INTERVAL %d MINUTE', self::MINUTES_IN_PAST
+            )
+        );
         /*
          * fetching possible affected information from the sales_quote_payment table
          * criteria are:
@@ -42,7 +44,7 @@ class Netresearch_OPS_Helper_Quote extends Mage_Core_Helper_Abstract
             ->setOrder('created_at', 'DESC')
             ->setPageSize(self::PAGE_SIZE);
         foreach ($paymentInformation as $payment) {
-            if (!is_null($payment->getAdditionalInformation('cvc'))) {
+            if (null != $payment->getAdditionalInformation('cvc')) {
                 // quote needs to be loaded, because saving the payment information would fail otherwise
                 $payment->setQuote(
                     Mage::getModel('sales/quote')->load($payment->getQuoteId())

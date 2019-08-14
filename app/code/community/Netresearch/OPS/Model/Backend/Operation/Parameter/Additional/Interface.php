@@ -7,5 +7,5 @@
 */
 interface Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Interface
 {
-    public function extractAdditionalParams(Mage_Sales_Model_Abstract $itemContainer);
+    public function extractAdditionalParams(Mage_Sales_Model_Order_Payment $payment);
 }

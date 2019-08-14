@@ -15,7 +15,10 @@ class Netresearch_OPS_Model_Payment_Debitcard extends Netresearch_OPS_Model_Paym
     protected $_code = 'ops_dc';
 
 
-    /** ops payment code */
+    /**
+     * @param null $payment
+     * @return string
+     */
     public function getOpsCode($payment = null)
     {
         return 'CreditCard';

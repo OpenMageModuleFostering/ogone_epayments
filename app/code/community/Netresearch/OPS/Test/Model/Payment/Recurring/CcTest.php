@@ -514,7 +514,8 @@ class Netresearch_OPS_Test_Model_Payment_Recurring_CcTest extends EcomDev_PHPUni
         $subject = Mage::getModel('ops/payment_recurring_cc');
         $payment = Mage::getModel('payment/info');
         $payment->setAdditionalInformation('HTML_ANSWER', 'abc');
-        $this->assertEquals($subject->getOrderPlaceRedirectUrl($payment),
+        $this->assertEquals(
+            $subject->getOrderPlaceRedirectUrl($payment),
             Mage::getModel('ops/config')->get3dSecureRedirectUrl()
         );
 
@@ -533,7 +534,8 @@ class Netresearch_OPS_Test_Model_Payment_Recurring_CcTest extends EcomDev_PHPUni
     {
         /** @var Netresearch_OPS_Model_Payment_Recurring_Cc $subject */
         $subject = Mage::getModel('ops/payment_recurring_cc');
-        $this->assertEquals($subject->getBrandsForAliasInterface(),
+        $this->assertEquals(
+            $subject->getBrandsForAliasInterface(),
             'American Express,Diners Club,MaestroUK,MasterCard,VISA,JCB'
         );
     }
@@ -547,7 +549,8 @@ class Netresearch_OPS_Test_Model_Payment_Recurring_CcTest extends EcomDev_PHPUni
         $subject->setSubscriptionManager('abc');
         $this->assertTrue($subject->getSubscriptionManager() === 'abc');
 
-        $this->assertTrue($subject->getParameterModel() instanceof
+        $this->assertTrue(
+            $subject->getParameterModel() instanceof
             Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag
         );
         $subject->setParameterModel('abc');

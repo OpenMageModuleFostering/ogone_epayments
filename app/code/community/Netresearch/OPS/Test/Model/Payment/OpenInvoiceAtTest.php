@@ -57,4 +57,31 @@ class Netresearch_OPS_Test_Model_Payment_OpenInvoiceAtTest extends EcomDev_PHPUn
 
         $this->assertFalse($this->model->isAvailable($quote));
     }
+
+    public function testGetMethodDependendFormFields()
+    {
+        $customerHelper = $this->getHelperMock('customer/data', array('isLoggedIn'));
+        $customerHelper->expects($this->any())
+            ->method('isLoggedIn')
+            ->will($this->returnValue(false));
+        $this->replaceByMock('helper', 'customer/data', $customerHelper);
+
+        $order = Mage::getModel('sales/order');
+        $order->setCustomerDob('01/10/1970')
+            ->setCustomerGender(1);
+        $billingAddress = Mage::getModel('sales/order_address');
+        $billingAddress->setAddressType(Mage_Sales_Model_Order_Address::TYPE_BILLING)
+            ->setStreet('Klarna-Straße 1/2/3');
+        $order->setBillingAddress($billingAddress);
+        $payment = Mage::getModel('sales/order_payment');
+        $model = Mage::getModel('ops/payment_openInvoiceAt');
+        $payment->setMethod($model->getCode());
+        $model->setInfoInstance($payment);
+        $payment->setMethodInstance($model);
+        $order->setPayment($payment);
+        $params = $model->getMethodDependendFormFields($order);
+
+        $this->assertEquals(' ', $params['ECOM_BILLTO_POSTAL_STREET_NUMBER']);
+        $this->assertEquals('Klarna-Straße 1/2/3', $params['OWNERADDRESS']);
+    }
 } 

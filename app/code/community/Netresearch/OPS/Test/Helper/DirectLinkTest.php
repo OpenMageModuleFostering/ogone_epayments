@@ -7,9 +7,13 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
         parent::setup();
         $this->_helper = Mage::helper('ops/directlink');
         $transaction = Mage::getModel('sales/order_payment_transaction');
-        $transaction->setAdditionalInformation('arrInfo', serialize(array(
-            'amount' => '184.90'
-        )));
+        $transaction->setAdditionalInformation(
+            'arrInfo', serialize(
+                array(
+                'amount' => '184.90'
+                )
+            )
+        );
         $transaction->setIsClosed(0);
         $this->_transaction = $transaction;
         $this->_order = Mage::getModel('sales/order');
@@ -19,7 +23,13 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
 
     public function testDeleteActions()
     {
-        $this->assertFalse($this->_helper->isValidOpsRequest($this->_transaction, $this->_order, array('STATUS'=> Netresearch_OPS_Model_Status::PAYMENT_DELETED)));
+        $this->assertFalse(
+            $this->_helper->isValidOpsRequest(
+                $this->_transaction,
+                $this->_order,
+                array('STATUS'=> Netresearch_OPS_Model_Status::PAYMENT_DELETED)
+            )
+        );
         $this->assertFalse($this->_helper->isValidOpsRequest($this->_transaction, $this->_order, array('STATUS'=> Netresearch_OPS_Model_Status::PAYMENT_DELETION_PENDING)));
         $this->assertFalse($this->_helper->isValidOpsRequest($this->_transaction, $this->_order, array('STATUS'=> Netresearch_OPS_Model_Status::PAYMENT_DELETION_UNCERTAIN)));
         $this->assertFalse($this->_helper->isValidOpsRequest($this->_transaction, $this->_order, array('STATUS'=> Netresearch_OPS_Model_Status::PAYMENT_DELETION_REFUSED)));
@@ -86,6 +96,10 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
      */
     public function testProcessFeedbackCaptureSuccess()
     {
+        $rssSession = $this->mockSession('rss/session')->disableOriginalConstructor();
+        $this->replaceByMock('model', 'rss/session', $rssSession);
+        $adminSession = $this->mockSession('admin/session')->disableOriginalConstructor();
+        $this->replaceByMock('model', 'admin/session', $adminSession);
         $this->mockEmailHelper($this->once());
 
         $order = Mage::getModel('sales/order')->load(11);
@@ -150,7 +164,8 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
 
 
         $closure = function ($order, $params = array()) {
-            $order->getPayment()->setAdditionalInformation('status',
+            $order->getPayment()->setAdditionalInformation(
+                'status',
                 Netresearch_OPS_Model_Status::REFUND_PROCESSED_BY_MERCHANT
             );
             return $order->getPayment();
@@ -184,7 +199,8 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
 
 
         $closure = function ($order, $params = array()) {
-            $order->getPayment()->setAdditionalInformation('status',
+            $order->getPayment()->setAdditionalInformation(
+                'status',
                 Netresearch_OPS_Model_Status::PAYMENT_PROCESSING
             );
             return $order->getPayment();
@@ -252,7 +268,8 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
 
 
         $closure = function ($order, $params = array()) {
-            $order->getPayment()->setAdditionalInformation('status',
+            $order->getPayment()->setAdditionalInformation(
+                'status',
                 Netresearch_OPS_Model_Status::REFUND_PENDING
             );
             return $order->getPayment();
@@ -447,7 +464,8 @@ class Netresearch_OPS_Test_Helper_DirectLinkTest
 
 
         $closure = function ($order, $params = array()) {
-            $order->getPayment()->setAdditionalInformation('status', Netresearch_OPS_Model_Status::AUTHORIZED
+            $order->getPayment()->setAdditionalInformation(
+                'status', Netresearch_OPS_Model_Status::AUTHORIZED
             );
             return $order->getPayment();
         };

@@ -26,7 +26,6 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
     {
         $payment = $order->getPayment();
         $payment->setTransactionId($transactionID."/".$subPayID);
-//        $transaction = $payment->addTransaction($typename, null, false, $comment);
         $payment->setParentTransactionId($transactionID);
         $payment->setIsTransactionClosed($closed);
         $payment->setTransactionAdditionalInfo($arrInformation, null);
@@ -105,8 +104,6 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
     {
         Mage::getModel('ops/response_handler')->processResponse($params, $order->getPayment()->getMethodInstance());
         $order->getPayment()->save();
-
-        return;
     }
 
     /**
@@ -132,19 +129,19 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
             $transactionCollection->addAttributeToFilter('parent_txn_id', $payId);
         }
 
-        if ($transactionCollection->count()>1 || $transactionCollection->count() == 0) {
+        if ($transactionCollection->getSize()>1 || $transactionCollection->getSize() == 0) {
             $errorMsq = $helper->__(
                 "Warning, transaction count is %s instead of 1 for the Payid '%s', order '%s' and Operation '%s'.",
-                $transactionCollection->count(),
+                $transactionCollection->getSize(),
                 $payId,
                 $order->getId(),
                 $operation
             );
             $helper->log($errorMsq);
-            throw new Mage_Core_Exception($errorMsq);
+            Mage::throwException($errorMsq);
         }
 
-        if ($transactionCollection->count() == 1) {
+        if ($transactionCollection->getSize() == 1) {
             $transaction = $transactionCollection->getLastItem();
             $transaction->setOrderPaymentObject($order->getPayment());
             return $transaction;
@@ -168,7 +165,7 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
             ->addAttributeToFilter('is_closed', 0)
             ->addAttributeToFilter('order_id', $order->getId());
 
-        return (0 < $transactionCollection->count());
+        return (0 < $transactionCollection->getSize());
     }
 
     /**
@@ -181,7 +178,9 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
     {
         // Avoid quotes added somewhere unknown
         if (preg_match("/^[\"']([0-9-\..,-]+)[\"']$/i", $amount, $matches)) {
-            Mage::helper('ops')->log("Warning in formatAmount: Found quotes around amount in '" . var_export($amount, true) . "'");
+            Mage::helper('ops')->log(
+                "Warning in formatAmount: Found quotes around amount in '" . var_export($amount, true) . "'"
+            );
             $amount = $matches[1];
         }
 
@@ -197,7 +196,11 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
      *
      * @return boolean
      */
-    public function isValidOpsRequest($openTransaction, Mage_Sales_Model_Order $order, $opsRequestParams)
+    public function isValidOpsRequest(
+        $openTransaction,
+        Mage_Sales_Model_Order $order,
+        $opsRequestParams
+    )
     {
         if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_DELETE_TRANSACTION_TYPE) {
             return false;
@@ -210,13 +213,10 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
 
         /* find expected amount */
         $expectedAmount = null;
-        if (false === is_null($openTransaction)) {
+        if (null !== $openTransaction) {
             $transactionInfo = unserialize($openTransaction->getAdditionalInformation('arrInfo'));
             if (array_key_exists('amount', $transactionInfo)) {
-                if (
-                    is_null($expectedAmount)
-                    || $transactionInfo['amount'] == $requestedAmount
-                ) {
+                if (null === $expectedAmount || $transactionInfo['amount'] == $requestedAmount) {
                     $expectedAmount = $this->formatAmount($transactionInfo['amount']);
                 }
             }
@@ -225,24 +225,19 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
         if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE
             || $this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_VOID_TRANSACTION_TYPE
         ) {
-            if (is_null($requestedAmount)
-                || 0 == count($openTransaction)
-                || $requestedAmount != $expectedAmount
-            ) {
+            if (null === $requestedAmount || 0 == count($openTransaction) || $requestedAmount != $expectedAmount) {
                 return false;
             }
         }
 
         if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_CAPTURE_TRANSACTION_TYPE) {
-            if (is_null($requestedAmount)) {
+            if (null === $requestedAmount) {
                 Mage::helper('ops')->log('Please configure Ingenico ePayments to submit amount');
                 return false;
             }
             $grandTotal = $this->formatAmount(Mage::helper('ops/payment')->getBaseGrandTotalFromSalesObject($order));
             if ($grandTotal != $requestedAmount) {
-                if (is_null($openTransaction)
-                    || $expectedAmount != $requestedAmount
-                ) {
+                if (null === $openTransaction || $expectedAmount != $requestedAmount) {
                     return false;
                 }
             }
@@ -257,12 +252,11 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
         /**
          * allow null as valid state for creating the order with status 'pending'
          */
-        if (!is_null($response['STATUS'])
-            && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])
-        ) {
+        if (null != $response['STATUS'] && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])) {
             Mage::getSingleton('checkout/type_onepage')->getCheckout()->setGotoSection('payment');
-            throw new Mage_Core_Exception(Mage::helper('ops/data')->__('Ingenico ePayments Payment failed'));
+            Mage::throwException(Mage::helper('ops/data')->__('Ingenico ePayments Payment failed'));
         }
+
         return $response;
     }
 }

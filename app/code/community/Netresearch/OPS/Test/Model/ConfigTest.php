@@ -240,6 +240,35 @@ class Netresearch_OPS_Test_Model_ConfigTest
     }
 
 
+    public function getAliasUsageForNewAlias()
+    {
+        $path = 'payment/ops_cc/alias_usage_for_new_alias';
+        $store = Mage::app()->getStore(0)->load(0);
+        $store->resetConfig();
+        $store->setConfig($path, 'my text goes here');
+
+        $this->assertEquals('my text goes here', $this->_model->getAliasUsageForNewAlias('ops_cc', 0));
+
+        $store->resetConfig();
+        $store->setConfig($path, 'my text goes here two');
+        $this->assertNotEquals('my text goes here', $this->_model->getAliasUsageForNewAlias('ops_cc', 0));
+    }
+
+
+    public function getAliasUsageForExistingAlias()
+    {
+        $path = 'payment/ops_cc/alias_usage_for_existing_alias';
+        $store = Mage::app()->getStore(0)->load(0);
+        $store->resetConfig();
+        $store->setConfig($path, 'my text goes here');
+
+        $this->assertEquals('my text goes here', $this->_model->getAliasUsageForNewAlias('ops_cc', 0));
+
+        $store->resetConfig();
+        $store->setConfig($path, 'my text goes here two');
+        $this->assertNotEquals('my text goes here', $this->_model->getAliasUsageForNewAlias('ops_cc', 0));
+    }
+
     public function testGetAcceptRedirectLocation()
     {
         $this->assertEquals(
@@ -404,6 +433,9 @@ class Netresearch_OPS_Test_Model_ConfigTest
             'OWNERTELNO'                       => 30,
             'OWNERADDRESS'                     => 35,
             'ECOM_BILLTO_POSTAL_POSTALCODE'    => 10,
+            'ECOM_BILLTO_POSTAL_NAME_FIRST'    => 50,
+            'ECOM_BILLTO_POSTAL_NAME_LAST'     => 50,
+            'ECOM_SHIPTO_POSTAL_STATE'         => 35
         );
 
     }
@@ -510,6 +542,14 @@ class Netresearch_OPS_Test_Model_ConfigTest
         $config = Mage::getModel('ops/config');
         $this->assertEquals($config->getResendPaymentInfoTemplate(), 'payment_services_ops_resendPaymentInfo_template');
     }
+
+
+    public function testGetPayPerMailTemplate()
+    {
+        $config = Mage::getModel('ops/config');
+        $this->assertEquals($config->getPayPerMailTemplate(), 'payment_services_ops_payPerMail_template');
+    }
+
 
     public function testGetResendPaymentInfoIdentity()
     {

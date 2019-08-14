@@ -66,6 +66,9 @@
  * @method string getIpcty()
  * @method bool hasAcceptance()
  * @method bool hasBrand()
+ * @method bool hasAlias()
+ * @method bool hasMobilemode()
+ * @method string getAlias()
  * @method bool getShouldRegisterFeedback() if feedback should get registered on payment object
  * @method Netresearch_OPS_Model_Response_Type_Abstract setShouldRegisterFeedback($shouldRegisterFeedback)
  *
@@ -79,7 +82,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
      */
     public function getConfig()
     {
-        if (is_null($this->getData('config'))) {
+        if ($this->getData('config') === null) {
             $this->setData('config', Mage::getModel('ops/config'));
         }
 
@@ -92,8 +95,9 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
      *
      * @param array                                  $responseArray
      * @param Netresearch_OPS_Model_Payment_Abstract $paymentMethod
-     * @param bool                                   $shouldRegisterFeedback determines if the Mage_Sales_Model_Order_Payments register*Feedback
-     *                                                                       functions get called, defaults to true
+     * @param bool                                   $shouldRegisterFeedback
+     *                                               determines if the Mage_Sales_Model_Order_Payments register*Feedback
+     *                                               functions get called, defaults to true
      *
      * @return Netresearch_OPS_Model_Response_TypeInterface
      */
@@ -105,13 +109,18 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $this->setShouldRegisterFeedback($shouldRegisterFeedback);
 
         if ($this->getStatus() == $this->getMethodInstance()->getInfoInstance()->getAdditionalInformation('status')
-        && $this->getTransactionId() == $paymentMethod->getInfoInstance()->getLastTransId()) {
+            && $this->getTransactionId() == $paymentMethod->getInfoInstance()->getLastTransId()
+        ) {
             return $this;
         }
 
         $this->setGeneralTransactionInfo();
         $this->_handleResponse();
         $this->updateAdditionalInformation();
+
+        if ($this->getShouldRegisterFeedback() && $this->hasAlias()) {
+            Mage::helper('ops/alias')->saveAlias($responseArray);
+        }
 
         return $this;
     }
@@ -130,8 +139,10 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
      */
     protected function updateAdditionalInformation()
     {
+        $this->getMethodInstance()->getInfoInstance()->setLastTransId($this->getTransactionId());
         $this->updateDefaultInformation();
         $this->setFraudDetectionParameters();
+        $this->setDeviceInformationParameters();
     }
 
     /**
@@ -144,12 +155,28 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $payment->setAdditionalInformation('paymentId', $this->getPayid())
             ->setAdditionalInformation('status', $this->getStatus());
 
+        if ($this->hasAlias()) {
+            $payment->setAdditionalInformation('alias', $this->getAlias());
+        }
+
         if ($this->hasAcceptance()) {
             $payment->setAdditionalInformation('acceptence', $this->getAcceptance());
         }
 
         if ($this->hasBrand() && $this->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Cc) {
             $payment->setAdditionalInformation('CC_BRAND', $this->getBrand());
+        }
+    }
+
+    protected function setDeviceInformationParameters()
+    {
+        if (!$this->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Bancontact) {
+            return;
+        }
+
+        $payment = $this->getMethodInstance()->getInfoInstance();
+        if ($this->hasMobilemode()) {
+            $payment->setAdditionalInformation('MOBILEMODE', $this->getMobilemode());
         }
     }
 
@@ -161,9 +188,13 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $payment = $this->getMethodInstance()->getInfoInstance();
 
         $payment->setTransactionParentId($this->getPayid());
-        $transId = $this->getTransactionId();
 
-        $payment->setLastTransId($transId);
+        if (!$this->hasPayidsub()) {
+            $transId = $payment->getLastTransId();
+        } else {
+            $transId = $this->getTransactionId();
+        }
+
         $payment->setTransactionId($transId);
         $payment->setIsTransactionClosed(false);
     }
@@ -201,11 +232,9 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
      * @param string $orderComment
      * @param string $additionalInfo
      *
-     * @return string
      */
     protected function addOrderComment($orderComment, $additionalInfo = '')
     {
-
         $orderComment = $this->getOrderComment($orderComment, $additionalInfo);
         $this->getMethodInstance()->getInfoInstance()->getOrder()->addStatusHistoryComment($orderComment);
     }
@@ -261,8 +290,8 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $orderComment = Mage::helper('ops')->__(
             'Received Ingenico ePayments feedback status update with final status %s.',
             $this->getStatus()
-
         );
+
         return $this->getOrderComment($orderComment, $additionalInfo);
 
     }
@@ -278,6 +307,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
             'Received Ingenico ePayments feedback status update with intermediate status %s.',
             $this->getStatus()
         );
+
         return $this->getOrderComment($orderComment, $additionalInfo);
     }
 
@@ -292,6 +322,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
             'Received Ingenico ePayments feedback status update with refused status %s.',
             $this->getStatus()
         );
+
         return $this->getOrderComment($orderComment, $additionalInfo);
     }
 
@@ -306,6 +337,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
             'Received Ingenico ePayments feedback status update with suspected fraud status %s.',
             $this->getStatus()
         );
+
         return $this->getOrderComment($orderComment, $additionalInfo);
     }
 

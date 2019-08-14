@@ -13,43 +13,51 @@ class Netresearch_OPS_Helper_Validation_Checkout_Step
 
     const SHIPPING_STEP = 'shipping';
 
-    /**
-     * retrieves the params for pushing back to the billing step
-     *
-     * @return array
-     */
-    protected function getBillingParams()
-    {
-        return array(
-            'CN',
-            'OWNERZIP',
-            'OWNERTOWN',
-            'OWNERTELNO',
-            'OWNERADDRESS',
-            'ECOM_BILLTO_POSTAL_POSTALCODE'
-        );
-    }
+    const BILLING_PARAMETER_STRING_VALUE  = 'billing';
+
+    const SHIPPING_PARAMETER_STRING_VALUE = 'shipping';
 
     /**
      * retrieves the params for pushing back to the billing step
      *
      * @return array
      */
-    protected function getShippingParams()
+    protected function determineStep()
     {
-        return array(
-            'ECOM_SHIPTO_POSTAL_NAME_FIRST',
-            'ECOM_SHIPTO_POSTAL_NAME_LAST',
-            'ECOM_SHIPTO_POSTAL_STREET1',
-            'ECOM_SHIPTO_POSTAL_STREET2',
-            'ECOM_SHIPTO_POSTAL_STREET3',
-            'ECOM_SHIPTO_POSTAL_COUNTRYCODE',
-            'ECOM_SHIPTO_POSTAL_COUNTY',
-            'ECOM_SHIPTO_POSTAL_POSTALCODE',
-            'ECOM_SHIPTO_POSTAL_CITY',
-            'ECOM_SHIPTO_POSTAL_STREET_NUMBER',
-            'ECOM_SHIPTO_POSTAL_STATE'
-        );
+        $result       = array();
+        $mappedParams = $this->getMappedParams();
+
+        foreach ($mappedParams as $paramName => $value) {
+            if (strpos($value, self::BILLING_PARAMETER_STRING_VALUE) === 0) {
+                $result[self::BILLING_PARAMETER_STRING_VALUE][]  = $paramName;
+            }
+            if (strpos($value, self::SHIPPING_PARAMETER_STRING_VALUE) === 0) {
+                $result[self::SHIPPING_STEP][] = $paramName;
+            }
+        }
+
+        return $result;
+    }
+
+
+    protected function getMappedParams()
+    {
+        $result = array();
+        $paramLengthFields      = $this->getConfig()->getParameterLengths();
+        $frontendFieldMapping   = $this->getConfig()->getFrontendFieldMapping();
+
+        foreach (array_keys($paramLengthFields) as $key) {
+            if (isset($frontendFieldMapping[$key])) {
+                $frontendField = !is_array($frontendFieldMapping[$key])
+                    ? $frontendFieldMapping[$key]
+                    : implode(
+                        ',', $frontendFieldMapping[$key]
+                    );
+                $result[$key] = $frontendField;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -62,16 +70,29 @@ class Netresearch_OPS_Helper_Validation_Checkout_Step
     public function getStep(array $erroneousFields)
     {
         $checkoutStep = '';
+        $stepParams   = $this->determineStep();
         foreach ($erroneousFields as $erroneousField) {
-            if (in_array($erroneousField, $this->getBillingParams())) {
+            if (isset($stepParams[self::BILLING_STEP])
+                && in_array($erroneousField, $stepParams[self::BILLING_STEP])
+            ) {
                 $checkoutStep = self::BILLING_STEP;
                 break;
             }
-            if (in_array($erroneousField, $this->getShippingParams())) {
+            if (isset($stepParams[self::SHIPPING_STEP])
+                && in_array($erroneousField, $stepParams[self::SHIPPING_STEP])
+            ) {
                 $checkoutStep = self::SHIPPING_STEP;
             }
         }
 
         return $checkoutStep;
+    }
+
+    /**
+     * @return Netresearch_OPS_Model_Config
+     */
+    protected function getConfig()
+    {
+        return Mage::getModel('ops/config');
     }
 } 

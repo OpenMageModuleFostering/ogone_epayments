@@ -35,7 +35,8 @@
  * Statuses in 1 digit are 'normal' statuses:
  *
  * 0 or 1 means the payment entry was not completed either because it is still underway or because interrupted or because
- *   a validation error prevented from confirming. If the cause is a validation error, an additional error code (*) (NCERROR) identifies the error.
+ *   a validation error prevented from confirming. If the cause is a validation error,
+ *   an additional error code (*) (NCERROR) identifies the error.
  *
  * 2 means the acquirer did not authorise the payment.
  *
@@ -70,7 +71,7 @@ class Netresearch_OPS_Model_Status
     const AUTHORIZED_WAITING_EXTERNAL_RESULT = 50;
     const AUTHORIZATION_WAITING = 51;
     const AUTHORIZED_UNKNOWN = 52;
-    const STAND_BY_SUSPECTED_FRAUD = 55;
+    const STAND_BY = 55;
     const OK_WITH_SHEDULED_PAYMENTS = 56;
     const NOT_OK_WITH_SHEDULED_PAYMENTS = 57;
     const AUTHORISATION_TO_BE_REQUESTED_MANUALLY = 59;
@@ -228,7 +229,7 @@ class Netresearch_OPS_Model_Status
                 self::AUTHORIZED_WAITING_EXTERNAL_RESULT,
                 self::AUTHORIZATION_WAITING,
                 self::AUTHORIZED_UNKNOWN,
-                self::STAND_BY_SUSPECTED_FRAUD,
+                self::STAND_BY,
                 self::OK_WITH_SHEDULED_PAYMENTS,
                 self::NOT_OK_WITH_SHEDULED_PAYMENTS,
                 self::AUTHORISATION_TO_BE_REQUESTED_MANUALLY,

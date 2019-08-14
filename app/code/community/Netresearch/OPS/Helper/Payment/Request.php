@@ -51,19 +51,23 @@ class Netresearch_OPS_Helper_Payment_Request
                 $address = $salesObject->getBillingAddress();
             }
 
-            if(!$address){
+            if (!$address) {
                 return $paramValues;
             }
         }
 
-        $paramValues['ECOM_SHIPTO_POSTAL_CITY'] = $address->getCity();
-        $paramValues['ECOM_SHIPTO_POSTAL_POSTALCODE'] = $address->getPostcode();
-        $paramValues['ECOM_SHIPTO_POSTAL_STATE'] = $this->getIsoRegionCode($address);
-        $paramValues['ECOM_SHIPTO_POSTAL_COUNTRYCODE'] = $address->getCountry();
-        $paramValues['ECOM_SHIPTO_POSTAL_NAME_FIRST'] = $address->getFirstname();
-        $paramValues['ECOM_SHIPTO_POSTAL_NAME_LAST'] = $address->getLastname();
-        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE1'] = $address->getStreet(1);
-        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE2'] = $address->getStreet(2);
+        $shippingStreet        = str_replace("\n", ' ', $address->getStreet(-1));
+        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
+
+        $paramValues['ECOM_SHIPTO_POSTAL_CITY']             = $address->getCity();
+        $paramValues['ECOM_SHIPTO_POSTAL_POSTALCODE']       = $address->getPostcode();
+        $paramValues['ECOM_SHIPTO_POSTAL_STATE']            = $this->getIsoRegionCode($address);
+        $paramValues['ECOM_SHIPTO_POSTAL_COUNTRYCODE']      = $address->getCountry();
+        $paramValues['ECOM_SHIPTO_POSTAL_NAME_FIRST']       = $address->getFirstname();
+        $paramValues['ECOM_SHIPTO_POSTAL_NAME_LAST']        = $address->getLastname();
+        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE1']     = $splittedShippingStreet['street_name'];
+        $paramValues['ECOM_SHIPTO_POSTAL_STREET_NUMBER']    = $splittedShippingStreet['street_number'];
+        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE2']     = $splittedShippingStreet['supplement'];
 
         return $paramValues;
     }
@@ -81,24 +85,28 @@ class Netresearch_OPS_Helper_Payment_Request
         $paramValues = array();
 
         if (!$address instanceof Mage_Customer_Model_Address_Abstract) {
-            if(!is_null($salesObject)) {
+            if (!is_null($salesObject)) {
                 $address = $salesObject->getBillingAddress();
             }
-            if(!$address){
+            if (!$address) {
                 return $paramValues;
             }
         }
 
-        $paramValues['ECOM_BILLTO_POSTAL_CITY'] = $address->getCity();
-        $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE'] = $address->getPostcode();
-        $paramValues['ECOM_BILLTO_POSTAL_COUNTY'] = $this->getIsoRegionCode($address);
-        $paramValues['ECOM_BILLTO_POSTAL_COUNTRYCODE'] = $address->getCountry();
-        $paramValues['ECOM_BILLTO_POSTAL_NAME_FIRST'] = $address->getFirstname();
-        $paramValues['ECOM_BILLTO_POSTAL_NAME_LAST'] = $address->getLastname();
-        $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE'] = $address->getPostcode();
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE1'] = $address->getStreet(1);
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE2'] = $address->getStreet(2);
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE3'] = $address->getStreet(3);
+        $billingStreet = str_replace("\n", ' ', $address->getStreet(-1));
+        $splittedBillingStreet = Mage::Helper('ops/address')->splitStreet($billingStreet);
+
+        $paramValues['ECOM_BILLTO_POSTAL_CITY']             = $address->getCity();
+        $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE']       = $address->getPostcode();
+        $paramValues['ECOM_BILLTO_POSTAL_COUNTY']           = $this->getIsoRegionCode($address);
+        $paramValues['ECOM_BILLTO_POSTAL_COUNTRYCODE']      = $address->getCountry();
+        $paramValues['ECOM_BILLTO_POSTAL_NAME_FIRST']       = $address->getFirstname();
+        $paramValues['ECOM_BILLTO_POSTAL_NAME_LAST']        = $address->getLastname();
+        $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE']       = $address->getPostcode();
+        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE1']     = $splittedBillingStreet['street_name'];
+        $paramValues['ECOM_BILLTO_POSTAL_STREET_NUMBER']    = $splittedBillingStreet['street_number'];
+        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE2']     = $splittedBillingStreet['supplement'];
+        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE3']     = $address->getStreet(3);
 
         return $paramValues;
     }
@@ -106,9 +114,9 @@ class Netresearch_OPS_Helper_Payment_Request
     /**
      * extraxcts the according Ingenico ePayments owner* parameter
      *
-     * @param Mage_Customer_Model_Address_Abstract $billingAddress
+     * @param Mage_Customer_Model_Address_Abstract          $billingAddress
      *
-     * @param Mage_Sales_Model_Quote|Mage_Sales_Model_Order               $salesObject
+     * @param Mage_Sales_Model_Quote|Mage_Sales_Model_Order $salesObject
      *
      * @return string[]
      */
@@ -117,11 +125,11 @@ class Netresearch_OPS_Helper_Payment_Request
         $ownerParams = array();
         if ($this->getConfig()->canSubmitExtraParameter($salesObject->getStoreId())) {
             $ownerParams = array(
-                'OWNERADDRESS'                  => str_replace("\n", ' ', $billingAddress->getStreet(1)),
-                'OWNERTOWN'                     => $billingAddress->getCity(),
-                'OWNERZIP'                      => $billingAddress->getPostcode(),
-                'OWNERTELNO'                    => $billingAddress->getTelephone(),
-                'OWNERCTY'                      => $billingAddress->getCountry(),
+                'OWNERADDRESS' => str_replace("\n", ' ', $billingAddress->getStreet(1)),
+                'OWNERTOWN'    => $billingAddress->getCity(),
+                'OWNERZIP'     => $billingAddress->getPostcode(),
+                'OWNERTELNO'   => $billingAddress->getTelephone(),
+                'OWNERCTY'     => $billingAddress->getCountry(),
 
                 'ECOM_BILLTO_POSTAL_POSTALCODE' => $billingAddress->getPostcode(),
             );
@@ -141,7 +149,7 @@ class Netresearch_OPS_Helper_Payment_Request
         $formFields = array();
         switch ($this->getConfig()->getConfigData('template')) {
             case Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_MAGENTO_INTERNAL:
-                $formFields['TP'] = $this->getConfig()->getPayPageTemplate($storeId);
+                $formFields['TP'] = $this->getConfig()->getPayPageTemplate();
                 break;
             case Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_TEMPLATE:
                 $formFields['TP'] = $this->getConfig()->getTemplateIdentifier($storeId);
@@ -159,8 +167,12 @@ class Netresearch_OPS_Helper_Payment_Request
                 $formFields['BUTTONTXTCOLOR'] = $this->getConfig()->getConfigData('buttontxtcolor', $storeId);
                 $formFields['FONTTYPE'] = $this->getConfig()->getConfigData('fonttype', $storeId);
                 $formFields['LOGO'] = $this->getConfig()->getConfigData('logo', $storeId);
-                $formFields['HOMEURL'] = $this->getConfig()->hasHomeUrl() ? $this->getConfig()->getContinueUrl(array('redirect' => 'home')) : 'NONE';
-                $formFields['CATALOGURL'] = $this->getConfig()->hasCatalogUrl() ? $this->getConfig()->getContinueUrl(array('redirect' => 'catalog')) : '';
+                $formFields['HOMEURL'] = $this->getConfig()->hasHomeUrl() ? $this->getConfig()->getContinueUrl(
+                    array('redirect' => 'home')
+                ) : 'NONE';
+                $formFields['CATALOGURL'] = $this->getConfig()->hasCatalogUrl() ? $this->getConfig()->getContinueUrl(
+                    array('redirect' => 'catalog')
+                ) : '';
                 break;
             default:
                 break;
@@ -240,7 +252,7 @@ class Netresearch_OPS_Helper_Payment_Request
             return $this->getRegionsMappingForLatvia();
         }
 
-        return array();;
+        return array();
     }
 
     /**
@@ -491,21 +503,25 @@ class Netresearch_OPS_Helper_Payment_Request
 
     public function getMandatoryRequestFields(Mage_Sales_Model_Order $order)
     {
-        $payment = $order->getPayment()->getMethodInstance();
-        $formFields = array();
-        $formFields['PSPID'] = $this->getConfig()->getPSPID($order->getStoreId());
-        $formFields['AMOUNT'] = Mage::helper('ops')->getAmount($order->getBaseGrandTotal());
+        $payment                = $order->getPayment()->getMethodInstance();
+        $opsOrderId             = Mage::helper('ops/order')->getOpsOrderId($order);
+        $formFields             = array();
+        $formFields['PSPID']    = $this->getConfig()->getPSPID($order->getStoreId());
+        $formFields['AMOUNT']   = Mage::helper('ops')->getAmount($order->getBaseGrandTotal());
         $formFields['CURRENCY'] = Mage::app()->getStore()->getBaseCurrencyCode();
-        $formFields['ORDERID'] = Mage::helper('ops/order')->getOpsOrderId($order);
+        $formFields['ORDERID']  = $opsOrderId;
         $formFields['LANGUAGE'] = Mage::app()->getLocale()->getLocaleCode();
-        $formFields['PM'] = $payment->getOpsCode($order->getPayment());
-        $formFields['EMAIL'] = $order->getCustomerEmail();
+        $formFields['PM']       = $payment->getOpsCode($order->getPayment());
+        $formFields['EMAIL']    = $order->getCustomerEmail();
 
-        $formFields['ACCEPTURL'] = $this->getConfig()->getAcceptUrl();
-        $formFields['DECLINEURL'] = $this->getConfig()->getDeclineUrl();
+        $formFields['ACCEPTURL']    = $this->getConfig()->getAcceptUrl();
+        $formFields['DECLINEURL']   = $this->getConfig()->getDeclineUrl();
         $formFields['EXCEPTIONURL'] = $this->getConfig()->getExceptionUrl();
-        $formFields['CANCELURL'] = $this->getConfig()->getCancelUrl();
-        $formFields['BACKURL'] = $this->getConfig()->getCancelUrl();
+        $formFields['CANCELURL']    = $this->getConfig()->getCancelUrl();
+
+        $formFields['BACKURL'] = $this->getConfig()->getPaymentRetryUrl(
+            Mage::helper('ops/payment')->validateOrderForReuse($opsOrderId, $order->getStoreId())
+        );
 
         $formFields['FP_ACTIV'] = $this->isFingerPrintingActive($order) ? '1' : '0';
 
@@ -522,47 +538,69 @@ class Netresearch_OPS_Helper_Payment_Request
     protected function isFingerPrintingActive($order)
     {
         return $this->getConfig()->getDeviceFingerPrinting($order->getStoreId())
-        && Mage::getSingleton('customer/session')->getData(Netresearch_OPS_Model_Payment_Abstract::FINGERPRINT_CONSENT_SESSION_KEY);
+        && Mage::getSingleton('customer/session')->getData(
+            Netresearch_OPS_Model_Payment_Abstract::FINGERPRINT_CONSENT_SESSION_KEY
+        );
     }
 
     /**
      * Extracts the order item parameters and puts them in a array like
      *
-     * @param Mage_Sales_Model_Order $order
+     * @param Mage_Sales_Model_Order|Mage_Sales_Model_Order_Invoice $salesObject
      *
-     * @return array
+     * @return mixed[]
      */
-    public function extractOrderItemParameters(Mage_Sales_Model_Order $order)
+    public function extractOrderItemParameters($salesObject)
     {
         $formFields = array();
-
+        $formatAmounts = $salesObject instanceof Mage_Sales_Model_Order_Invoice;
         // add order items
         $count = 1;
-        foreach ($order->getAllItems() as $item) {
-            if ($item->getParentItemId()
-                && $item->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-                || $item->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
-            ) {
+        $addItemCount = function (&$value, $key, $count) use (&$formFields) {
+            $formFields[$key . $count] = $value;
+        };
+        foreach ($salesObject->getAllItems() as $item) {
+            if ($this->isNonDataItem($item)) {
                 continue;
             }
-            $formFields = array_merge($formFields, $this->getItemFormFields($count, $item));
+
+            $itemFields = $this->getItemFormFields($item, $formatAmounts);
+            array_walk($itemFields, $addItemCount, $count);
             $count++;
         }
 
         // add discount item
-        $discountItemFormFields = $this->getDiscountItemFormFields($order, $count);
-        if (is_array($discountItemFormFields)) {
-            $formFields = array_merge($formFields, $discountItemFormFields);
+        /** @var mixed|false $discountItemFormFields */
+        $discountItemFormFields = $this->getDiscountItemFormFields($salesObject, $formatAmounts);
+        if ($discountItemFormFields) {
+            array_walk($discountItemFormFields, $addItemCount, $count);
             $count++;
         }
 
         // add shipping item
-        $shippingItemFields = $this->getShippingItemFormFields($order);
-        if (is_array($shippingItemFields)) {
-            $formFields = array_merge($formFields, $shippingItemFields);
+        /** @var mixed|false $shippingItemFields */
+        $shippingItemFields = $this->getShippingItemFormFields($salesObject, $formatAmounts);
+        if ($shippingItemFields) {
+            array_walk($shippingItemFields, $addItemCount, $count);
         }
 
         return $formFields;
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order_Item|Mage_Sales_Model_Order_Invoice_Item $item
+     *
+     * @return bool
+     */
+    protected function isNonDataItem($item)
+    {
+        if ($item instanceof Mage_Sales_Model_Order_Invoice_Item) {
+            $item = $item->getOrderItem();
+        }
+
+        return $item->getParentItemId()
+        && $item->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+        || $item->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE;
     }
 
     /**
@@ -586,19 +624,41 @@ class Netresearch_OPS_Helper_Payment_Request
     /**
      * Genereates item array for shipping, returns false if order is virtual
      *
-     * @param Mage_Sales_Model_Order $order
+     * @param Mage_Sales_Model_Order|Mage_Sales_Model_Order_Invoice $salesObject
+     * @param bool                                                  $formatAmount
      *
-     * @return array | false
+     * @return mixed[] | false
      */
-    protected function getShippingItemFormFields($order)
+    protected function getShippingItemFormFields($salesObject, $formatAmount = false)
     {
-        if ($order->getIsNotVirtual()) {
+
+        if ($salesObject instanceof Mage_Sales_Model_Order_Invoice) {
+            /** @var Mage_Sales_Model_Order_Invoice $salesObject */
+            $order = $salesObject->getOrder();
+        } else {
+            /** @var Mage_Sales_Model_Order $salesObject */
+            $order = $salesObject;
+        }
+        /** @var string $taxRate */
+        $taxRate = str_replace(',', '.', (string)(float)$this->getShippingTaxRate($order)) . '%';
+
+        if ($order->getIsNotVirtual() && 0 < $salesObject->getBaseShippingInclTax()) {
+            $formFields = array();
+
+            if ($formatAmount) {
+                $amount = Mage::helper('ops')->getAmount($salesObject->getBaseShippingInclTax());
+            } else {
+                $amount = number_format($salesObject->getBaseShippingInclTax(), 2, '.', '');
+            }
+
             /* add shipping item */
-            $formFields['ORDERSHIPMETH'] = substr($order->getShippingDescription(), 0, 25);
-            $formFields['ORDERSHIPCOST'] = Mage::helper('ops')->getAmount($order->getBaseShippingAmount());
-            $formFields['ORDERSHIPTAXCODE']
-                = str_replace(',', '.', (string)(float)$this->getShippingTaxRate($order)) . '%';
-            $formFields['ORDERSHIPTAX'] = Mage::helper('ops')->getAmount($order->getBaseShippingTaxAmount());
+            $formFields['ITEMID'] = 'SHIPPING';
+            $formFields['ITEMNAME'] = substr($order->getShippingDescription(), 0, 25);
+            $formFields['ITEMPRICE'] = $amount;
+            $formFields['TAXINCLUDED'] = 1;
+            $formFields['ITEMQUANT'] = 1;
+            $formFields['ITEMVATCODE'] = $taxRate;
+
             return $formFields;
         }
 
@@ -608,20 +668,25 @@ class Netresearch_OPS_Helper_Payment_Request
     /**
      * Returns item array for Ingenico ePayments request for the specified item
      *
-     * @param $count
-     * @param $item
+     * @param Mage_Sales_Model_Order_Invoice_Item|Mage_Sales_Model_Order_Item $item
+     * @param bool                                                            $formatAmount
      *
      * @return array
      */
-    protected function getItemFormFields($count, $item)
+    protected function getItemFormFields($item, $formatAmount = false)
     {
         $formFields = array();
-        $formFields['ITEMID' . $count] = $item->getItemId();
-        $formFields['ITEMNAME' . $count] = substr($item->getName(), 0, 40);
-        $formFields['ITEMPRICE' . $count] = number_format($item->getBasePriceInclTax(), 2, '.', '');
-        $formFields['ITEMQUANT' . $count] = (int)$item->getQtyOrdered();
-        $formFields['ITEMVATCODE' . $count] = str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
-        $formFields['TAXINCLUDED' . $count] = 1;
+        $formFields['ITEMID'] = $item->getItemId() ?: $item->getOrderItemId();
+        $formFields['ITEMNAME'] = substr($item->getName(), 0, 40);
+        if ($formatAmount) {
+            $amount = Mage::helper('ops')->getAmount($item->getBasePriceInclTax());
+        } else {
+            $amount = number_format($item->getBasePriceInclTax(), 2, '.', '');
+        }
+        $formFields['ITEMPRICE'] = $amount;
+        $formFields['ITEMQUANT'] = (int)$item->getQtyOrdered() ?: $item->getQty();
+        $formFields['ITEMVATCODE'] = str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
+        $formFields['TAXINCLUDED'] = 1;
 
         return $formFields;
     }
@@ -629,31 +694,45 @@ class Netresearch_OPS_Helper_Payment_Request
     /**
      * Creates array
      *
-     * @param Mage_Sales_Model_Order $order
-     * @param                        $count
+     * @param Mage_Sales_Model_Abstract $salesObject
+     * @param bool                      $formatAmount
      *
-     * @return mixed
+     * @return bool|mixed[]
      */
-    protected function getDiscountItemFormFields(Mage_Sales_Model_Order $order, $count)
+    protected function getDiscountItemFormFields(Mage_Sales_Model_Abstract $salesObject, $formatAmount = false)
     {
         $formFields = array();
+        if ($salesObject instanceof Mage_Sales_Model_Order_Invoice) {
+            $order = $salesObject->getOrder();
+        } else {
+            $order = $salesObject;
+        }
+        /** @var Mage_Sales_Model_Order $order */
         /* add coupon item */
-        if ($order->getBaseDiscountAmount()) {
-            $couponAmount = $order->getBaseDiscountAmount();
-            $formFields['ITEMID' . $count] = 'DISCOUNT';
+        if ($salesObject->getBaseDiscountAmount() != 0.00) {
             $couponRuleName = 'DISCOUNT';
             if ($order->getCouponRuleName() && strlen(trim($order->getCouponRuleName())) > 0) {
                 $couponRuleName = substr(trim($order->getCouponRuleName()), 0, 30);
             }
-            $formFields['ITEMNAME' . $count] = $couponRuleName;
-            $formFields['ITEMPRICE' . $count] = number_format($couponAmount, 2, '.', '');
-            $formFields['ITEMQUANT' . $count] = 1;
-            $formFields['ITEMVATCODE' . $count]
+
+            if ($formatAmount) {
+                $couponAmount = Mage::helper('ops')->getAmount($salesObject->getBaseDiscountAmount());
+            } else {
+                $couponAmount = number_format($salesObject->getBaseDiscountAmount(), 2, '.', '');
+            }
+
+            $formFields['ITEMID'] = 'DISCOUNT';
+            $formFields['ITEMNAME'] = $couponRuleName;
+            $formFields['ITEMPRICE'] = $couponAmount;
+            $formFields['ITEMQUANT'] = 1;
+            $formFields['ITEMVATCODE']
                 = str_replace(',', '.', (string)(float)$this->getShippingTaxRate($order)) . '%';
-            $formFields['TAXINCLUDED' . $count] = 1;
+            $formFields['TAXINCLUDED'] = 1;
+
             return $formFields;
 
         }
+
         return false;
     }
 } 

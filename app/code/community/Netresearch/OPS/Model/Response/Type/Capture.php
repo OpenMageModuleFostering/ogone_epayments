@@ -37,7 +37,7 @@ class Netresearch_OPS_Model_Response_Type_Capture extends Netresearch_OPS_Model_
     protected function _handleResponse()
     {
         if (!Netresearch_OPS_Model_Status::isCapture($this->getStatus())) {
-            throw new Mage_Core_Exception(Mage::helper('ops')->__('%s is not a capture status!', $this->getStatus()));
+            Mage::throwException(Mage::helper('ops')->__('%s is not a capture status!', $this->getStatus()));
         }
 
         /** @var Mage_Sales_Model_Order_Payment $payment */
@@ -58,60 +58,94 @@ class Netresearch_OPS_Model_Response_Type_Capture extends Netresearch_OPS_Model_
          */
 
         if (Netresearch_OPS_Model_Status::isIntermediate($this->getStatus())) {
-
-            $message = $this->getIntermediateStatusComment();
-            $payment->setIsTransactionPending(true);
-            if ($order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT
-                || $order->getState() == Mage_Sales_Model_Order::STATE_PROCESSING
-            ) {
-                // transaction was placed on PSP, initial feedback to shop or partial capture case
-
-                $payment->setPreparedMessage($message);
-                if ($this->getShouldRegisterFeedback()) {
-                    $payment->registerCaptureNotification($this->getAmount());
-                }
-
-            } elseif ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-                // payment was pending and is still pending
-                $payment->setIsTransactionApproved(false);
-                $payment->setIsTransactionDenied(false);
-                $payment->setPreparedMessage($message);
-
-                if ($this->getShouldRegisterFeedback()) {
-                    $payment->setNotificationResult(true);
-                    $payment->registerPaymentReviewAction(Mage_Sales_Model_Order_Payment::REVIEW_ACTION_UPDATE, false);
-                }
-
-            }
+            $this->processIntermediateState($payment, $order);
         } else {
-            // final status, means 9 or 95
-            $message = $this->getFinalStatusComment();
-            if ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-                $payment->setNotificationResult(true);
-                $payment->setPreparedMessage($message);
-                if ($this->getShouldRegisterFeedback()) {
-                    $payment->setNotificationResult(true);
-                    $payment->registerPaymentReviewAction(Mage_Sales_Model_Order_Payment::REVIEW_ACTION_ACCEPT, false);
-                }
-            } else {
-                $payment->setPreparedMessage($message);
-                if ($this->getShouldRegisterFeedback()) {
-                    $payment->registerCaptureNotification($this->getAmount());
-                }
-            }
+            // final means state 9 or 95
+            $this->processFinalState($order, $payment);
         }
 
         if ($this->getShouldRegisterFeedback()) {
-            $payment->save();
-            $order->save();
+            $this->registerFeedBack($payment, $order);
+        }
+    }
 
-            // gateway payments do not send confirmation emails by default
-            Mage::helper('ops/data')->sendTransactionalEmail($order);
-            
-            $invoice = Mage::getModel('sales/order_invoice')->load($this->getTransactionId(), 'transaction_id');
-            if($invoice->getId()){
-                Mage::helper('ops')->sendTransactionalEmail($invoice);
+    /**
+     * process intermediate state
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @param Mage_Sales_Model_Order $order
+     */
+    protected function processIntermediateState($payment, $order)
+    {
+        $message = $this->getIntermediateStatusComment();
+        $payment->setIsTransactionPending(true);
+        if ($order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT
+            || $order->getState() == Mage_Sales_Model_Order::STATE_PROCESSING
+        ) {
+            // transaction was placed on PSP, initial feedback to shop or partial capture case
+            $payment->setPreparedMessage($message);
+            if ($this->getShouldRegisterFeedback()) {
+                $payment->registerCaptureNotification($this->getAmount());
             }
+
+        } elseif ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
+            // payment was pending and is still pending
+            $payment->setIsTransactionApproved(false);
+            $payment->setIsTransactionDenied(false);
+            $payment->setPreparedMessage($message);
+
+            if ($this->getShouldRegisterFeedback()) {
+                $payment->setNotificationResult(true);
+                $payment->registerPaymentReviewAction(Mage_Sales_Model_Order_Payment::REVIEW_ACTION_UPDATE, false);
+            }
+        }
+    }
+
+    /**
+     * process final state
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @param Mage_Sales_Model_Order $order
+     */
+    protected function processFinalState($order, $payment)
+    {
+        $message = $this->getFinalStatusComment();
+        if ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
+            $payment->setNotificationResult(true);
+            $payment->setPreparedMessage($message);
+            if ($this->getShouldRegisterFeedback()) {
+                $payment->registerPaymentReviewAction(Mage_Sales_Model_Order_Payment::REVIEW_ACTION_ACCEPT, false);
+                $transaction = $payment->getTransaction($payment->getLastTransId());
+                if ($transaction) {
+                    $transaction->close(true);
+                }
+            }
+        } else {
+            $payment->setPreparedMessage($message);
+            if ($this->getShouldRegisterFeedback()) {
+                $payment->registerCaptureNotification($this->getAmount());
+            }
+        }
+    }
+
+    /**
+     * save payment and order object and send transaction email
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @param Mage_Sales_Model_Order $order
+     */
+    protected function registerFeedBack($payment, $order)
+    {
+        $payment->save();
+        $order->save();
+
+        // gateway payments do not send confirmation emails by default
+        Mage::helper('ops/data')->sendTransactionalEmail($order);
+
+        /** @var Mage_Sales_Model_Order_Invoice $invoice */
+        $invoice = Mage::getModel('sales/order_invoice')->load($this->getTransactionId(), 'transaction_id');
+        if ($invoice->getId()) {
+            Mage::helper('ops')->sendTransactionalEmail($invoice);
         }
     }
 }

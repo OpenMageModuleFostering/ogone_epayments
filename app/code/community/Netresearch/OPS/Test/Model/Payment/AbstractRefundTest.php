@@ -43,7 +43,7 @@ class Netresearch_OPS_Test_Model_Payment_AbstractRefundTest extends EcomDev_PHPU
         $amount          = 10;
         $requestParams   = $this->getRequestParams($amount, $testPayment);
         $testOpsResponse = $this->returnValue(
-                                array('STATUS' => Netresearch_OPS_Model_Status::REFUND_UNCERTAIN)
+            array('STATUS' => Netresearch_OPS_Model_Status::REFUND_UNCERTAIN)
         );
         $this->mockApiDirectLink($requestParams, $testOpsResponse);
         $this->testObject->setInfoInstance($testPayment);
@@ -61,7 +61,7 @@ class Netresearch_OPS_Test_Model_Payment_AbstractRefundTest extends EcomDev_PHPU
         $amount          = 10;
         $requestParams   = $this->getRequestParams($amount, $testPayment);
         $testOpsResponse = $this->returnValue(
-                                array('STATUS' => Netresearch_OPS_Model_Status::REFUND_PROCESSED_BY_MERCHANT)
+            array('STATUS' => Netresearch_OPS_Model_Status::REFUND_PROCESSED_BY_MERCHANT)
         );
         $this->mockApiDirectLink($requestParams, $testOpsResponse);
         $this->testObject->setInfoInstance($testPayment);
@@ -80,7 +80,7 @@ class Netresearch_OPS_Test_Model_Payment_AbstractRefundTest extends EcomDev_PHPU
         $amount          = 10;
         $requestParams   = $this->getRequestParams($amount, $testPayment);
         $testOpsResponse = $this->returnValue(
-                                array('STATUS' => 500)
+            array('STATUS' => 500)
         );
         $this->mockApiDirectLink($requestParams, $testOpsResponse);
 
@@ -136,10 +136,10 @@ class Netresearch_OPS_Test_Model_Payment_AbstractRefundTest extends EcomDev_PHPU
         $apiDirectLinkMock->expects($this->once())
                           ->method('performRequest')
                           ->with(
-                          $this->equalTo($requestParams),
-                          $this->equalTo(Mage::getModel('ops/config')->getDirectLinkGatewayPath()),
-                          $this->equalTo(null)
-            )
+                              $this->equalTo($requestParams),
+                              $this->equalTo(Mage::getModel('ops/config')->getDirectLinkGatewayPath()),
+                              $this->equalTo(null)
+                          )
                           ->will($testOpsResponse);
         $this->replaceByMock('model', 'ops/api_directlink', $apiDirectLinkMock);
     }

@@ -37,10 +37,22 @@ class Netresearch_OPS_Model_Source_Template
     public function toOptionArray()
     {
         return array(
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_REDIRECT, 'label' => Mage::helper('ops')->__('Ingenico ePayments - Redirect mode')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_MAGENTO_INTERNAL, 'label' => Mage::helper('ops')->__('Magento - internal shop template')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME, 'label' => Mage::helper('ops')->__('Ingenico ePayments - iFrame mode')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_TEMPLATE, 'label' => Mage::helper('ops')->__('Ingenico ePayments - Dynamic template'))
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_REDIRECT,
+                'label' => Mage::helper('ops')->__('Ingenico ePayments - Redirect mode')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_MAGENTO_INTERNAL,
+                'label' => Mage::helper('ops')->__('Magento - internal shop template')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME,
+                'label' => Mage::helper('ops')->__('Ingenico ePayments - iFrame mode')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_TEMPLATE,
+                'label' => Mage::helper('ops')->__('Ingenico ePayments - Dynamic template')
+            )
         );
     }
 }

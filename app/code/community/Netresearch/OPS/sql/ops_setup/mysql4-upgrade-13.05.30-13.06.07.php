@@ -19,14 +19,17 @@ $conn->addColumn(
     "smallint(5) NULL DEFAULT NULL AFTER `state`"
 );
 
-$installer->run("
+$installer->run(
+    "
     UPDATE {$this->getTable('ops_alias')}
     SET state = '". Netresearch_OPS_Model_Alias_State::ACTIVE ."'
     WHERE alias IS NOT NULL;
 
-");
+"
+);
 
-$installer->run("
+$installer->run(
+    "
     DELETE FROM {$this->getTable('ops_alias')}
     WHERE id NOT in (
     SELECT alias.id FROM (
@@ -35,27 +38,32 @@ $installer->run("
     ) as alias
     GROUP BY alias.customer_id, alias.billing_address_hash, alias.shipping_address_hash
     )
-");
+"
+);
 
 $aliasActive = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_cc/active_alias')
     ->load();
 if (0 === $aliasActive->count()) {
-    $installer->run("
+    $installer->run(
+        "
         UPDATE {$this->getTable('core_config_data')}
         SET path = 'payment/ops_cc/active_alias'
         WHERE path = 'payment/ops_alias/active';
-    ");
+    "
+    );
 }
 $hintForGuestsActive = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_cc/show_alias_manager_info_for_guests')
     ->load();
 if (0 == $hintForGuestsActive->count()) {
-        $installer->run("
+        $installer->run(
+            "
         UPDATE {$this->getTable('core_config_data')}
         SET path = 'payment/ops_cc/show_alias_manager_info_for_guests'
         WHERE path = 'payment/ops_alias/show_info_for_guests';
-    ");
+    "
+        );
 }
 
 $installer->endSetup();

@@ -42,7 +42,7 @@ class Netresearch_OPS_Model_System_Config_Backend_Flex_Methods
     public function save()
     {
         $methods = $this->getValue();
-        if (is_array($methods) && sizeof($methods) > 1) {
+        if (is_array($methods) && count($methods) > 1) {
             $alreadyProcessedMethods = array();
             foreach ($methods as $method) {
 
@@ -50,7 +50,7 @@ class Netresearch_OPS_Model_System_Config_Backend_Flex_Methods
                     && array_key_exists('pm', $method)
                     && array_key_exists('brand', $method)
                 ) {
-                    if(empty($method['title'])||empty($method['pm'])){
+                    if (empty($method['title'])||empty($method['pm'])) {
                         Mage::throwException("Can not save empty title or PM fields");
                     }
 

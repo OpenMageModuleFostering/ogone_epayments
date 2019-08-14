@@ -6,6 +6,8 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_ParameterTest extends 
     public function testGetRequestParams()
     {
         $fakePayment = Mage::getModel('sales/order_payment');
+        $creditMemo = Mage::getModel('sales/order_creditmemo');
+        $fakePayment->setCreditmemo($creditMemo);
         $fakePayment->setOrder(Mage::getModel('sales/order'));
         $fakePayment->setAdditionalInformation(array('paymentId' => '4711'));
         $arrInfo          = array(
@@ -30,9 +32,14 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_ParameterTest extends 
 
     public function testGetRequestParamsWithAdditionalParameters()
     {
+        $customerSession = $this->getModelMockBuilder('customer/session')->disableOriginalConstructor()->getMock();
+        $this->replaceByMock('model', 'customer/session', $customerSession);
 
         $fakePayment = Mage::getModel('sales/order_payment');
-        $fakePayment->setOrder(Mage::getModel('sales/order'));
+        $creditMemo = Mage::getModel('sales/order_creditmemo');
+        $creditMemo->setBaseShippingInclTax(10);
+        $fakePayment->setCreditmemo($creditMemo);
+        $fakePayment->setOrder(Mage::getModel('sales/order')->setBaseGrandTotal(100));
         $fakePayment->setAdditionalInformation(array('paymentId' => '4711'));
         $fakeInvoice = Mage::getModel('sales/order_invoice');
         $fakePayment->setInvoice($fakeInvoice);
@@ -40,11 +47,10 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_ParameterTest extends 
             'operation'  => 'refund',
             'invoice_id' => 2
         );
-        $amount                = 10;
         $opsPaymentMethod      = Mage::getModel('ops/payment_openInvoiceNl');
         $captureParameterModel = Mage::getModel('ops/backend_operation_refund_parameter');
         $this->mockRefundHelper();
-        $requestParams         = $captureParameterModel->getRequestParams($opsPaymentMethod, $fakePayment, $amount, $arrInfo);
+        $requestParams         = $captureParameterModel->getRequestParams($opsPaymentMethod, $fakePayment, 0, $arrInfo);
         $this->assertArrayHasKey('AMOUNT', $requestParams);
         $this->assertArrayHasKey('PAYID', $requestParams);
         $this->assertArrayHasKey('OPERATION', $requestParams);

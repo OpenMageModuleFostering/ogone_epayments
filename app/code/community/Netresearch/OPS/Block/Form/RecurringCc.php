@@ -27,7 +27,8 @@
  * @author   Paul Siedler <paul.siedler@netresearch.de>
  */ 
 
-class Netresearch_OPS_Block_Form_RecurringCc extends Netresearch_OPS_Block_Form_Cc {
+class Netresearch_OPS_Block_Form_RecurringCc extends Netresearch_OPS_Block_Form_Cc
+{
 
     public function getCcBrands()
     {

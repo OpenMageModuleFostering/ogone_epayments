@@ -44,19 +44,25 @@ class Netresearch_OPS_Model_Alias extends Mage_Core_Model_Abstract
     /**
      * @param $customerId - the id of the customer
      * @param $billingAddressHash - optional billing address hash
-     * @param $shippingAdressHash - optional shipping address hash
+     * @param $shippingAddressHash - optional shipping address hash
+     * @param $storeId
+     *
      * @return Netresearch_OPS_Model_Mysql4_Alias_Collection - collection of aliases for given customer
      */
-    public function getAliasesForCustomer($customerId, $billingAddressHash = null, $shippingAddressHash = null, $storeId = null)
+    public function getAliasesForCustomer(
+        $customerId,
+        $billingAddressHash = null,
+        $shippingAddressHash = null,
+        $storeId = null
+    )
     {
         $collection = $this->getCollection()
             ->addFieldToFilter('customer_id', $customerId);
-        if (!is_null($billingAddressHash) && !is_null($shippingAddressHash)) {
+        if (null != $billingAddressHash  && null != $shippingAddressHash) {
             $collection
                 ->addFieldToFilter('billing_address_hash', $billingAddressHash)
                 ->addFieldToFilter('shipping_address_hash', $shippingAddressHash)
-                ->addFieldToFilter('store_id', array('eq' => $storeId, 'null' => 'null'))
-            ;
+                ->addFieldToFilter('store_id', array('eq' => $storeId, 'null' => 'null'));
         }
         return $collection->load();
     }

@@ -6,7 +6,8 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License
  */
 
-class Netresearch_OPS_Test_Block_System_Config_ModeTest extends EcomDev_PHPUnit_Test_Case {
+class Netresearch_OPS_Test_Block_System_Config_ModeTest extends EcomDev_PHPUnit_Test_Case
+{
 
     public function testGetElementHtmlContainsScriptTag()
     {

@@ -10,69 +10,63 @@
 class Netresearch_OPS_Model_Backend_Operation_Refund_Additional_OpenInvoiceNl
     extends Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_OpenInvoiceNlAbstract
 {
-    protected $creditmemo = array();
+    /** @var $creditmemo Mage_Sales_Model_Order_Creditmemo  */
+    protected $creditmemo = null;
     protected $amount = 0;
     protected $refundHelper = null;
 
     /**
-     * @param Mage_Sales_Model_Abstract $itemContainer
+     * @param Mage_Sales_Model_Order_Payment $itemContainer
      * @return array
      */
-    public function extractAdditionalParams(Mage_Sales_Model_Abstract $itemContainer = null)
+    public function extractAdditionalParams(Mage_Sales_Model_Order_Payment $payment = null)
     {
-        $invoice = null;
-        if ($itemContainer instanceof Mage_Sales_Model_Order_Invoice && $itemContainer) {
-            $invoice = $itemContainer;
-        } else if ($itemContainer instanceof Mage_Sales_Block_Order_Creditmemo && $itemContainer){
-            $invoice = Mage::getModel('sales/order_invoice')->load($itemContainer->getInvoiceId());
-        }
+        $invoice = $payment->getInvoice();
 
-        if($invoice == null){
+        if ($invoice == null) {
             // if invoice is not set we load id hard from the request params
             $invoice = $this->getRefundHelper()->getInvoiceFromCreditMemoRequest();
         }
-        $this->creditmemo = $this->getRefundHelper()->getCreditMemoFromRequest();
+        $this->creditmemo = $payment->getCreditmemo();
 
         if ($invoice instanceof Mage_Sales_Model_Order_Invoice) {
             $this->extractFromCreditMemoItems($invoice);
             // We dont extract from discount data for the moment, because partial refunds are a problem
-            // $this->extractFromDiscountData($invoice);
             $this->extractFromInvoicedShippingMethod($invoice);
             $this->extractFromAdjustments($invoice);
             // Overwrite amount to fix Magentos rounding problems (eg +1ct)
-            $this->additionalParams['AMOUNT'] = $this->amount;
+            $this->_additionalParams['AMOUNT'] = $this->amount;
         }
 
-        return $this->additionalParams;
+        return $this->_additionalParams;
     }
 
     /**
      * extracts all data from the invoice according to the credit memo items
      *
-     * @param $itemContainer
      */
-    protected function extractFromCreditMemoItems(Mage_Sales_Model_Order_Invoice $invoice)
+    protected function extractFromCreditMemoItems()
     {
-        foreach ($invoice->getItemsCollection() as $item) {
-            if (array_key_exists($item->getOrderItemId(), $this->creditmemo['items'])) {
-                if ($item->getParentItemId()
-                    && $item->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-                    || $item->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
-                    continue;
-                }
-                $this->additionalParams['ITEMID' . $this->itemIdx]    = substr($item->getOrderItemId(), 0, 15);
-                $this->additionalParams['ITEMNAME' . $this->itemIdx]  = substr($item->getName(), 0, 30);
-                $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount(
-                                                                             $item->getBasePriceInclTax()
-                );
-                $this->amount += $this->getOpsDataHelper()->getAmount($item->getBasePriceInclTax()) * $this->creditmemo['items'][$item->getOrderItemId()]['qty'];
-                $this->additionalParams['ITEMQUANT' . $this->itemIdx] = $this->creditmemo['items'][$item->getOrderItemId()]['qty'];
-                $this->additionalParams['ITEMVATCODE' . $this->itemIdx]
-                                                                        =
-                    str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
-                $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-                ++$this->itemIdx;
+        /** @var Mage_Sales_Model_Order_Creditmemo_Item $item */
+        foreach ($this->creditmemo->getAllItems() as $item) {
+            if ($item->getOrderItem()->getParentItemId()
+                && $item->getOrderItem()->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+                || $item->getOrderItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+            ) {
+                continue;
             }
+            $this->_additionalParams['ITEMID' . $this->_itemIdx] = substr($item->getOrderItemId(), 0, 15);
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx] = substr($item->getName(), 0, 30);
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()->getAmount(
+                $item->getBasePriceInclTax()
+            );
+            $this->amount += $this->getOpsDataHelper()
+                    ->getAmount($item->getBasePriceInclTax()) * $item->getQty();
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx] = $item->getQty();
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx]
+                = str_replace(',', '.', (string)(float)$item->getOrderItem()->getTaxPercent()) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
 
     }
@@ -80,16 +74,17 @@ class Netresearch_OPS_Model_Backend_Operation_Refund_Additional_OpenInvoiceNl
 
     protected function extractFromInvoicedShippingMethod(Mage_Sales_Model_Order_Invoice $invoice)
     {
-        if ($this->creditmemo['shipping_amount'] > 0) {
-            $this->additionalParams['ITEMID' . $this->itemIdx]    = 'SHIPPING';
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]  =
+        if ($this->creditmemo->getBaseShippingInclTax() > 0) {
+            $this->_additionalParams['ITEMID' . $this->_itemIdx]    = 'SHIPPING';
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx]  =
                 substr($invoice->getOrder()->getShippingDescription(), 0, 30);
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount($this->creditmemo['shipping_amount']);
-            $this->amount += $this->getOpsDataHelper()->getAmount($this->creditmemo['shipping_amount']);
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx]   = 1;
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx] = $this->getShippingTaxRate($invoice) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()
+                ->getAmount($this->creditmemo->getBaseShippingInclTax());
+            $this->amount += $this->getOpsDataHelper()->getAmount($this->creditmemo->getBaseShippingInclTax());
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx]   = 1;
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx] = $this->getShippingTaxRate($invoice) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
 
     }
@@ -102,26 +97,28 @@ class Netresearch_OPS_Model_Backend_Operation_Refund_Additional_OpenInvoiceNl
     protected function extractFromAdjustments(Mage_Sales_Model_Order_Invoice $invoice)
     {
 
-        if ($this->creditmemo['adjustment_positive'] > 0) {
-            $this->additionalParams['ITEMID' . $this->itemIdx]    = 'ADJUSTREFUND';
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]  = 'Adjustment Refund';
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount($this->creditmemo['adjustment_positive']);
-            $this->amount += $this->getOpsDataHelper()->getAmount($this->creditmemo['adjustment_positive']);
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx]   = 1;
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx] = $this->getShippingTaxRate($invoice) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+        if ($this->creditmemo->getBaseAdjustmentPositive() > 0) {
+            $this->_additionalParams['ITEMID' . $this->_itemIdx]    = 'ADJUSTREFUND';
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx]  = 'Adjustment Refund';
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()
+                ->getAmount($this->creditmemo->getBaseAdjustmentPositive());
+            $this->amount += $this->getOpsDataHelper()->getAmount($this->creditmemo->getBaseAdjustmentPositive());
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx]   = 1;
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx] = $this->getShippingTaxRate($invoice) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
 
         }
-        if ($this->creditmemo['adjustment_negative'] > 0) {
-            $this->additionalParams['ITEMID' . $this->itemIdx]    = 'ADJUSTFEE';
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]  = 'Adjustment Fee';
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount(-$this->creditmemo['adjustment_negative']);
-            $this->amount += $this->getOpsDataHelper()->getAmount(-$this->creditmemo['adjustment_negative']);
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx]   = 1;
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx] = $this->getShippingTaxRate($invoice) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+        if ($this->creditmemo->getBaseAdjustmentNegative() > 0) {
+            $this->_additionalParams['ITEMID' . $this->_itemIdx]    = 'ADJUSTFEE';
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx]  = 'Adjustment Fee';
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()
+                ->getAmount(-$this->creditmemo->getBaseAdjustmentNegative());
+            $this->amount += $this->getOpsDataHelper()->getAmount(-$this->creditmemo->getBaseAdjustmentNegative());
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx]   = 1;
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx] = $this->getShippingTaxRate($invoice) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
     }
 

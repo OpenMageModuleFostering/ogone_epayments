@@ -63,7 +63,8 @@ foreach ($ccTypes as $ccType) {
 }
 
 // delete obsolete payment method config acceptgiro and centea online
-$installer->run("
+$installer->run(
+    "
     DELETE FROM {$this->getTable('core_config_data')}
     WHERE 'path' IN
     ('payment/ops_acceptgiro/active',
@@ -76,7 +77,8 @@ $installer->run("
      'payment/ops_centeaonline/title',
      'payment/ops_centeaonline/sort_order'
     );
-");
+"
+);
 
 
 // update dexiaOnline to belfiusOnline
@@ -84,33 +86,39 @@ $belfiusActive = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_belfiusDirectNet/active')
     ->load();
 if (0 === $belfiusActive->count()) {
-    $installer->run("
+    $installer->run(
+        "
         UPDATE {$this->getTable('core_config_data')}
         SET path = 'payment/ops_belfiusDirectNet/active'
         WHERE path = 'payment/ops_dexiaDirectNet/active';
-    ");
+    "
+    );
 }
 
 $belfiusTitle = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_belfiusDirectNet/title')
     ->load();
 if (0 == $belfiusTitle->count()) {
-    $installer->run("
+    $installer->run(
+        "
         UPDATE {$this->getTable('core_config_data')}
         SET path = 'payment/ops_belfiusDirectNet/title'
         WHERE path = 'payment/ops_dexiaDirectNet/title';
-    ");
+    "
+    );
 }
 
 $belfiusSortOrder = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_belfiusDirectNet/sort_order')
     ->load();
 if (0 === $belfiusSortOrder->count()) {
-    $installer->run("
+    $installer->run(
+        "
         UPDATE {$this->getTable('core_config_data')}
         SET path = 'payment/ops_belfiusDirectNet/sort_order'
         WHERE path = 'payment/ops_dexiaDirectNet/sort_order';
-    ");
+    "
+    );
 }
 /*
  *

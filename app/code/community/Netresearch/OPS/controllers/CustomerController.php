@@ -24,7 +24,6 @@ class Netresearch_OPS_CustomerController extends Mage_Core_Controller_Front_Acti
     public function preDispatch()
     {
         parent::preDispatch();
-        $action = $this->getRequest()->getActionName();
         $loginUrl = Mage::helper('customer')->getLoginUrl();
 
         if (!Mage::getSingleton('customer/session')->authenticate($this, $loginUrl)) {
@@ -32,6 +31,9 @@ class Netresearch_OPS_CustomerController extends Mage_Core_Controller_Front_Acti
         }
     }
 
+    /**
+     *
+     */
     public function aliasesAction()
     {
         $this->loadLayout();

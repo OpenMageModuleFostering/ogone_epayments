@@ -49,11 +49,14 @@ class Netresearch_OPS_Test_Helper_Payment_RequestTest extends EcomDev_PHPUnit_Te
         $params = $this->getRequestHelper()->extractShipToParameters($address, Mage::getModel('sales/quote'));
         $this->assertEquals('Hans', $params['ECOM_SHIPTO_POSTAL_NAME_FIRST']);
         $this->assertEquals('Wurst', $params['ECOM_SHIPTO_POSTAL_NAME_LAST']);
-        $this->assertEquals('Nonnenstrasse 11d', $params['ECOM_SHIPTO_POSTAL_STREET_LINE1']);
+        $this->assertEquals('Nonnenstrasse' , $params['ECOM_SHIPTO_POSTAL_STREET_LINE1']);
+        $this->assertEquals('Nonnenstrasse' , $params['ECOM_SHIPTO_POSTAL_STREET_LINE1']);
         $this->assertEquals('', $params['ECOM_SHIPTO_POSTAL_STREET_LINE2']);
         $this->assertEquals('DE', $params['ECOM_SHIPTO_POSTAL_COUNTRYCODE']);
         $this->assertEquals('Leipzig', $params['ECOM_SHIPTO_POSTAL_CITY']);
         $this->assertEquals('04229', $params['ECOM_SHIPTO_POSTAL_POSTALCODE']);
+        $this->assertEquals('11d', $params['ECOM_SHIPTO_POSTAL_STREET_NUMBER']);
+
     }
 
     public function testGetIsoRegionCodeWithIsoRegionCode()
@@ -231,7 +234,7 @@ class Netresearch_OPS_Test_Helper_Payment_RequestTest extends EcomDev_PHPUnit_Te
 
         $this->assertArrayHasKey('ITEMID1', $formFields);
         $this->assertArrayHasKey('ITEMID2', $formFields);
-        $this->assertArrayHasKey('ORDERSHIPCOST', $formFields);
+        $this->assertArrayHasKey('ITEMID3', $formFields);
     }
 
     public function testExtractOrderItemParametersWithNoItems()

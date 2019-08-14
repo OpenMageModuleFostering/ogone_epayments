@@ -20,16 +20,16 @@
  */
 
 /**
- * RetryPayment.php
+ * Netresearch_OPS_Block_RetryPayment
  *
  * @category payment
  * @package  Netresearch_OPS
  * @author   Paul Siedler <paul.siedler@netresearch.de>
- */ 
+ */
+class Netresearch_OPS_Block_RetryPayment extends Netresearch_OPS_Block_Placeform
+{
 
-class Netresearch_OPS_Block_RetryPayment extends Netresearch_OPS_Block_Placeform {
-
-    protected $order = null;
+    protected $_order = null;
 
     protected function _getApi()
     {
@@ -38,12 +38,66 @@ class Netresearch_OPS_Block_RetryPayment extends Netresearch_OPS_Block_Placeform
 
     protected function _getOrder()
     {
-        if(is_null($this->order)){
-            $opsOrderId = $this->getRequest()->getParam('orderID');
-            $this->order = Mage::helper('ops/order')->getOrder($opsOrderId);
+        if (null === $this->_order) {
+            $opsOrderId = $this->getOrderId();
+            $this->_order = Mage::helper('ops/order')->getOrder($opsOrderId);
         }
-        return $this->order;
+
+        return $this->_order;
     }
 
+    /**
+     * Getting placeform url
+     *
+     * @return string
+     */
+    public function getFormAction()
+    {
+        $formAction = Mage::getUrl(
+            '*/*/updatePaymentAndPlaceForm',
+            array('_secure' => Mage::app()->getFrontController()->getRequest()->isSecure())
+        );
 
+        return $formAction;
+    }
+
+    /**
+     * Getting cancel url
+     *
+     * @return string
+     */
+    public function getCancelUrl()
+    {
+        $formAction = Mage::getUrl(
+            '*/*/cancel',
+            array('_secure' => Mage::app()->getFrontController()->getRequest()->isSecure())
+        );
+
+        return $formAction;
+    }
+
+    public function getOrderId()
+    {
+        return $this->getRequest()->getParam('orderID');
+    }
+
+    /**
+     * Returns the orders billing address
+     *
+     * @return Mage_Sales_Model_Order_Address
+     */
+    public function getBillingAddress()
+    {
+        return $this->_getOrder()->getBillingAddress();
+    }
+
+    /**
+     * Returns the orders shipping address or false in case of a virtual order
+     *
+     * @return Mage_Sales_Model_Order_Address|false
+     */
+    public function getShippingAddress()
+    {
+        return $this->_getOrder()->getShippingAddress();
+    }
 }

@@ -37,9 +37,18 @@ class Netresearch_OPS_Model_Source_Pmlist
     public function toOptionArray()
     {
         return array(
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_HORIZONTAL_LEFT, 'label' => Mage::helper('ops')->__('Horizontally grouped logo with group name on left')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_HORIZONTAL, 'label' => Mage::helper('ops')->__('Horizontally grouped logo with no group name')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_VERTICAL, 'label' => Mage::helper('ops')->__('Verical list')),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_HORIZONTAL_LEFT,
+                'label' => Mage::helper('ops')->__('Horizontally grouped logo with group name on left')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_HORIZONTAL,
+                'label' => Mage::helper('ops')->__('Horizontally grouped logo with no group name')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::PMLIST_VERTICAL,
+                'label' => Mage::helper('ops')->__('Verical list')
+            ),
         );
     }
 }

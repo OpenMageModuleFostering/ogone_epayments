@@ -135,8 +135,7 @@ class Netresearch_OPS_Test_Model_Payment_DirectLinkTest extends EcomDev_PHPUnit_
         $testMock->setQuoteHelper($quoteHelperMock);
         $testMock->expects($this->once())
             ->method('confirmPayment')
-            ->with($fakeOrder, $fakeQuote, $payment)
-        ;
+            ->with($fakeOrder, $fakeQuote, $payment);
         $testMock->setConfig($configMock);
         $testMock->authorize($payment, 100);
     }
@@ -162,8 +161,7 @@ class Netresearch_OPS_Test_Model_Payment_DirectLinkTest extends EcomDev_PHPUnit_
         $testMock->setQuoteHelper($quoteHelperMock);
         $testMock->expects($this->once())
             ->method('confirmPayment')
-            ->with($fakeOrder, $fakeQuote, $payment)
-        ;
+            ->with($fakeOrder, $fakeQuote, $payment);
         $testMock->expects($this->any())
             ->method('hasBrandAliasInterfaceSupport')
             ->will($this->returnValue(true));
@@ -214,7 +212,7 @@ class Netresearch_OPS_Test_Model_Payment_DirectLinkTest extends EcomDev_PHPUnit_
         $testMock->setConfig($configMock);
         $testMock->authorize($payment, 100);
 
-        $this->assertEquals(5,$payment->getAdditionalInformation('status'));
+        $this->assertEquals(5, $payment->getAdditionalInformation('status'));
         $this->assertNotEmpty($fakeOrder->getAllStatusHistory());
     }
 
@@ -470,8 +468,7 @@ class Netresearch_OPS_Test_Model_Payment_DirectLinkTest extends EcomDev_PHPUnit_
 
 
         $directDebitMock->expects($this->never())
-            ->method('confirmPayment')
-            ;
+            ->method('confirmPayment');
         $directDebitMock->setPaymentHelper($paymentHelperMock);
         $directDebitMock->capture($payment, 100);
     }

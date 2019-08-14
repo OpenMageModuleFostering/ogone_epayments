@@ -8,7 +8,8 @@
 class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_Case
 {
 
-    protected function mockSessions(){
+    protected function mockSessions()
+    {
         $sessionMock = $this->getModelMock('admin/session', array());
         $sessionMock->disableOriginalConstructor();
         $this->replaceByMock('singleton', 'admin/session', $sessionMock);
@@ -92,14 +93,14 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'PAYID' => 4711
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue(array('STATUS' => 5)))
-        ;
+            ->will($this->returnValue(array('STATUS' => 5)));
         $statusUpdateApiMock->setDirectLinkApi($directLinkApiMock);
         $statusUpdateApiMock->updateStatusFor($order);
         $opsResponse = $statusUpdateApiMock->getOpsResponse();
@@ -122,15 +123,15 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'PAYID' => 4711,
                     'PAYIDSUB' => 1
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue(array('STATUS' => 5)))
-        ;
+            ->will($this->returnValue(array('STATUS' => 5)));
         $statusUpdateApiMock->setDirectLinkApi($directLinkApiMock);
         $statusUpdateApiMock->updateStatusFor($order);
         $opsResponse = $statusUpdateApiMock->getOpsResponse();
@@ -152,15 +153,15 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'PAYID' => 4711,
                     'PAYIDSUB' => 1,
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue(array('STATUS' => 8, 'AMOUNT' => 1,)))
-        ;
+            ->will($this->returnValue(array('STATUS' => 8, 'AMOUNT' => 1,)));
 
         $statusUpdateApiMock->setDirectLinkApi($directLinkApiMock);
         $statusUpdateApiMock->updateStatusFor($order);
@@ -189,12 +190,11 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         ;
 
         // no email on refund response type
-        $dataHelperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $dataHelperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $dataHelperMock
             ->expects($this->never())
             ->method('sendTransactionalEmail')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order'))
-        ;
+            ->with($this->isInstanceOf('Mage_Sales_Model_Order'));
         $this->replaceByMock('helper', 'ops/data', $dataHelperMock);
 
 
@@ -202,14 +202,14 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'PAYID' => 4711,
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue(array('STATUS' => Netresearch_OPS_Model_Status::REFUNDED,)))
-        ;
+            ->will($this->returnValue(array('STATUS' => Netresearch_OPS_Model_Status::REFUNDED,)));
 
         $adminSessionMock = $this->getModelMock('adminhtml/session', array('init', 'save', 'addNotice'));
         $statusUpdateApi->setMessageContainer($adminSessionMock);
@@ -233,15 +233,13 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $paymentHelperMock = $this->getHelperMock('ops/payment', array('saveOpsStatusToPayment'));
         $paymentHelperMock->expects($this->any())
             ->method('saveOpsStatusToPayment')
-            ->with($payment, $response)
-        ;
+            ->with($payment, $response);
 
-        $dataHelperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $dataHelperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $dataHelperMock
             ->expects($this->once())
             ->method('sendTransactionalEmail')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order'))
-        ;
+            ->with($this->isInstanceOf('Mage_Sales_Model_Order'));
         $this->replaceByMock('helper', 'ops/data', $dataHelperMock);
 
         $adminSessionMock = $this->getModelMock('adminhtml/session', array('init', 'save', 'addSuccess'));
@@ -251,14 +249,14 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'PAYID' => 4711,
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue($response))
-        ;
+            ->will($this->returnValue($response));
 
         $statusUpdateApi->setPaymentHelper($paymentHelperMock);
         $statusUpdateApi->setDirectLinkApi($directLinkApiMock);
@@ -280,27 +278,25 @@ class Netresearch_OPS_Test_Model_Status_UpdateTest extends EcomDev_PHPUnit_Test_
         $paymentHelperMock = $this->getHelperMock('ops/payment', array('saveOpsStatusToPayment', 'applyStateForOrder'));
         $paymentHelperMock->expects($this->any())
             ->method('saveOpsStatusToPayment')
-            ->with($payment, $response)
-        ;
+            ->with($payment, $response);
 
         $paymentHelperMock->expects($this->any())
             ->method('applyStateForOrder')
-            ->with($order, $response)
-        ;
+            ->with($order, $response);
         $adminSessionMock = $this->getModelMock('adminhtml/session', array('init', 'save', 'addSuccess'));
         $statusUpdateApiMock = Mage::getModel('ops/status_update');
         $statusUpdateApiMock->setMessageContainer($adminSessionMock);
         $directLinkApiMock = $this->getModelMock('ops/api_directlink', array('performRequest'));
         $directLinkApiMock->expects($this->once())
             ->method('performRequest')
-            ->with(array(
+            ->with(
+                array(
                     'ORDERID' => Mage::getModel('ops/config')->getConfigData('devprefix') . '',
                 ),
                 Mage::getModel('ops/config')->getDirectLinkMaintenanceApiPath($order->getStoreId()),
                 $order->getStoreId()
             )
-            ->will($this->returnValue($response))
-        ;
+            ->will($this->returnValue($response));
 
 
         $statusUpdateApiMock->setPaymentHelper($paymentHelperMock);

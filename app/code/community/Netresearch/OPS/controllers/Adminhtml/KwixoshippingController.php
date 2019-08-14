@@ -21,10 +21,10 @@ class Netresearch_OPS_Adminhtml_KwixoshippingController
         $this->loadLayout();
 
         $storeId = $this->getRequest()->getParam('store', 0);
-        $this->getLayout()->getBLock('kwixoshipping')->setData(
+        $this->getLayout()->getBlock('kwixoshipping')->setData(
             'store', $storeId
         );
-        $this->getLayout()->getBLock('kwixoshipping')->setData(
+        $this->getLayout()->getBlock('kwixoshipping')->setData(
             'postData',
             Mage::getModel('adminhtml/session')->getData('errorneousData')
         );
@@ -38,40 +38,26 @@ class Netresearch_OPS_Adminhtml_KwixoshippingController
     public function saveAction()
     {
         if ($this->getRequest()->isPost()) {
-            $postData = $this->getRequest()->getPost();
-            $methodCodes = array_keys(
-                Mage::getSingleton('shipping/config')->getAllCarriers()
-            );
+            $postData = $this->getCleanPostData();
             $validator = Mage::getModel('ops/validator_kwixo_shipping_setting');
             if (true === $validator->isValid($postData)) {
-
-                foreach ($postData as $shippingCode => $kwixoData) {
-
-                    if (!in_array($shippingCode, $methodCodes)) continue;
-                    $kwixoShippingModel = Mage::getModel(
-                        'ops/kwixo_shipping_setting'
-                    )
-                        ->load($shippingCode, 'shipping_code');
+                $collection = Mage::getModel('ops/kwixo_shipping_setting')->getCollection()
+                    ->addFieldToFilter('shipping_code', array('in' => array_keys($postData)));
+                /** @var Netresearch_OPS_Model_Kwixo_Shipping_Setting $kwixoShippingModel */
+                foreach ($collection->getItems() as $kwixoShippingModel) {
+                    if (!array_key_exists($kwixoShippingModel->getShippingCode(), $postData)) {
+                        continue;
+                    }
+                    $kwixoData = $postData[$kwixoShippingModel->getShippingCode()];
                     $kwixoShippingModel
-                        ->setShippingCode($shippingCode)
-                        ->setKwixoShippingType(
-                            $kwixoData['kwixo_shipping_type']
-                        )
-                        ->setKwixoShippingSpeed(
-                            $kwixoData['kwixo_shipping_speed']
-                        )
-                        ->setKwixoShippingDetails(
-                            $kwixoData['kwixo_shipping_details']
-                        )
-                        ->save();
+                        ->setKwixoShippingType($kwixoData['kwixo_shipping_type'])
+                        ->setKwixoShippingSpeed($kwixoData['kwixo_shipping_speed'])
+                        ->setKwixoShippingDetails($kwixoData['kwixo_shipping_details']);
                 }
+                $collection->save();
             } else {
-                $postData = array_merge_recursive(
-                    $postData, $validator->getMessages()
-                );
-                Mage::getModel('adminhtml/session')->setData(
-                    'errorneousData', $postData
-                );
+                $postData = array_merge_recursive($postData, $validator->getMessages());
+                Mage::getModel('adminhtml/session')->setData('errorneousData', $postData);
             }
 
         }
@@ -81,6 +67,26 @@ class Netresearch_OPS_Adminhtml_KwixoshippingController
     protected function _isAllowed()
     {
         return Mage::getSingleton('admin/session')->isAllowed('sales/shipment');
+    }
+
+    /**
+     * removes any methods not in the actual systems carrier list from the post parameters
+     *
+     * @return array
+     */
+    protected function getCleanPostData()
+    {
+        $postData = $this->getRequest()->getPost();
+        $methodCodes = array_keys(
+            Mage::getSingleton('shipping/config')->getAllCarriers()
+        );
+        $invalidateShippingCodes = function ($key) use ($methodCodes) {
+            return !in_array($key, $methodCodes);
+        };
+        $validKeys = array_filter(array_keys($postData), $invalidateShippingCodes);
+        $cleanPostData = array_diff_key($postData, $validKeys);
+
+        return $cleanPostData;
     }
 
 

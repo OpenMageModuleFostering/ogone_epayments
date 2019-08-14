@@ -47,9 +47,8 @@ class Netresearch_OPS_Block_Form_Flex extends Netresearch_OPS_Block_Form
      */
     public function getFlexMethods()
     {
-
         $methods = $this->getMethod()->getConfigData('methods');
-        if(!is_array($methods)){
+        if (!is_array($methods)) {
             $methods = unserialize($methods);
         }
 

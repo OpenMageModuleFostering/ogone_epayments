@@ -28,12 +28,12 @@ class Netresearch_OPS_Test_Model_Payment_KwixoComptantTest extends EcomDev_PHPUn
 
     public function testGetOpsCode()
     {
-        $this->assertEquals('KWIXO_STANDARD',$this->kwixoComptantModel->getOpsCode());
+        $this->assertEquals('KWIXO_STANDARD', $this->kwixoComptantModel->getOpsCode());
     }
     
     public function testGetCode()
     {
-        $this->assertEquals('ops_kwixoComptant',$this->kwixoComptantModel->getCode());
+        $this->assertEquals('ops_kwixoComptant', $this->kwixoComptantModel->getCode());
     }
 
     public function testGetDeliveryDate()
@@ -42,10 +42,10 @@ class Netresearch_OPS_Test_Model_Payment_KwixoComptantTest extends EcomDev_PHPUn
        $dateNow = date("Y-m-d");
        $path = 'payment/ops_kwixoComptant/delivery_date';
        $this->store->setConfig($path, "0");
-       $this->assertEquals($dateNow,$this->kwixoComptantModel->getEstimatedDeliveryDate('ops_kwixoComptant'));
+       $this->assertEquals($dateNow, $this->kwixoComptantModel->getEstimatedDeliveryDate('ops_kwixoComptant'));
        $dateNowPlusFiveDays = strtotime($dateNow ."+ 5 days");
        $this->store->setConfig($path, "5");
-       $this->assertEquals(date("Y-m-d",$dateNowPlusFiveDays),$this->kwixoComptantModel->getEstimatedDeliveryDate('ops_kwixoComptant'));
+       $this->assertEquals(date("Y-m-d", $dateNowPlusFiveDays), $this->kwixoComptantModel->getEstimatedDeliveryDate('ops_kwixoComptant'));
     }
 
     public function testGetFormBlockType()

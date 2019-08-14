@@ -43,10 +43,12 @@ class Netresearch_OPS_Adminhtml_AdminController extends Mage_Adminhtml_Controlle
             $message = Mage::helper('ops')->__('Log file could not be retrieved.');
             $this->_getSession()->addError($message);
         } else {
-            $this->_prepareDownloadResponse('ops.log', array(
+            $this->_prepareDownloadResponse(
+                'ops.log', array(
                 'value' => $fileToDownload,
                 'type' => 'filename'
-            ));
+                )
+            );
         }
         $this->_redirectReferer();
     }

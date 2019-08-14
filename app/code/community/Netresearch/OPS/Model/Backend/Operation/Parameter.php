@@ -19,7 +19,6 @@ class Netresearch_OPS_Model_Backend_Operation_Parameter
      * @param Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod
      * @param Varien_Object                          $payment
      * @param                                        $amount
-     * @param                                        $arrInfo
      *
      * @return array
      */
@@ -28,7 +27,8 @@ class Netresearch_OPS_Model_Backend_Operation_Parameter
         Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Varien_Object $payment,
         $amount
-    ) {
+    ) 
+    {
         return $this->getParameterModel($operation)->getRequestParams($opsPaymentMethod, $payment, $amount);
     }
 
@@ -46,7 +46,7 @@ class Netresearch_OPS_Model_Backend_Operation_Parameter
         if ($operation === Netresearch_OPS_Model_Payment_Abstract::OPS_CAPTURE_TRANSACTION_TYPE) {
             return Mage::getModel('ops/backend_operation_capture_parameter');
         }
-        if ($operation === Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE){
+        if ($operation === Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE) {
             return Mage::getModel('ops/backend_operation_refund_parameter');
         }
 

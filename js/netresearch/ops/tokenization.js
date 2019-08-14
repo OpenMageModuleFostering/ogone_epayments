@@ -2,16 +2,23 @@ Event.observe(window, 'load', function () {
 
     payment.opsAliasSuccess = false;
 
-    payment.isInlineCcBrand = function () {
-        if ($(payment.currentMethodObject.code.toUpperCase() + '_BRAND')
+
+    payment.isInline = function () {
+        return payment.isCCInline() || payment.isDbInline();
+    };
+
+    payment.isDbInline = function () {
+       return payment.currentMethodObject && payment.currentMethodObject.code == 'ops_directDebit'
+           && (!$('new_alias_ops_directDebit') || $('new_alias_ops_directDebit').checked === true)
+           && $('ops_directDebit_country_id').value != '';
+    };
+
+    payment.isCCInline = function () {
+        return payment.currentMethodObject && payment.currentMethodObject.brandsForAliasInterface
+            && $(payment.currentMethodObject.code.toUpperCase() + '_BRAND')
             && -1 < payment.currentMethodObject.brandsForAliasInterface.indexOf(
                 $(payment.currentMethodObject.code.toUpperCase() + '_BRAND').value
-            )
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+            );
     };
 
     payment.generateIframeUrl = function (hash) {
@@ -33,18 +40,23 @@ Event.observe(window, 'load', function () {
     payment.handleBrandChange = function () {
         payment.currentMethodObject.tokenizationFrame.src = 'about:blank';
         payment.opsAliasSuccess = false;
-        if (payment.isInlineCcBrand()) {
-            payment.currentMethodObject.redirectNote.style.display = 'none';
+        if ( payment.isInline()) {
+            if (payment.currentMethodObject.redirectNote) {
+                payment.currentMethodObject.redirectNote.style.display = 'none';
+            }
             payment.fillOpsLoader('LOAD_TOKEN');
             if (typeof checkout != 'undefined') {
                 payment.toggleContinue(false);
             } else {
                 toggleOrderSubmit(false);
             }
+
             payment.generateHash();
         } else {
             payment.fillOpsLoader();
-            payment.currentMethodObject.redirectNote.style.display = 'block';
+            if (payment.currentMethodObject.redirectNote) {
+                payment.currentMethodObject.redirectNote.style.display = 'block';
+            }
             if (typeof checkout != 'undefined') {
                 payment.toggleContinue(true);
             } else {
@@ -58,11 +70,11 @@ Event.observe(window, 'load', function () {
         form = doc.createElement('form');
 
 
-        if ($(payment.currentMethodObject.code.toUpperCase() + '_BRAND')) {
+        if (payment.currentMethodObject.brand()) {
             var brandElement = doc.createElement('input');
             brandElement.id = 'CARD.BRAND';
             brandElement.name = 'CARD.BRAND';
-            brandElement.value = $(payment.currentMethodObject.code.toUpperCase() + '_BRAND').value;
+            brandElement.value = payment.currentMethodObject.brand();
             form.appendChild(brandElement);
         }
 
@@ -107,7 +119,8 @@ Event.observe(window, 'load', function () {
         var paymentMethodElement = doc.createElement('input');
         paymentMethodElement.name = 'Card.PaymentMethod';
         paymentMethodElement.id = 'Card.PaymentMethod';
-        paymentMethodElement.value = 'CreditCard';
+        paymentMethodElement.value = payment.currentMethodObject.paymentMethod
+            || payment.currentMethodObject.brand();
 
         var localeElement = doc.createElement('input');
         localeElement.name = 'Layout.Language';
@@ -157,7 +170,6 @@ Event.observe(window, 'load', function () {
             payment.currentMethodObject.loader.style.display = 'none';
             payment.currentMethodObject.tokenizationFrame.style.display = 'none';
         }
-
     };
 
     payment.toggleContinue = function (active) {
@@ -168,14 +180,51 @@ Event.observe(window, 'load', function () {
             checkout.setLoadWaiting('payment', true);
             checkout.setLoadWaiting(false, true);
         }
+        if(typeof payment.opcToggleContinue == 'function'){
+            payment.opcToggleContinue(active);
+        }
     };
 
     payment.onOpsIframeLoad = function () {
-        if (payment.isInlineCcBrand() && payment.currentMethodObject.tokenizationFrame.src != 'about:blank' && !payment.opsAliasSuccess) {
+        if (payment.isInline() && payment.currentMethodObject.tokenizationFrame.src != 'about:blank' && !payment.opsAliasSuccess) {
             payment.currentMethodObject.loader.style.display = 'none';
             payment.currentMethodObject.tokenizationFrame.style.display = 'block';
         }
+    };
+
+    if(payment.currentMethod && window[payment.currentMethod]){
+        payment.currentMethodObject = window[payment.currentMethod];
     }
 
+    payment.opsAdminSwitchMethod = function (method) {
+        if (typeof window[method] != 'undefined') {
+            if (typeof payment.currentMethodObject != 'undefined'
+                && payment.currentMethodObject.code != method
+            ) {
+                payment.opsAliasSuccess = false;
+            }
 
+            payment.currentMethodObject = window[method];
+            if (!payment.opsAliasSuccess
+                && payment.currentMethodObject.tokenizationFrame.src == 'about:blank'
+                && (
+                    !$(payment.currentMethodObject.code + '_country_id')
+                    || $(payment.currentMethodObject.code + '_country_id').value != ''
+                )
+            ) {
+                payment.reloadIframe();
+            } else {
+                toggleOrderSubmit(true);
+            }
+        } else {
+            delete payment.currentMethodObject;
+        }
+    }
 });
+function toggleOrderSubmit(active) {
+    if (active) {
+        enableElements('save')
+    } else {
+        disableElements('save')
+    }
+};

@@ -28,23 +28,20 @@
 <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
 <?php echo $this->getChildHtml('pager'); ?>
 <?php if(count($aliases)): ?>
-    <table class="data-table" id="ops-payment-information-table">
-        <col width="1" />
-        <col />
-        <col width="1" />
-        <col width="1" />
-        <thead>
-            <tr>
-                <th><?php echo Mage::helper('ops')->__('Payment method') ?></th>
-                <th><?php echo Mage::helper('ops')->__('Credit Card Type') ?></th>
-                <th><?php echo Mage::helper('ops')->__('Card Number/Account Number') ?></th>
-                <th><?php echo Mage::helper('ops')->__('Expiration Date') ?></th>
-                <th><?php echo Mage::helper('ops')->__('Card Holder') ?></th>
-                <th><?php echo Mage::helper('ops')->__('State') ?></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="ops-table-responsive">
+        <table class="data-table" id="ops-payment-information-table">
+            <thead>
+                <tr>
+                    <th><?php echo Mage::helper('ops')->__('Payment method') ?></th>
+                    <th><?php echo Mage::helper('ops')->__('Credit Card Type') ?></th>
+                    <th><?php echo Mage::helper('ops')->__('Card Number/Account Number') ?></th>
+                    <th><?php echo Mage::helper('ops')->__('Expiration Date') ?></th>
+                    <th><?php echo Mage::helper('ops')->__('Card Holder') ?></th>
+                    <th><?php echo Mage::helper('ops')->__('State') ?></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
             <?php $_odd = ''; ?>
             <?php foreach ($aliases as $alias): ?>
                 <?php $deleteUrl = $this->getAliasDeleteUrl($alias->getId()); ?>
@@ -58,8 +55,9 @@
                     <td><a href="<?php echo $deleteUrl ?>"><?php echo Mage::helper('ops')->__('Delete') ?></a></td>
                 </tr>
             <?php endforeach; ?>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 <?php else: ?>
     <p><?php echo Mage::helper('ops')->__('You did not save any payment information, yet.'); ?></p>
 <?php endif; ?>

@@ -46,7 +46,7 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceDe
         }
 
         /* not available if there is no gender or no birthday */
-        if (is_null($quote->getCustomerGender()) || is_null($quote->getCustomerDob())) {
+        if (null === $quote->getCustomerGender() || is_null($quote->getCustomerDob())) {
             return false;
         }
 
@@ -69,8 +69,8 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceDe
             ->getSource()
             ->getOptionText($order->getCustomerGender());
 
-	    $formFields[ 'CIVILITY' ]               = $gender == 'Male' ? 'Herr' : 'Frau';
-	    $formFields[ 'ECOM_CONSUMER_GENDER' ]   = $gender == 'Male' ? 'M' : 'F';
+        $formFields[ 'CIVILITY' ]               = $gender == 'Male' ? 'Herr' : 'Frau';
+        $formFields[ 'ECOM_CONSUMER_GENDER' ]   = $gender == 'Male' ? 'M' : 'F';
 
         if (!$this->getConfig()->canSubmitExtraParameter($order->getStoreId())) {
             // add the shipto parameters even if the submitOption is false, because they are required for OpenInvoice

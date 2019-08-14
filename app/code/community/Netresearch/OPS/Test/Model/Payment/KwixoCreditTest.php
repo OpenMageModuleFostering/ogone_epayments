@@ -46,7 +46,8 @@ class Netresearch_OPS_Test_Model_Payment_KwixoCreditTest extends EcomDev_PHPUnit
         $this->assertEquals($dateNow, $this->kwixoCreditModel->getEstimatedDeliveryDate('ops_kwixoCredit'));
         $dateNowPlusFiveDays = strtotime($dateNow . "+ 5 days");
         $this->store->setConfig($path, "5");
-        $this->assertEquals(date("Y-m-d", $dateNowPlusFiveDays),
+        $this->assertEquals(
+            date("Y-m-d", $dateNowPlusFiveDays),
             $this->kwixoCreditModel->getEstimatedDeliveryDate('ops_kwixoCredit')
         );
     }

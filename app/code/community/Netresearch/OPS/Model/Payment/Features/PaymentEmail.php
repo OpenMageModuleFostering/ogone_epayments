@@ -66,11 +66,16 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
         // reset payment method so the customer can choose freely from all available methods
         $this->setPaymentMethodToGeneric($order);
 
-
         $identity = $this->getIdentity($this->getConfig()->getResendPaymentInfoIdentity($order->getStoreId()));
 
+        if ($order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_PayPerMail) {
+            $template =  $this->getConfig()->getPayPerMailTemplate($order->getStoreId());
+        } else {
+            $template = $this->getConfig()->getResendPaymentInfoTemplate($order->getStoreId());
+        }
+
         $emailTemplate = $this->prepareTemplate(
-            $this->getConfig()->getResendPaymentInfoTemplate($order->getStoreId()),
+            $template,
             $identity->getEmail(),
             $identity->getName()
         );
@@ -96,16 +101,10 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
     {
         $opsOrderId = Mage::helper('ops/order')->getOpsOrderId($order);
 
-        $params = array(
-            'orderID' => $opsOrderId
+        $url = Mage::getModel('ops/config')->getPaymentRetryUrl(
+            Mage::helper('ops/payment')->validateOrderForReuse($opsOrderId, $order->getStoreId()),
+            $order->getStoreId()
         );
-
-        $secret = $this->getConfig()->getShaInCode($order->getStoreId());
-        $raw = Mage::helper('ops/payment')->getSHAInSet($params, $secret);
-
-        $params['SHASIGN'] = strtoupper(Mage::helper('ops/payment')->shaCrypt($raw));
-
-        $url = Mage::getModel('ops/config')->getPaymentRetryUrl($params, $order->getStoreId());
 
         return $url;
     }
@@ -119,7 +118,9 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
      */
     protected function setPaymentMethodToGeneric(Mage_Sales_Model_Order $order)
     {
-        $order->getPayment()->setMethod(Netresearch_OPS_Model_Payment_Flex::CODE)->save();
+        if (!$order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_PayPerMail) {
+            $order->getPayment()->setMethod(Netresearch_OPS_Model_Payment_Flex::CODE)->save();
+        }
     }
 
     /**
@@ -132,7 +133,7 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
      */
     public function sendSuspendSubscriptionMail($profile, $customer)
     {
-        if (is_null($profile) || is_null($customer)) {
+        if (null === $profile  || null === $customer) {
             Mage::throwException('Could not send mail due to internal error!');
         }
 
@@ -168,7 +169,7 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
     {
         $identity = new Varien_Object();
         $identity->setName(Mage::getStoreConfig('trans_email/ident_' . $key . '/name'))
-            ->setEmail(Mage::getStoreConfig('trans_email/ident_' . $key . '/email'));
+                 ->setEmail(Mage::getStoreConfig('trans_email/ident_' . $key . '/email'));
 
         return $identity;
     }
@@ -185,11 +186,11 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
     protected function prepareTemplate($template, $senderMail, $senderName)
     {
         $emailTemplate = Mage::getModel('core/email_template')->load($template);
-        if (is_null($emailTemplate->getTemplateSubject())) {
+        if (null === $emailTemplate->getTemplateSubject()) {
             $emailTemplate = $emailTemplate->loadDefault($template);
         }
         $emailTemplate->setSenderName($senderName)
-            ->setSenderEmail($senderMail);
+                      ->setSenderEmail($senderMail);
 
         return $emailTemplate;
     }

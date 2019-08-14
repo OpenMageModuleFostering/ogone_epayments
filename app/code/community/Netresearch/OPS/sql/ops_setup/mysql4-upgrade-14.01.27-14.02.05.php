@@ -46,8 +46,7 @@ $table     = $installer->getConnection()
                                                                          ),
         'kwixo shipping details'
     )
-    ->addIndex('unique', 'shipping_code')
-;
+    ->addIndex('unique', 'shipping_code');
 $installer->getConnection()->createTable($table);
 $installer->endSetup();
 

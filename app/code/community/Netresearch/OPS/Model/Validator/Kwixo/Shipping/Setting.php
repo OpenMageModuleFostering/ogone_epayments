@@ -11,7 +11,7 @@
 class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
 {
 
-    private $messages = array();
+    protected $messages = array();
 
     public function isValid(array $data)
     {
@@ -32,7 +32,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         return $this->messages;
     }
 
-    private function validateRow($code, $row)
+    protected function validateRow($code, $row)
     {
         $shippingTypeResult = $this->validateShippingType($code, $row);
         $shippingSpeedResult = $this->validateShippingSpeed($code, $row);
@@ -61,7 +61,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         return false;
     }
 
-    private function validateShippingSpeed($code, $row)
+    protected function validateShippingSpeed($code, $row)
     {
         if (array_key_exists('kwixo_shipping_speed', $row)
             && Zend_Validate::is(
@@ -77,7 +77,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         return false;
     }
 
-    private function validateShippingDetails($code, $row)
+    protected function validateShippingDetails($code, $row)
     {
         if (array_key_exists('kwixo_shipping_details', $row)
             && Zend_Validate::is(

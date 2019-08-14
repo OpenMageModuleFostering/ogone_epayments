@@ -28,12 +28,12 @@ class Netresearch_OPS_Test_Model_Payment_KwixoApresReceptionTest extends EcomDev
 
     public function testGetOpsCode()
     {
-        $this->assertEquals('KWIXO_RNP',$this->kwixoApresReceptionModel->getOpsCode());
+        $this->assertEquals('KWIXO_RNP', $this->kwixoApresReceptionModel->getOpsCode());
     }
     
     public function testGetCode()
     {
-        $this->assertEquals('ops_kwixoApresReception',$this->kwixoApresReceptionModel->getCode());
+        $this->assertEquals('ops_kwixoApresReception', $this->kwixoApresReceptionModel->getCode());
     }
 
     public function testGetDeliveryDate()
@@ -42,10 +42,10 @@ class Netresearch_OPS_Test_Model_Payment_KwixoApresReceptionTest extends EcomDev
        $dateNow = date("Y-m-d");
        $path = 'payment/ops_kwixoApresReception/delivery_date';
        $this->store->setConfig($path, "0");
-       $this->assertEquals($dateNow,$this->kwixoApresReceptionModel->getEstimatedDeliveryDate('ops_kwixoApresReception'));
+       $this->assertEquals($dateNow, $this->kwixoApresReceptionModel->getEstimatedDeliveryDate('ops_kwixoApresReception'));
        $dateNowPlusFiveDays = strtotime($dateNow ."+ 5 days");
        $this->store->setConfig($path, "5");
-       $this->assertEquals(date("Y-m-d",$dateNowPlusFiveDays),$this->kwixoApresReceptionModel->getEstimatedDeliveryDate('ops_kwixoApresReception'));
+       $this->assertEquals(date("Y-m-d", $dateNowPlusFiveDays), $this->kwixoApresReceptionModel->getEstimatedDeliveryDate('ops_kwixoApresReception'));
     }
 
     public function testGetFormBlockType()

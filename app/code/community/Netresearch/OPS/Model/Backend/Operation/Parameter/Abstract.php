@@ -27,8 +27,9 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Abstract
         Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Varien_Object $payment,
         $amount
-    ) {
-        $this->getBaseParams($opsPaymentMethod, $payment, $amount );
+    ) 
+    {
+        $this->getBaseParams($opsPaymentMethod, $payment, $amount);
         $this->addPmSpecificParams($opsPaymentMethod, $payment, $amount);
 
         return $this->requestParams;
@@ -40,7 +41,6 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Abstract
      * @param Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod
      * @param Varien_Object                          $payment
      * @param                                        $amount
-     * @param                                        $arrInfo
      *
      * @return $this
      */
@@ -48,11 +48,12 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Abstract
         Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Varien_Object $payment,
         $amount
-    ) {
-        $this->requestParams['AMOUNT'] = $this->getDataHelper()->getAmount($amount);
-        $this->requestParams['PAYID'] = $payment->getAdditionalInformation('paymentId');
+    ) 
+    {
+        $this->requestParams['AMOUNT']    = $this->getDataHelper()->getAmount($amount);
+        $this->requestParams['PAYID']     = $payment->getAdditionalInformation('paymentId');
         $this->requestParams['OPERATION'] = $this->getOrderHelper()->determineOperationCode($payment, $amount);
-        $this->requestParams['CURRENCY'] = Mage::app()->getStore($payment->getOrder()->getStoreId())
+        $this->requestParams['CURRENCY']  = Mage::app()->getStore($payment->getOrder()->getStoreId())
                                                ->getBaseCurrencyCode();
 
         return $this;
@@ -83,13 +84,14 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Abstract
      */
     protected function addPmSpecificParams(Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Varien_Object $payment, $amount
-    ) {
+    ) 
+    {
         if ($this->isPmRequiringAdditionalParams($opsPaymentMethod)) {
             $this->setAdditionalParamsModelFor($opsPaymentMethod);
             if ($this->additionalParamsModel instanceof
                 Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Interface
             ) {
-                $params = $this->additionalParamsModel->extractAdditionalParams($payment->getInvoice());
+                $params = $this->additionalParamsModel->extractAdditionalParams($payment);
                 $this->requestParams = array_merge($this->requestParams, $params);
             }
         }

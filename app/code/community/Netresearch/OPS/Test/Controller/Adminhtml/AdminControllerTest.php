@@ -10,7 +10,8 @@
 class Netresearch_OPS_Test_Controller_Adminhtml_AdminControllerTest extends EcomDev_PHPUnit_Test_Case_Controller
 {
 
-    public function setUp(){
+    public function setUp()
+    {
         parent::setUp();
 
         $nodePath = "modules/Enterprise_AdminGws/active";
@@ -61,7 +62,8 @@ class Netresearch_OPS_Test_Controller_Adminhtml_AdminControllerTest extends Ecom
         $this->dispatch('adminhtml/admin/resendInfo', array('order_id' => 1));
     }
 
-    protected function fakeAdminUser(){
+    protected function fakeAdminUser()
+    {
         $fakeUser = $this->getModelMock('admin/user', array('getId', 'getRole'));
         $fakeUser->expects($this->any())
             ->method('getId')

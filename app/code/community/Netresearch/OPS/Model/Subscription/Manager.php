@@ -44,7 +44,7 @@ class Netresearch_OPS_Model_Subscription_Manager
      */
     public function getDataHelper()
     {
-        if (is_null($this->dataHelper)) {
+        if (null === $this->dataHelper) {
             $this->dataHelper = Mage::helper('ops');
         }
 
@@ -68,7 +68,7 @@ class Netresearch_OPS_Model_Subscription_Manager
      */
     public function getPaymentHelper()
     {
-        if (is_null($this->paymentHelper)) {
+        if (null === $this->paymentHelper) {
             $this->paymentHelper = Mage::helper('ops/payment');
         }
 
@@ -93,7 +93,7 @@ class Netresearch_OPS_Model_Subscription_Manager
      */
     public function getSubscriptionHelper()
     {
-        if (is_null($this->subscriptionHelper)) {
+        if (null === $this->subscriptionHelper) {
             $this->subscriptionHelper = Mage::helper('ops/subscription');
         }
 
@@ -134,7 +134,7 @@ class Netresearch_OPS_Model_Subscription_Manager
             Mage::throwException($this->getDataHelper()->__('No response array provided'));
         }
 
-        if (is_null($profile)) {
+        if (null === $profile) {
             $profile = $this->getSubscriptionHelper()->getProfileForSubscription($orderId);
         }
 
@@ -163,9 +163,9 @@ class Netresearch_OPS_Model_Subscription_Manager
             }
         }
 
-        if ($createOrder && is_null($order)) {
+        if ($createOrder && null === $order) {
             return $this->createOrderFromFeedback($profile, $feedbackType, $responseParams);
-        } elseif (!is_null($order)) {
+        } elseif (null != $order) {
             return $this->processPaymentFeedback($responseParams, $profile, $order);
         }
 
@@ -191,7 +191,8 @@ class Netresearch_OPS_Model_Subscription_Manager
         if ($feedbackType == Mage_Sales_Model_Recurring_Profile::PAYMENT_TYPE_TRIAL) {
             $orderItemInfo = new Varien_Object($profile->getOrderItemInfo());
             $calculator = Mage::getModel('tax/calculation');
-            $tax = $calculator->calcTaxAmount($profile->getTrialBillingAmount(),
+            $tax = $calculator->calcTaxAmount(
+                $profile->getTrialBillingAmount(),
                 $orderItemInfo->getTaxPercent(), true, true
             );
             $price = $profile->getTrialBillingAmount() - $tax;
@@ -222,7 +223,8 @@ class Netresearch_OPS_Model_Subscription_Manager
         $item = new Varien_Object();
         $orderItemInfo = new Varien_Object($profile->getOrderItemInfo());
         $calculator = Mage::getModel('tax/calculation');
-        $taxAmount = $calculator->calcTaxAmount($profile->getInitAmount(), $orderItemInfo->getTaxPercent(), true,
+        $taxAmount = $calculator->calcTaxAmount(
+            $profile->getInitAmount(), $orderItemInfo->getTaxPercent(), true,
             true
         );
         $amountWithoutTax = $profile->getInitAmount() - $taxAmount;

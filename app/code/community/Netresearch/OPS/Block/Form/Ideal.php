@@ -8,7 +8,7 @@
 
 
 class Netresearch_OPS_Block_Form_Ideal
-    extends Mage_Payment_Block_Form
+    extends Netresearch_OPS_Block_Form
 {
 
     /**

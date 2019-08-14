@@ -14,7 +14,7 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
     const DELIMITER = '#';
 
     /** @var $config Netresearch_OPS_Model_Config */
-    private $config = null;
+    protected $config = null;
 
     protected $statusMappingModel = null;
 
@@ -48,7 +48,7 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
      */
     protected function getConfig()
     {
-        if (is_null($this->config)) {
+        if (null === $this->config) {
             $this->config = Mage::getModel('ops/config');
         }
 
@@ -112,7 +112,6 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
             $opsOrderId = substr($opsOrderId, strlen(self::DELIMITER));
             $fieldToFilter = 'increment_id';
         }
-
 
         /* @var $order Mage_Sales_Model_Resource_Order_Collection */
         $order = Mage::getModel('sales/order')->getCollection()

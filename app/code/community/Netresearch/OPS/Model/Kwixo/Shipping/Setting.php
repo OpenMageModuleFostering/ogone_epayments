@@ -15,7 +15,6 @@ class Netresearch_OPS_Model_Kwixo_Shipping_Setting
      * Constructor
      *
      * @see lib/Varien/Varien_Object#_construct()
-     * @return Netresearch_OPS_Model_Kwixo_Shipping_Setting
      */
     public function _construct()
     {

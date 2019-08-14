@@ -38,7 +38,7 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
         }
 
         /* not available if there is no gender or no birthday */
-        if (is_null($quote->getCustomerGender()) || is_null($quote->getCustomerDob())) {
+        if (null === $quote->getCustomerGender() || is_null($quote->getCustomerDob())) {
             return false;
         }
 
@@ -49,18 +49,16 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
      * get some method dependend form fields
      *
      * @param Mage_Sales_Model_Quote $order
+     * @param array $requestParams
      * @return array
      */
     public function getMethodDependendFormFields($order, $requestParams=null)
     {
         $billingAddress  = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
-        $street = str_replace("\n", ' ',$billingAddress->getStreet(-1));
-        $regexp = '/^([^0-9]*)([0-9].*)$/';
-        if (!preg_match($regexp, $street, $splittedStreet)) {
-            $splittedStreet[1] = $street;
-            $splittedStreet[2] = '';
-        }
+        $billingStreet   = str_replace("\n", ' ', $billingAddress->getStreet(-1));
+
+        $splittedBillingStreet = Mage::helper('ops/address')->splitStreet($billingStreet);
         $formFields = parent::getMethodDependendFormFields($order, $requestParams);
 
         $gender = Mage::getSingleton('eav/config')
@@ -70,23 +68,22 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
 
         $formFields['CIVILITY']                         = $gender == 'Male' ? 'M' : 'V';
         $formFields['ECOM_CONSUMER_GENDER']             = $gender == 'Male' ? 'M' : 'V';
-        $formFields['OWNERADDRESS']                     = trim($splittedStreet[1]);
-        $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER'] = trim($splittedStreet[2]);
+        $formFields['OWNERADDRESS']                     = $splittedBillingStreet['street_name'];
+        $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER'] = $splittedBillingStreet['street_number'];
         $formFields['OWNERZIP']                         = $billingAddress->getPostcode();
         $formFields['OWNERTOWN']                        = $billingAddress->getCity();
         $formFields['OWNERCTY']                         = $billingAddress->getCountry();
         $formFields['OWNERTELNO']                       = $billingAddress->getTelephone();
 
-        $street = str_replace("\n", ' ',$shippingAddress->getStreet(-1));
-        if (!preg_match($regexp, $street, $splittedStreet)) {
-            $splittedStreet[1] = $street;
-            $splittedStreet[2] = '';
-        }
+        $shippingStreet = str_replace("\n", ' ', $shippingAddress->getStreet(-1));
+
+        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
+
         $formFields['ECOM_SHIPTO_POSTAL_NAME_PREFIX']   = $shippingAddress->getPrefix();
         $formFields['ECOM_SHIPTO_POSTAL_NAME_FIRST']    = $shippingAddress->getFirstname();
         $formFields['ECOM_SHIPTO_POSTAL_NAME_LAST']     = $shippingAddress->getLastname();
-        $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']  = trim($splittedStreet[1]);
-        $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER'] = trim($splittedStreet[2]);
+        $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']  = $splittedShippingStreet['street_name'];
+        $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER'] = $splittedShippingStreet['street_number'];
         $formFields['ECOM_SHIPTO_POSTAL_POSTALCODE']    = $shippingAddress->getPostcode();
         $formFields['ECOM_SHIPTO_POSTAL_CITY']          = $shippingAddress->getCity();
         $formFields['ECOM_SHIPTO_POSTAL_COUNTRYCODE']   = $shippingAddress->getCountry();
@@ -116,11 +113,9 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
      * get question for fields with disputable value
      * users are asked to correct the values before redirect to Ingenico ePayments
      *
-     * @param Mage_Sales_Model_Order $order         Current order
-     * @param array                  $requestParams Request parameters
      * @return string
      */
-    public function getQuestion($order, $requestParams)
+    public function getQuestion()
     {
         return Mage::helper('ops')->__('Please make sure that your street and house number are correct.');
     }
@@ -129,11 +124,10 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
      * get an array of fields with disputable value
      * users are asked to correct the values before redirect to Ingenico ePayments
      *
-     * @param Mage_Sales_Model_Order $order         Current order
-     * @param array                  $requestParams Request parameters
+     *
      * @return array
      */
-    public function getQuestionedFormFields($order, $requestParams)
+    public function getQuestionedFormFields($order)
     {
         return array(
             'OWNERADDRESS',

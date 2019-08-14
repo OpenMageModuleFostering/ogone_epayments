@@ -36,6 +36,7 @@ class Netresearch_OPS_Block_Info_Redirect extends Mage_Payment_Block_Info
     protected function _construct()
     {
         parent::_construct();
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->setTemplate('ops/info/redirect.phtml');
     }
 }

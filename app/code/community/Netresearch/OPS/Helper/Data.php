@@ -29,7 +29,7 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
     public function getModuleVersionString()
     {
         $version = Mage::getConfig()->getNode('modules/Netresearch_OPS/version');
-        $plainversion = preg_replace('/\.|[+-].+$/','', $version);
+        $plainversion = preg_replace('/\.|[+-].+$/', '', $version);
         return 'IG1X' . $plainversion;
     }
 
@@ -75,10 +75,10 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
         if (is_string($message)) {
-            $message = preg_replace('/"CVC":".*"(,)/i','',$message);
-            $message = preg_replace('/"CVC":".*"/i','',$message);
-            $message = preg_replace('/"CVC".*"[A-Z]*";/','',$message);
-            $message = preg_replace('/"CVC":".*"(})/i','}',$message);
+            $message = preg_replace('/"CVC":".*"(,)/i', '', $message);
+            $message = preg_replace('/"CVC":".*"/i', '', $message);
+            $message = preg_replace('/"CVC".*"[A-Z]*";/', '', $message);
+            $message = preg_replace('/"CVC":".*"(})/i', '}', $message);
         }
         return $message;
     }
@@ -87,7 +87,6 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
     {
         Mage::app()->getResponse()->setRedirect($url);
         Mage::app()->getResponse()->sendResponse();
-        exit();
     }
 
     /**

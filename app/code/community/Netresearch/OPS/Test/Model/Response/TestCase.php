@@ -37,12 +37,11 @@ abstract class Netresearch_OPS_Test_Model_Response_TestCase extends EcomDev_PHPU
 {
     protected function mockOrderConfig()
     {
-        $configMock = $this->getModelMock('sales/order_config', ['getDefaultStatus']);
+        $configMock = $this->getModelMock('sales/order_config', array('getDefaultStatus'));
         $configMock
             ->expects($this->any())
             ->method('getDefaultStatus')
-            ->will($this->returnArgument(0))
-        ;
+            ->will($this->returnArgument(0));
         $this->replaceByMock('singleton', 'sales/order_config', $configMock);
     }
 
@@ -53,12 +52,11 @@ abstract class Netresearch_OPS_Test_Model_Response_TestCase extends EcomDev_PHPU
      */
     protected function mockEmailHelper(PHPUnit_Framework_MockObject_Matcher_Invocation $matcher)
     {
-        $helperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $helperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $helperMock
             ->expects($matcher)
             ->method('sendTransactionalEmail')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order'))
-        ;
+            ->with($this->isInstanceOf('Mage_Sales_Model_Order'));
         $this->replaceByMock('helper', 'ops/data', $helperMock);
     }
 }

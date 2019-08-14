@@ -34,14 +34,18 @@ class Netresearch_OPS_Block_System_Config_Form_Field_Brand
 {
     public function __construct()
     {
-        $this->addColumn('brand', array(
+        $this->addColumn(
+            'brand', array(
             'label' => Mage::helper('ops')->__('Brand'),
             'style' => 'width:120px',
-        ));
-        $this->addColumn('value', array(
+            )
+        );
+        $this->addColumn(
+            'value', array(
             'label' => Mage::helper('ops')->__('Title'),
             'style' => 'width:120px',
-        ));
+            )
+        );
         $this->_addAfter = false;
         $this->_addButtonLabel = Mage::helper('ops')->__('Add Brand');
         parent::__construct();

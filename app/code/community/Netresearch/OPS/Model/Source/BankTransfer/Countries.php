@@ -46,14 +46,23 @@ class Netresearch_OPS_Model_Source_BankTransfer_Countries
         if (!$this->options) {
             $this->options = Mage::getResourceModel('directory/country_collection')->loadData()->toOptionArray(false);
             if (!$isMultiselect) {
-                array_unshift($this->options, array('value'=>'', 'label'=> Mage::helper('adminhtml')->__('--Please Select--')));
+                array_unshift(
+                    $this->options,
+                    array(
+                        'value'=>'',
+                        'label'=> Mage::helper('adminhtml')->__('--Please Select--')
+                    )
+                );
             }
             foreach ($this->options as $offset=>$option) {
                 if (!in_array($option['value'], $this->countries)) {
                     unset($this->options[$offset]);
                 }
             }
-            $this->options['*'] = array('value'=>'*', 'label'=> Mage::helper('adminhtml')->__(Mage::helper('ops')->__('Miscellaneous Countries')));
+            $this->options['*'] = array(
+                'value'=>'*',
+                'label'=> Mage::helper('adminhtml')->__(Mage::helper('ops')->__('Miscellaneous Countries'))
+            );
         }
 
         return $this->options;

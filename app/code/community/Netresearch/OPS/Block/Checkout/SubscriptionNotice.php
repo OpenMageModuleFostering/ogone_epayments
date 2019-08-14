@@ -93,7 +93,8 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
      */
     public function getInitialFeeText()
     {
-        return $this->__('You will be charged an initial amount of %s.',
+        return $this->__(
+            'You will be charged an initial amount of %s.',
             $this->helper('checkout')->formatPrice($this->getProfile()->getInitAmount())
         );
     }
@@ -105,7 +106,8 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
     {
         $profile = $this->getProfile();
 
-        return $this->__('A trial subscription will be created. This will charge you %s every %s %s until %s.',
+        return $this->__(
+            'A trial subscription will be created. This will charge you %s every %s %s until %s.',
             $this->helper('checkout')->formatPrice(
                 $profile->getTrialBillingAmount() + $profile->getShippingAmount()
             ),
@@ -122,7 +124,8 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
     {
         $profile = $this->getProfile();
 
-        $message = $this->__('A subscription will be created. This will charge you %s every %s %s.',
+        $message = $this->__(
+            'A subscription will be created. This will charge you %s every %s %s.',
             $this->helper('checkout')->formatPrice(
                 $profile->getBillingAmount() + $profile->getTaxAmount() + $profile->getShippingAmount()
             ),
@@ -130,16 +133,19 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
             $profile->getPeriodUnitLabel($profile->getPeriodUnit())
         );
 
-        if($this->getRegularSubscriptionEndDate()){
-            $message .= $this->__(' The subscription will end on %s.',
-                $this->localizeDate($this->getRegularSubscriptionEndDate()));
+        if ($this->getRegularSubscriptionEndDate()) {
+            $message .= $this->__(
+                ' The subscription will end on %s.',
+                $this->localizeDate($this->getRegularSubscriptionEndDate())
+            );
         }
         return $message;
     }
 
     public function getCancelInformationText()
     {
-        return $this->__('To cancel the subscription, please send an email to the shop owner' .
+        return $this->__(
+            'To cancel the subscription, please send an email to the shop owner' .
             ' or request this by clicking the suspend button on the subscriptions detail view in your customer account.'
             . ' A link to that page will be displayed on the checkout success page.'
         );
@@ -163,7 +169,8 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
         $parameterModel = Mage::getModel('ops/payment_recurring_cc_parameterBag');
         $enddate = null;
         $startDate = new DateTime($this->getProfile()->getStartDatetime());
-        $enddate = $parameterModel->calculateEndDate($startDate, $this->getProfile()->getTrialPeriodUnit(),
+        $enddate = $parameterModel->calculateEndDate(
+            $startDate, $this->getProfile()->getTrialPeriodUnit(),
             $this->getProfile()->getTrialPeriodFrequency(), $this->getProfile()->getTrialPeriodMaxCycles()
         );
 
@@ -179,14 +186,16 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
         } else {
             $startDate = new DateTime($this->getProfile()->getStartDatetime());
         }
-        $enddate = $parameterModel->calculateEndDate($startDate, $this->getProfile()->getPeriodUnit(),
+        $enddate = $parameterModel->calculateEndDate(
+            $startDate, $this->getProfile()->getPeriodUnit(),
             $this->getProfile()->getPeriodFrequency(), $this->getProfile()->getPeriodMaxCycles()
         );
 
         return $enddate;
     }
 
-    protected function localizeDate(DateTime $date){
+    protected function localizeDate(DateTime $date)
+    {
         $date = new Zend_Date($date->getTimestamp());
         return Mage::helper('core')->formatDate($date);
     }

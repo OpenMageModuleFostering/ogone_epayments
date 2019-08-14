@@ -175,9 +175,6 @@ ops_ingHomePay:
 ops_kbcOnline:
     pm:    KBC Online
     brand: KBC Online
-ops_mpass:
-    pm:    MPASS
-    brand: MPASS
 ops_paysafecard:
     pm:    paysafecard
     brand: paysafecard

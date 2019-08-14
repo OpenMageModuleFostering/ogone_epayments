@@ -25,6 +25,7 @@ class Netresearch_OPS_Block_Info_Alias extends Netresearch_OPS_Block_Info_Redire
     protected function _construct()
     {
         parent::_construct();
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->setTemplate('ops/info/cc.phtml');
     }
 }

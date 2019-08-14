@@ -11,7 +11,7 @@
 class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
 {
 
-    private $helper = null;
+    protected $helper = null;
 
     protected function getHelper()
     {
@@ -59,13 +59,9 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
             );
             $subcategories = $category->getAllChildren(true);
             foreach ($subcategories as $subcategory) {
-                $kwixoCatMapModel = Mage::getModel(
-                    'ops/kwixo_category_mapping'
-                )->loadByCategoryId($subcategory);
+                $kwixoCatMapModel = Mage::getModel('ops/kwixo_category_mapping')->loadByCategoryId($subcategory);
                 $kwixoCatMapModel->setCategoryId($subcategory);
-                $kwixoCatMapModel->setKwixoCategoryId(
-                    $postData['kwixoCategory_id']
-                );
+                $kwixoCatMapModel->setKwixoCategoryId($postData['kwixoCategory_id']);
                 $kwixoCatMapModel->save();
             }
         }
@@ -85,7 +81,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
      *
      * @throws Mage_Core_Exception - if the structure does not match
      */
-    private function validateKwixoConfigurationData(array $postData)
+    protected function validateKwixoConfigurationData(array $postData)
     {
         $helper = $this->getHelper();
         $isValid = true;
@@ -122,7 +118,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
      *                             information
      *
      */
-    private function validateKwixoMappingExist(array $postData)
+    protected function validateKwixoMappingExist(array $postData)
     {
         $helper = $this->getHelper();
         $kwixoCategories = Mage::getModel('ops/source_kwixo_productCategories')
@@ -145,7 +141,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
      *
      * @throws Mage_Core_Exception - if an invalid setting is given
      */
-    private function validateCategoryExist(array $postData)
+    protected function validateCategoryExist(array $postData)
     {
         $helper = $this->getHelper();
         $isValid = true;
@@ -157,11 +153,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
         }
         if ($isValid
             && (!is_numeric($postData['category_id'])
-                || is_null(
-                    Mage::getModel('catalog/category')->load(
-                        $postData['category_id']
-                    )->getId()
-                ))
+            || null === Mage::getModel('catalog/category')->load($postData['category_id'])->getId())
         ) {
             $isValid = false;
             $message = $helper->__('Invalid category provided');

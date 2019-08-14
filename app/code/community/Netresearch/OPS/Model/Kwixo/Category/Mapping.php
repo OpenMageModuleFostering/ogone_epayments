@@ -36,7 +36,6 @@ class Netresearch_OPS_Model_Kwixo_Category_Mapping
      * Constructor
      *
      * @see lib/Varien/Varien_Object#_construct()
-     * @return Netresearch_OPS_Model_Kwixo_Category_Mapping
      */
     public function _construct()
     {
@@ -49,8 +48,10 @@ class Netresearch_OPS_Model_Kwixo_Category_Mapping
     {
         $collection = $this->getCollection()
             ->addFieldToFilter('category_id', $categoryId)
-            ->load();
-        return $collection->getFirstItem();
+            ->load()
+            ->getFirstItem();
+
+        return $collection;
     }
 
 }

@@ -102,7 +102,8 @@ class Netresearch_OPS_Test_Helper_SubscriptionTest extends EcomDev_PHPUnit_Test_
 
     }
 
-    public function testGetBillingDayForPeriodUnit(){
+    public function testGetBillingDayForPeriodUnit()
+    {
         $subject = Mage::helper('ops/subscription');
 
         $this->assertEquals(1, $subject->getBillingDayForPeriodUnit('abc'));

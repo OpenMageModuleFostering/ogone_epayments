@@ -97,13 +97,11 @@ class Netresearch_OPS_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
     public function sendNoMail()
     {
         $documentMock = $this->getMockBuilder('Mage_Sales_Model_Order_Shipment')
-            ->setMethods(['getEmailSent'])
-            ->getMock()
-        ;
+            ->setMethods(array('getEmailSent'))
+            ->getMock();
         $documentMock
             ->expects($this->never())
-            ->method('getEmailSent')
-        ;
+            ->method('getEmailSent');
 
         Mage::helper('ops/data')->sendTransactionalEmail($documentMock);
     }
@@ -113,23 +111,22 @@ class Netresearch_OPS_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
      */
     public function sendOrderEmail()
     {
-        $orderMock = $this->getModelMock('sales/order', [
+        $orderMock = $this->getModelMock(
+            'sales/order', array(
             'getEmailSent', 'getCanSendNewEmailFlag', 'sendNewOrderEmail'
-        ]);
+            )
+        );
         $orderMock
             ->expects($this->exactly(3))
             ->method('getEmailSent')
-            ->willReturnOnConsecutiveCalls(true, false, false)
-        ;
+            ->willReturnOnConsecutiveCalls(true, false, false);
         $orderMock
             ->expects($this->exactly(2))
             ->method('getCanSendNewEmailFlag')
-            ->willReturnOnConsecutiveCalls(false, true)
-        ;
+            ->willReturnOnConsecutiveCalls(false, true);
         $orderMock
             ->expects($this->once())
-            ->method('sendNewOrderEmail')
-        ;
+            ->method('sendNewOrderEmail');
         $this->replaceByMock('model', 'sales/order', $orderMock);
 
         $order = Mage::getModel('sales/order');
@@ -143,26 +140,25 @@ class Netresearch_OPS_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
      */
     public function sendInvoiceEmail()
     {
-        $configMock = $this->getModelMock('ops/config', ['getSendInvoice']);
+        $configMock = $this->getModelMock('ops/config', array('getSendInvoice'));
         $configMock
             ->expects($this->exactly(2))
             ->method('getSendInvoice')
-            ->willReturnOnConsecutiveCalls(false, true)
-        ;
+            ->willReturnOnConsecutiveCalls(false, true);
         $this->replaceByMock('model', 'ops/config', $configMock);
 
-        $invoiceMock = $this->getModelMock('sales/order_invoice', [
+        $invoiceMock = $this->getModelMock(
+            'sales/order_invoice', array(
             'getEmailSent', 'sendEmail'
-        ]);
+            )
+        );
         $invoiceMock
             ->expects($this->exactly(3))
             ->method('getEmailSent')
-            ->willReturnOnConsecutiveCalls(true, false, false)
-        ;
+            ->willReturnOnConsecutiveCalls(true, false, false);
         $invoiceMock
             ->expects($this->once())
-            ->method('sendEmail')
-        ;
+            ->method('sendEmail');
         $this->replaceByMock('model', 'sales/order', $invoiceMock);
 
         $order = Mage::getModel('sales/order');

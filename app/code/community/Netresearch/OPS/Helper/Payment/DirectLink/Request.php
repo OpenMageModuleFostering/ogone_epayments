@@ -162,7 +162,8 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
 
 
     /**
-     * extracts the parameter for the direct link request from the quote, order and, optionally from existing request params
+     * extracts the parameter for the direct link request from the quote,
+     * order and, optionally from existing request params
      *
      * @param Mage_Sales_Model_Quote $quote
      * @param Mage_Sales_Model_Order $order
@@ -170,7 +171,8 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
      *
      * @return array - the parameters for the direct link request
      */
-    public function getDirectLinkRequestParams(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order, $requestParams = array())
+    public function getDirectLinkRequestParams(
+        Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order, $requestParams = array())
     {
         $billingAddress  = $order->getBillingAddress();
         $shippingAddress = $this->getShippingAddress($order, $billingAddress);
@@ -262,8 +264,9 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
     {
         if ($this->getDataHelper()->isAdminSession()) {
             $requestParams['ECI'] = Netresearch_OPS_Model_Eci_Values::MANUALLY_KEYED_FROM_MOTO;
-            $requestParams['REMOTE_ADDR'] = 'NONE';//$order->getRemoteIp();
+            $requestParams['REMOTE_ADDR'] = 'NONE';
         }
+
         return $requestParams;
     }
 

@@ -37,7 +37,7 @@ class Netresearch_OPS_Model_Response_Type_Void extends Netresearch_OPS_Model_Res
     protected function _handleResponse()
     {
         if (!Netresearch_OPS_Model_Status::isVoid($this->getStatus())) {
-            throw new Mage_Core_Exception(Mage::helper('ops')->__('%s is not a void status!', $this->getStatus()));
+            Mage::throwException(Mage::helper('ops')->__('%s is not a void status!', $this->getStatus()));
         }
 
         /** @var Mage_Sales_Model_Order_Payment $payment */
@@ -52,7 +52,8 @@ class Netresearch_OPS_Model_Response_Type_Void extends Netresearch_OPS_Model_Res
                 );
                 $payment->registerVoidNotification($this->getAmount());
 
-                // payment void does not cancel the order, but sets it to processing. we therefore need to cancel the order ourselves
+                // payment void does not cancel the order, but sets it to processing.
+                // We therefore need to cancel the order ourselves.
                 $order->registerCancellation($this->getFinalStatusComment(), true);
             } else {
                 $this->addFinalStatusComment();
@@ -63,6 +64,4 @@ class Netresearch_OPS_Model_Response_Type_Void extends Netresearch_OPS_Model_Res
 
         $order->save();
     }
-
-
 }

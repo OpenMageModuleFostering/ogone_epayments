@@ -37,7 +37,7 @@ class Netresearch_OPS_Helper_Subscription extends Mage_Core_Helper_Abstract
      * SUB-subscriptionId-TRIAL
      *
      * @param Mage_Payment_Model_Recurring_Profile $profile   - the profile itself
-     * @param bool                                 $withTrial - if you wish the trial suffix appended in case the profile has a trial subscription
+     * @param bool $withTrial - if you wish the trial suffix appended in case the profile has a trial subscription
      *
      * @return string
      */

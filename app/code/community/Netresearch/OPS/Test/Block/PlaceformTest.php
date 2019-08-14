@@ -4,11 +4,23 @@ class Netresearch_OPS_Test_Block_PlaceformTest extends EcomDev_PHPUnit_Test_Case
     public function testGetFormAction()
     {
         $this->mockSessions();
+
+        $order   = Mage::getModel('sales/order');
+        $payment = Mage::getModel('sales/order_payment');
+        $payment->setMethod('ops_openInvoiceDe');
+        $order->setPayment($payment);
+
         //$block = Mage::app()->getLayout()->getBlockSingleton('ops/placeform');
-        $blockMock = $this->getBlockMock('ops/placeform', array('getQuestion'));
+        $blockMock = $this->getBlockMock('ops/placeform', array('getQuestion', '_getOrder'));
         $blockMock->expects($this->any())
             ->method('getQuestion')
             ->will($this->returnValue('How much is the fish?'));
+
+
+        $blockMock->expects($this->any())
+            ->method('_getOrder')
+            ->will($this->returnValue($order));
+
 
         $action = $blockMock->getFormAction();
         $this->assertEquals(Mage::getUrl('*/*/*', array('_secure' => Mage::app()->getFrontController()->getRequest()->isSecure())), $action);
@@ -18,10 +30,16 @@ class Netresearch_OPS_Test_Block_PlaceformTest extends EcomDev_PHPUnit_Test_Case
         $action = $blockMock->getFormAction();
         $this->assertEquals(Mage::getUrl('*/*/*', array('_secure' =>true)), $action);
 
-        $blockMock = $this->getBlockMock('ops/placeform', array('getQuestion'));
+        $blockMock = $this->getBlockMock('ops/placeform', array('getQuestion', '_getOrder'));
         $blockMock->expects($this->any())
             ->method('getQuestion')
             ->will($this->returnValue(null));
+
+        $blockMock->expects($this->any())
+            ->method('_getOrder')
+            ->will($this->returnValue($order));
+
+
 
         $action = $blockMock->getFormAction();
         $this->assertEquals($blockMock->getConfig()->getFrontendGatewayPath(), $action);

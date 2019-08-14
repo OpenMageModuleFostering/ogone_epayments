@@ -20,7 +20,8 @@ class Netresearch_OPS_Model_Backend_Operation_Capture_Parameter
     {
         $opsPaymentMethodClass = get_class($opsPaymentMethod);
         $opsPmsRequiringSpecialParams = $this->getOpsConfig()
-                                             ->getMethodsRequiringAdditionalParametersFor(Netresearch_OPS_Model_Payment_Abstract::OPS_CAPTURE_TRANSACTION_TYPE
+                                             ->getMethodsRequiringAdditionalParametersFor(
+                                                 Netresearch_OPS_Model_Payment_Abstract::OPS_CAPTURE_TRANSACTION_TYPE
                                              );
 
         return (in_array($opsPaymentMethodClass, array_values($opsPmsRequiringSpecialParams)));
@@ -33,7 +34,7 @@ class Netresearch_OPS_Model_Backend_Operation_Capture_Parameter
      */
     protected function setAdditionalParamsModelFor(Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod)
     {
-        if ($opsPaymentMethod instanceof Netresearch_OPS_Model_Payment_OpenInvoiceNl) {
+        if ($opsPaymentMethod instanceof Netresearch_OPS_Model_Payment_OpenInvoice_Abstract) {
             $this->additionalParamsModel = Mage::getModel('ops/backend_operation_capture_additional_openInvoiceNl');
         }
     }

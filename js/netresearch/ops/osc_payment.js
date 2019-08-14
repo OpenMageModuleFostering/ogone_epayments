@@ -3,10 +3,33 @@ Event.observe(window, 'load', function() {
     // check if we are dealing with OneStepCheckout
     payment.isOneStepCheckout = $$('.onestepcheckout-place-order');
     payment.formOneStepCheckout = $('onestepcheckout-form');
-    payment.holdOneStepCheckout = true;
+    payment.holdOneStepCheckout = false;
 
     if(payment.isOneStepCheckout){
 
+        window.get_separate_save_methods_function = window.get_separate_save_methods_function.wrap(function (originalCall, url, update_payments) {
+
+            var aliasMethods = ['ops_cc', 'ops_dc'];
+
+            aliasMethods.each(function (method) {
+                if (typeof  $('p_method_' + method) != 'undefined') {
+                    $$('input[type="radio"][name="payment[' + method + '_data][alias]"]').each(function (element) {
+                        element.observe('click', function () {
+                            payment.toggleCCInputfields(this);
+                        })
+                    });
+                }
+                var newAliasElement = $('new_alias_' + method);
+                if (newAliasElement
+                    && $$('input[type="radio"][name="payment[' + method + '_data][alias]"]').size() == 1
+                ) {
+                    payment.toggleCCInputfields(newAliasElement);
+                }
+            });
+
+            return originalCall(url, update_payments);
+
+        });
         //set the form element
         payment.form = payment.formOneStepCheckout;
 
@@ -32,10 +55,10 @@ Event.observe(window, 'load', function() {
         });
 
 
-         //add new method to restore the palce order state when failure
+         //add new method to restore the place order state when failure
         payment.toggleOneStepCheckout =  function(action){
-            submitelement = $('onestepcheckout-place-order');
-            loaderelement = $$('.onestepcheckout-place-order-loading');
+            var submitelement = $('onestepcheckout-place-order');
+            var loaderelement = $$('.onestepcheckout-place-order-loading');
 
             if(action === 'payment'){
 
@@ -61,25 +84,17 @@ Event.observe(window, 'load', function() {
                 window.already_placing_order = false;
                 payment.holdOneStepCheckout = false;
             }
-
-
-            return;
         };
 
-        //wrapp save before ogone
-        payment.save = payment.save.wrap(function(originalSaveMethod) {
-            $('onestepcheckout-place-order').click();
-            return;
-        });
-
         //wrap this to toggle the buttons in OneStepCheckout.
-        checkout.setLoadWaiting = checkout.setLoadWaiting.wrap(function(originalSetLoadWaiting, param1){
+        payment.opcToggleContinue = function (active) {
 
-            if(!param1){
+            if (!active) {
+                payment.toggleOneStepCheckout('payment');
+            } else {
                 payment.toggleOneStepCheckout('remove');
             }
-            originalSetLoadWaiting(param1);
-        });
+        };
     }
     // check if we are dealing with OneStepCheckout end
 

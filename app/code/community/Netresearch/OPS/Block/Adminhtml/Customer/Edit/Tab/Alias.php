@@ -78,15 +78,6 @@ class Netresearch_OPS_Block_Adminhtml_Customer_Edit_Tab_Alias
         return 'orders';
     }
 
-    /*
-     * Retrieves Grid Url
-     *
-     * @return string
-     */
-    public function getGridUrl()
-    {
-        //return $this->getUrl('*/ops/customer', array('_current'=>true));
-    }
 
     protected function _prepareCollection()
     {
@@ -102,45 +93,60 @@ class Netresearch_OPS_Block_Adminhtml_Customer_Edit_Tab_Alias
 
     protected function _prepareColumns()
     {
-        $this->addColumn('alias', array(
+        $this->addColumn(
+            'alias', array(
             'header'        => Mage::helper('ops')->__('Alias'),
             'align'         => 'right',
             'index'         => 'alias',
-        ));
+            )
+        );
 
-        $this->addColumn('payment_method', array(
+        $this->addColumn(
+            'payment_method', array(
             'header'    => Mage::helper('ops')->__('Payment method'),
             'index'     => 'payment_method',
             'renderer'  => 'Netresearch_OPS_Block_Adminhtml_Customer_Renderer_PaymentMethod'
-        ));
+            )
+        );
 
-        $this->addColumn('brand', array(
+        $this->addColumn(
+            'brand', array(
             'header'    => Mage::helper('ops')->__('Credit Card Type'),
             'index'     => 'brand',
-        ));
+            )
+        );
 
-        $this->addColumn('pseudo_account_or_cc_no', array(
+        $this->addColumn(
+            'pseudo_account_or_cc_no', array(
             'header'    => Mage::helper('ops')->__('Card Number/Account Number'),
             'index'     => 'pseudo_account_or_cc_no',
-        ));
+            )
+        );
 
-        $this->addColumn('expiration_date', array(
+        $this->addColumn(
+            'expiration_date', array(
             'header'    => Mage::helper('ops')->__('Expiration Date'),
             'index'     => 'expiration_date',
-        ));
+            )
+        );
         
-        $this->addColumn('card_holder', array(
+        $this->addColumn(
+            'card_holder', array(
             'header'    => Mage::helper('ops')->__('Card Holder'),
             'index'     => 'card_holder',
-        ));
+            )
+        );
         
-        $this->addColumn('state', array(
+        $this->addColumn(
+            'state', array(
             'header'    => Mage::helper('ops')->__('State'),
             'index'     => 'state',
             'renderer'  => 'Netresearch_OPS_Block_Adminhtml_Customer_Renderer_State',
-        ));
+            )
+        );
 
-        $this->addColumn('action',
+        $this->addColumn(
+            'action',
             array(
                 'header'    =>  Mage::helper('ops')->__('Action'),
                 'width'     => '100',
@@ -157,13 +163,10 @@ class Netresearch_OPS_Block_Adminhtml_Customer_Edit_Tab_Alias
                 'sortable'  => false,
                 'index'     => 'stores',
                 'is_system' => true,
-        ));
+            )
+        );
 
         return parent::_prepareColumns();
     }
 
-    public function getRowUrl($row)
-    {
-        //return $this->getUrl('*/customer/edit', array('id' => $row->getId()));
-    }
 }

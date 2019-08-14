@@ -19,7 +19,8 @@ class Netresearch_OPS_Test_Model_Backend_Operation_ParameterTest extends EcomDev
         $amount = 0;
         $opsPaymentMethod = Mage::getModel('ops/payment_abstract');
         Mage::getModel('ops/backend_operation_parameter')->getParameterFor(
-            'NOT SUPPORTED OPERATION TYPE', $opsPaymentMethod, $fakePayment, $amount, $arrInfo);
+            'NOT SUPPORTED OPERATION TYPE', $opsPaymentMethod, $fakePayment, $amount, $arrInfo
+        );
     }
 
     public function testGetParameterForCaptureWillReturnArray()

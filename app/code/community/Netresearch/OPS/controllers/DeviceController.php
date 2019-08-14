@@ -41,7 +41,7 @@ class Netresearch_OPS_DeviceController extends Mage_Core_Controller_Front_Action
      */
     public function getConfig()
     {
-        if (is_null($this->config)) {
+        if (null === $this->config) {
             $this->config = Mage::getModel('ops/config');
         }
 
@@ -72,8 +72,9 @@ class Netresearch_OPS_DeviceController extends Mage_Core_Controller_Front_Action
         $resultArray = array(self::CONSENT_PARAMETER_KEY => false);
 
         if ($this->getConfig()->getDeviceFingerPrinting()) {
-            $resultArray[self::CONSENT_PARAMETER_KEY] = (bool)Mage::getSingleton('customer/session')
-                                                                  ->getData(Netresearch_OPS_Model_Payment_Abstract::FINGERPRINT_CONSENT_SESSION_KEY);
+            $resultArray[self::CONSENT_PARAMETER_KEY] =
+                (bool)Mage::getSingleton('customer/session')
+                          ->getData(Netresearch_OPS_Model_Payment_Abstract::FINGERPRINT_CONSENT_SESSION_KEY);
         }
 
         $this->getResponse()->setHeader('Content-type', 'application/json');

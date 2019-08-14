@@ -37,8 +37,14 @@ class Netresearch_OPS_Model_Source_PaymentAction
     public function toOptionArray()
     {
         return array(
-            array('value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE, 'label' => Mage::helper('ops')->__('Authorization')),
-            array('value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE, 'label' => Mage::helper('ops')->__('Direct Sale')),
+            array(
+                'value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE,
+                'label' => Mage::helper('ops')->__('Authorization')
+            ),
+            array(
+                'value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE,
+                'label' => Mage::helper('ops')->__('Direct Sale')
+            ),
         );
     }
 }

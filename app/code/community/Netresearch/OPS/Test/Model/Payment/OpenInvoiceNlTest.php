@@ -24,15 +24,17 @@ class Netresearch_OPS_Test_Model_Payment_OpenInvoiceNlTest extends EcomDev_PHPUn
             'ECOM_SHIPTO_POSTAL_STREET_NUMBER' => ''
         );
 
-        $method = $this->getModelMock('ops/payment_openInvoiceNl', array(
+        $method = $this->getModelMock(
+            'ops/payment_openInvoiceNl', array(
             'getFormFields'
-        ));
+            )
+        );
         $method->expects($this->any())
             ->method('getFormFields')
             ->will($this->returnValue($formFields));
 
         $this->assertTrue($method->hasFormMissingParams($order, $requestParams, $formFields), 'expected missing params');
-        $this->assertTrue(is_string($method->getQuestion($order, $requestParams)));
+        $this->assertTrue(is_string($method->getQuestion()));
         $this->assertEquals(
             array(
                 'OWNERADDRESS',
@@ -58,9 +60,11 @@ class Netresearch_OPS_Test_Model_Payment_OpenInvoiceNlTest extends EcomDev_PHPUn
             'ECOM_SHIPTO_POSTAL_STREET_NUMBER' => '1'
         );
 
-        $method = $this->getModelMock('ops/payment_openInvoiceNl', array(
+        $method = $this->getModelMock(
+            'ops/payment_openInvoiceNl', array(
             'getFormFields'
-        ));
+            )
+        );
         $method->expects($this->any())
             ->method('getFormFields')
             ->will($this->returnValue($formFields));
@@ -68,7 +72,7 @@ class Netresearch_OPS_Test_Model_Payment_OpenInvoiceNlTest extends EcomDev_PHPUn
         $this->assertFalse($method->hasFormMissingParams($order, $requestParams, $formFields), 'expected no missing params');
 
         /* independent from that we expect to get question and questioned params when calling these methods directly */
-        $this->assertTrue(is_string($method->getQuestion($order, $requestParams)));
+        $this->assertTrue(is_string($method->getQuestion()));
         $this->assertEquals(
             array(
                 'OWNERADDRESS',

@@ -31,20 +31,26 @@ class Netresearch_OPS_Block_System_Config_Form_Field_Method extends Mage_Adminht
 {
     public function __construct()
     {
-        $this->addColumn('title', array(
+        $this->addColumn(
+            'title', array(
             'label' => Mage::helper('ops')->__('Title'),
             'style' => 'width:80px',
             'class' => 'required-entry'
-        ));
-        $this->addColumn('pm', array(
+            )
+        );
+        $this->addColumn(
+            'pm', array(
             'label' => 'PM',
             'style' => 'width:80px',
             'class' => 'required-entry'
-        ));
-        $this->addColumn('brand', array(
+            )
+        );
+        $this->addColumn(
+            'brand', array(
             'label' => 'BRAND',
             'style' => 'width:80px',
-        ));
+            )
+        );
 
         $this->_addAfter = false;
         $this->_addButtonLabel = Mage::helper('ops')->__('Add Method');

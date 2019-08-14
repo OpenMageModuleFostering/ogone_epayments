@@ -33,7 +33,16 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
 
     public function getSwitchTreeUrl()
     {
-        return $this->getUrl("*/*/tree", array('_current' => true, 'store' => null, '_query' => false, 'id' => null, 'parent' => null));
+        return $this->getUrl(
+            "*/*/tree",
+            array(
+                '_current' => true,
+                'store' => null,
+                '_query' => false,
+                'id' => null,
+                'parent' => null
+            )
+        );
     }
 
     public function getNodesUrl()
@@ -50,8 +59,6 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
     {
         $item = array();
         $item['text'] = $this->buildNodeName($node);
-        //$rootForStores = in_array($node->getEntityId(), $this->getRootIds());
-
         $item['id'] = $node->getId();
         $item['cls'] = 'folder ' . ($node->getIsActive() ? 'active-category' : 'no-active-category');
         $item['store'] = (int) $this->getStore()->getId();
@@ -92,7 +99,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
 
     public function buildNodeName($node)
     {
-        $result = $this->htmlEscape($node->getName());
+        $result = $this->escapeHtml($node->getName());
         return $result;
     }
 

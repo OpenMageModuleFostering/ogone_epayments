@@ -45,44 +45,6 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $this->replaceByMock('singleton', 'checkout/type_onepage', $onepage);
     }
 
-    /**
-     * @loadFixture ../../../var/fixtures/orders.yaml
-     */
-    public function testGetAliasWithoutAdditionalInformation()
-    {
-        $aliasHelperMock = $this->getHelperMock('ops/alias', array('isAdminSession'));
-        $aliasHelperMock->expects($this->any())
-            ->method('isAdminSession')
-            ->will($this->returnValue(false));
-        $quote = Mage::getModel('sales/quote')->load(11);
-
-        $alias = $aliasHelperMock->getAlias($quote);
-
-        $this->assertTrue(
-            strlen($aliasHelperMock->getAlias($quote)) <= 16
-        );
-        $this->assertTrue(
-            strpos($aliasHelperMock->getAlias($quote), "99") != false
-        );
-    }
-
-    public function testGetAliasWithAdditionalInformation()
-    {
-        $quote = new Varien_Object();
-        $payment = new Varien_Object();
-        $payment->setAdditionalInformation(array('alias' => 'testAlias'));
-        $quote->setPayment($payment);
-
-        $aliasHelperMock = $this->getHelperMock('ops/alias', array('isAdminSession'));
-        $aliasHelperMock->expects($this->any())
-            ->method('isAdminSession')
-            ->will($this->returnValue(false));
-
-        $this->assertEquals(
-            'testAlias', $aliasHelperMock->getAlias($quote)
-        );
-
-    }
 
 
     public function testGetOpsCode()
@@ -101,10 +63,12 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $quote = Mage::getModel('sales/quote');
         $this->assertEquals(
             null,
-            $this->_helper->saveAlias(array(
+            $this->_helper->saveAlias(
+                array(
                 'OrderID' => 4711,
                 'StorePermanently' => 'N'
-            ))
+                )
+            )
         );
     }
 
@@ -163,7 +127,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
 
         $oldAliasId = $alias->getId();
         $alias = $this->_helper->saveAlias($aliasData, $quote);
-        $this->assertNotEquals($oldAliasId, $alias->getId());
+        $this->assertEquals($oldAliasId, $alias->getId());
     }
     
     /**
@@ -218,11 +182,14 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $aliasData['Alias_StorePermanently'] = 'Y';
         
         $updatedAlias = $this->_helper->saveAlias($aliasData);
-        $this->assertEquals(4711,$updatedAlias->getAlias());
-        $this->assertEquals('Mastercard',$updatedAlias->getBrand());
-        $this->assertEquals('xxxx01111',$updatedAlias->getPseudoAccountOrCcNo());
-        $this->assertEquals('1213',$updatedAlias->getExpirationDate());
-        $this->assertEquals('Max Power',$updatedAlias->getCardHolder());
+
+
+
+        $this->assertEquals(4711, $updatedAlias->getAlias());
+        $this->assertEquals('Mastercard', $updatedAlias->getBrand());
+        $this->assertEquals('xxxx01111', $updatedAlias->getPseudoAccountOrCcNo());
+        $this->assertEquals('1213', $updatedAlias->getExpirationDate());
+        $this->assertEquals('Max Power', $updatedAlias->getCardHolder());
         
     }
 
@@ -230,10 +197,10 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
      * @loadFixture ../../../var/fixtures/aliases.yaml
      * @loadFixture ../../../var/fixtures/orders.yaml
      */
-    public function testSaveNewAlias()
+    public function testSaveNewAliasFromQuote()
     {
         $reflection_class = new ReflectionClass("Netresearch_OPS_Helper_Alias");
-        $method = $reflection_class->getMethod("saveNewAlias");
+        $method = $reflection_class->getMethod("saveNewAliasFromQuote");
         $method->setAccessible(true);
 
         $quote = Mage::getModel('sales/quote')->load(10);
@@ -263,7 +230,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $alias = $method->invoke($aliasHelper, $quote, $aliasData);
         $this->assertEquals('TestAlias', $alias->getAlias());
         $this->assertEquals('12.12.0012', $alias->getExpirationDate());
-        $this->assertNull($alias->getCardHolder());
+        $this->assertEquals('Foo', $alias->getCardHolder());
         $this->assertEquals(Netresearch_OPS_Model_Alias_State::PENDING, $alias->getState());
 
         $aliasData = array(
@@ -280,6 +247,70 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $this->assertEquals('12.12.0012', $alias->getExpirationDate());
         $this->assertEquals('', $alias->getCardHolder());
         $this->assertEquals(Netresearch_OPS_Model_Alias_State::PENDING, $alias->getState());
+    }
+
+
+
+    /**
+     * @loadFixture ../../../var/fixtures/aliases.yaml
+     * @loadFixture ../../../var/fixtures/orders.yaml
+     */
+    public function testSaveNewAliasFromOrder()
+    {
+        $reflection_class = new ReflectionClass("Netresearch_OPS_Helper_Alias");
+        $method = $reflection_class->getMethod("saveNewAliasFromOrder");
+        $method->setAccessible(true);
+
+        $order = Mage::getModel('sales/order')->load(11);
+
+
+
+        $aliasData = array(
+            'alias'  => 'TestAlias',
+            'brand'  => 'Visa',
+            'cardno' => '12345678',
+            'cn'     => 'Foo',
+            'Alias_StorePermanently' => 'Y',
+            'ed'            => '12.12.0012'
+        );
+
+
+        $aliasHelper = Mage::helper('ops/alias');
+        $alias = $method->invoke($aliasHelper, $order, $aliasData);
+        $this->assertEquals('TestAlias', $alias->getAlias());
+        $this->assertEquals('12.12.0012', $alias->getExpirationDate());
+        $this->assertEquals('Foo', $alias->getCardHolder());
+        $this->assertEquals(Netresearch_OPS_Model_Alias_State::ACTIVE, $alias->getState());
+
+        $aliasData = array(
+            'alias'  => 'TestAlias',
+            'brand'  => 'Visa',
+            'cardno' => '12345678',
+            'Alias_StorePermanently' => 'Y',
+            'ed'            => '12.12.0012',
+            'cn'            => null
+        );
+        $aliasHelper = Mage::helper('ops/alias');
+        $alias = $method->invoke($aliasHelper, $order, $aliasData);
+        $this->assertEquals('TestAlias', $alias->getAlias());
+        $this->assertEquals('12.12.0012', $alias->getExpirationDate());
+        $this->assertNull($alias->getCardHolder());
+        $this->assertEquals(Netresearch_OPS_Model_Alias_State::ACTIVE, $alias->getState());
+
+        $aliasData = array(
+            'alias'  => 'TestAlias',
+            'brand'  => 'Visa',
+            'cardno' => '12345678',
+            'Alias_StorePermanently' => 'Y',
+            'ed'            => '12.12.0012',
+            'cn'            => ''
+        );
+        $aliasHelper = Mage::helper('ops/alias');
+        $alias = $method->invoke($aliasHelper, $order, $aliasData);
+        $this->assertEquals('TestAlias', $alias->getAlias());
+        $this->assertEquals('12.12.0012', $alias->getExpirationDate());
+        $this->assertEquals('', $alias->getCardHolder());
+        $this->assertEquals(Netresearch_OPS_Model_Alias_State::ACTIVE, $alias->getState());
     }
 
     /**
@@ -560,7 +591,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
             'Card_CardHolderName'    => 'Max Muster'
         );
         
-        $method->invoke($helperObject, $quote,$aliasData);
+        $method->invoke($helperObject, $quote, $aliasData);
         $updatedAlias = Mage::getModel('ops/alias')->load(7);
         $this->assertEquals($aliasData['Card_CardHolderName'], $updatedAlias->getCardHolder());
         
@@ -660,8 +691,8 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         $quote->setBillingAddress($this->getAddressData());
         $quote->setShippingAddress($this->getAddressData());
         $quote->getPayment()->setAdditionalInformation('alias', '4714');
-        $quote->getPayment()->setAdditionalInformation('opsAliasId','11111');
-        $quote->getPayment()->setAdditionalInformation('userIsRegistering',true);
+        $quote->getPayment()->setAdditionalInformation('opsAliasId', '11111');
+        $quote->getPayment()->setAdditionalInformation('userIsRegistering', true);
         $quote->setCheckoutMethod(Mage_Sales_Model_Quote::CHECKOUT_METHOD_REGISTER);
         $quote->setStoreId(null);
         $billingAddressHash = Mage::helper('ops/alias')->generateAddressHash($quote->getBillingAddress());
@@ -673,10 +704,10 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
                     ->addFieldToFilter('shipping_address_hash', $shippingAddressHash)
                     ->getFirstItem();
         
-        Mage::helper('ops/alias')->setAliasToActiveAfterUserRegisters($order,$quote);
+        Mage::helper('ops/alias')->setAliasToActiveAfterUserRegisters($order, $quote);
         $testAlias = Mage::getModel('ops/alias')->load($oldAlias->getId());
         $this->assertEquals(Netresearch_OPS_Model_Alias_State::ACTIVE, $testAlias->getState());
-        $this->assertEquals(123,$testAlias->getCustomerId());
+        $this->assertEquals(123, $testAlias->getCustomerId());
     }
     
     /**
@@ -698,7 +729,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         Mage::helper('ops/alias')->cleanUpAdditionalInformation($payment);
         
         $this->assertTrue(is_array($payment->getAdditionalInformation()));
-        $this->assertFalse(array_key_exists('cvc' ,$payment->getAdditionalInformation()));
+        $this->assertFalse(array_key_exists('cvc', $payment->getAdditionalInformation()));
         $this->assertFalse(array_key_exists('storedOPSId', $payment->getAdditionalInformation()));
 
         $quote   = Mage::getModel('sales/quote')->load(11);
@@ -714,7 +745,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
         Mage::helper('ops/alias')->cleanUpAdditionalInformation($payment, true);
 
         $this->assertTrue(is_array($payment->getAdditionalInformation()));
-        $this->assertFalse(array_key_exists('cvc' ,$payment->getAdditionalInformation()));
+        $this->assertFalse(array_key_exists('cvc', $payment->getAdditionalInformation()));
         $this->assertTrue(array_key_exists('storedOPSId', $payment->getAdditionalInformation()));
     }
 
@@ -724,8 +755,7 @@ class Netresearch_OPS_Test_Helper_AliasTest extends EcomDev_PHPUnit_Test_Case
     {
         $payment = $this->getModelMock('sales/quote_payment', array('save'));
         $payment->expects($this->once())
-            ->method('save')
-         ;
+            ->method('save');
 
         Mage::helper('ops/alias')->cleanUpAdditionalInformation($payment, true, true);
 

@@ -40,10 +40,13 @@ class Netresearch_OPS_Block_Alias_List
      */
     public function getMethodName($methodCode)
     {
+        $title = '';
         $instance = Mage::helper('payment')->getMethodInstance($methodCode);
         if ($instance) {
-            return $instance->getTitle();
+            $title = $instance->getTitle();
         }
+
+        return $title;
     }
 
     /**

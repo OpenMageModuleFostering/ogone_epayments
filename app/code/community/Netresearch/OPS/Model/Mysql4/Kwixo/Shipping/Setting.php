@@ -10,7 +10,6 @@
 
 class Netresearch_OPS_Model_Mysql4_Kwixo_Shipping_Setting
     extends Mage_Core_Model_Mysql4_Abstract
-
 {
 
     public function _construct()

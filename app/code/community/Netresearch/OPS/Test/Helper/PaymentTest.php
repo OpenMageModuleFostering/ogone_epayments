@@ -1,13 +1,15 @@
 <?php
+
 class Netresearch_OPS_Test_Helper_PaymentTest
     extends Netresearch_OPS_Test_Model_Response_TestCase
 {
+    /** @var  Netresearch_OPS_Helper_Payment $_helper */
     private $_helper;
     private $store;
 
     public function setUp()
     {
-        parent::setup();
+        parent::setUp();
         $this->_helper = Mage::helper('ops/payment');
         $this->store = Mage::app()->getStore(0)->load(0);
         $this->store->resetConfig();
@@ -140,11 +142,10 @@ class Netresearch_OPS_Test_Helper_PaymentTest
         );
         $secret = 'Mysecretsig1875!?';
         $shaInSet
-            =
-            'ACCEPTURL=https=//www.myshop.com/ok.htmlMysecretsig1875!?BRAND=VISAMysecretsig1875!?'
-                . 'CARDNO=4111111111111111Mysecretsig1875!?CN=JohnSmithMysecretsig1875!?CVC=123Mysecretsig1875!?'
-                . 'ED=1212Mysecretsig1875!?EXCEPTIONURL=https=//www.myshop.com/nok.htmlMysecretsig1875!?'
-                . 'PSPID=test1Mysecretsig1875!?';
+            = 'ACCEPTURL=https=//www.myshop.com/ok.htmlMysecretsig1875!?BRAND=VISAMysecretsig1875!?'
+            . 'CARDNO=4111111111111111Mysecretsig1875!?CN=JohnSmithMysecretsig1875!?CVC=123Mysecretsig1875!?'
+            . 'ED=1212Mysecretsig1875!?EXCEPTIONURL=https=//www.myshop.com/nok.htmlMysecretsig1875!?'
+            . 'PSPID=test1Mysecretsig1875!?';
         $key = 'a28dc9fe69b63fe81da92471fefa80aca3f4851a';
         $this->assertEquals(
             $sortedParams, $this->_helper->prepareParamsAndSort($params)
@@ -298,10 +299,18 @@ class Netresearch_OPS_Test_Helper_PaymentTest
      */
     public function testSetPaymentTransactionInformation()
     {
+        $dataMock = $this->getHelperMock('ops/data', array('isAdminSession'));
+        $dataMock->expects($this->any())
+            ->method('isAdminSession')
+            ->will($this->returnValue(false));
+        $this->replaceByMock('helper', 'ops/data', $dataMock);
+
         $order = Mage::getModel('sales/order')->load(15);
-        $reflectionClass = new ReflectionClass(get_class(
-            Mage::helper('ops/payment')
-        ));
+        $reflectionClass = new ReflectionClass(
+            get_class(
+                Mage::helper('ops/payment')
+            )
+        );
         $method = $reflectionClass->getMethod(
             'setPaymentTransactionInformation'
         );
@@ -378,14 +387,13 @@ class Netresearch_OPS_Test_Helper_PaymentTest
             $order->getPayment()->getAdditionalInformation('CC_BRAND')
         );
     }
-
-
+    
     /**
-     * @param int $opsStatus Incoming postBack status
-     * @param bool $sendMail Indicates whether opsStatus should trigger order confirmation mail
+     * @param int    $opsStatus      Incoming postBack status
+     * @param bool   $sendMail       Indicates whether opsStatus should trigger order confirmation mail
      * @param string $feedbackStatus Indicates the route that the customer should get redirected to
      *
-     * @loadFixture ../../../var/fixtures/orders.yaml
+     * @loadFixture  ../../../var/fixtures/orders.yaml
      * @dataProvider applyStateForOrderProvider
      */
     public function testApplyStateForOrder($opsStatus, $sendMail, $feedbackStatus)
@@ -393,94 +401,99 @@ class Netresearch_OPS_Test_Helper_PaymentTest
         $this->mockEmailHelper($this->exactly(intval($sendMail)));
         $this->mockOrderConfig();
 
-        $helperMock = $this->getHelperMock('ops', array('isAdminSession'));
+        $helperMock = $this->getHelperMock('ops', array('isAdminSession', 'sendTransactionalEmail'));
         $helperMock->expects($this->any())
             ->method('isAdminSession')
             ->will($this->returnValue(false));
+        $helperMock->expects($this->any())
+            ->method('sendTransactionalEmail')
+            ->will($this->returnArgument(0));
         $this->replaceByMock('helper', 'ops', $helperMock);
 
         /** @var Netresearch_OPS_Helper_Payment $paymenthelperMock */
-        $paymenthelperMock = $this->getHelperMock('ops/payment', [
-            'acceptOrder', 'waitOrder', 'declineOrder', 'cancelOrder', 'handleException',
-        ]);
+        $paymenthelperMock = $this->getHelperMock(
+            'ops/payment', array(
+                'acceptOrder', 'waitOrder', 'declineOrder', 'cancelOrder', 'handleException',
+            )
+        );
 
         $order = Mage::getModel('sales/order')->load(19);
         $this->assertEquals(
             $feedbackStatus,
-            $paymenthelperMock->applyStateForOrder($order, ['STATUS' => $opsStatus])
+            $paymenthelperMock->applyStateForOrder($order, array('STATUS' => $opsStatus))
         );
     }
 
     public function applyStateForOrderProvider()
     {
-        return [
+        return array(
             // assertion for WAITING_FOR_IDENTIFICATION = 46
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::WAITING_FOR_IDENTIFICATION,
-                $sendMail       = false,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::WAITING_FOR_IDENTIFICATION,
+                $sendMail = false,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for AUTHORIZED = 5
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::AUTHORIZED,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::AUTHORIZED,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for AUTHORIZED_WAITING_EXTERNAL_RESULT = 50
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::AUTHORIZED_WAITING_EXTERNAL_RESULT,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::AUTHORIZED_WAITING_EXTERNAL_RESULT,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for AUTHORIZATION_WAITING = 51
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::AUTHORIZATION_WAITING,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::AUTHORIZATION_WAITING,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for AUTHORIZED_UNKNOWN = 52
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::AUTHORIZED_UNKNOWN,
-                $sendMail       = true,
-                $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::AUTHORIZED_UNKNOWN,
+                $sendMail = true,
+                $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_EXCEPTION,
+            ),
             // assertion for WAITING_CLIENT_PAYMENT = 41
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::WAITING_CLIENT_PAYMENT,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::WAITING_CLIENT_PAYMENT,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for PAYMENT_REQUESTED = 9
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::PAYMENT_REQUESTED,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::PAYMENT_REQUESTED,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for PAYMENT_PROCESSING = 91
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::PAYMENT_PROCESSING,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::PAYMENT_PROCESSING,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT,
-            ],
+            ),
             // assertion for AUTHORISATION_DECLINED = 2
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::AUTHORISATION_DECLINED,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::AUTHORISATION_DECLINED,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_DECLINE,
-            ],
+            ),
             // assertion for PAYMENT_REFUSED = 93
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::PAYMENT_REFUSED,
-                $sendMail       = true,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::PAYMENT_REFUSED,
+                $sendMail = true,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_DECLINE,
-            ],
+            ),
             // assertion for CANCELED_BY_CUSTOMER = 1
-            [
-                $opsStatus      = Netresearch_OPS_Model_Status::CANCELED_BY_CUSTOMER,
-                $sendMail       = false,
+            array(
+                $opsStatus = Netresearch_OPS_Model_Status::CANCELED_BY_CUSTOMER,
+                $sendMail = false,
                 $feedbackStatus = Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_CANCEL,
-            ],
-        ];
+            ),
+        );
     }
 
     /**
@@ -502,13 +515,13 @@ class Netresearch_OPS_Test_Helper_PaymentTest
         $order = Mage::getModel('sales/order')->load(28);
         $this->assertTrue($method->invoke($helper, $order));
 
-//        $order = Mage::getModel('sales/order')->load(29);
-//        $this->assertTrue($method->invoke($helper, $order));
+        //        $order = Mage::getModel('sales/order')->load(29);
+        //        $this->assertTrue($method->invoke($helper, $order));
     }
 
     public function testCheckIfCCisInCheckoutMethodsFalse()
     {
-        $testMethod = $this->getProtectedMethod($this->_helper,'checkIfCCisInCheckoutMethods');
+        $testMethod = $this->getProtectedMethod($this->_helper, 'checkIfCCisInCheckoutMethods');
         $paymentMethods = new Varien_Object();
         $paymentMethods->setCode('ops_iDeal');
         $this->assertFalse($testMethod->invoke($this->_helper, array($paymentMethods)));
@@ -518,7 +531,7 @@ class Netresearch_OPS_Test_Helper_PaymentTest
 
     public function testCheckIfCCisInCheckoutMethodsTrue()
     {
-        $testMethod = $this->getProtectedMethod($this->_helper,'checkIfCCisInCheckoutMethods');
+        $testMethod = $this->getProtectedMethod($this->_helper, 'checkIfCCisInCheckoutMethods');
         $paymentMethods = new Varien_Object();
         $paymentMethods->setCode('ops_cc');
         $this->assertTrue($testMethod->invoke($this->_helper, array($paymentMethods)));
@@ -529,13 +542,15 @@ class Netresearch_OPS_Test_Helper_PaymentTest
     public function testAddCCForZeroAmountCheckout()
     {
         $block = new Mage_Payment_Block_Form_Container();
-        $method  = new Varien_Object();
+        $method = new Varien_Object();
         $method->setCode('ops_ideal');
-        $block->setData('methods',array($method));
+        $block->setData('methods', array($method));
         $quote = Mage::getModel('sales/quote');
         $block->setQuote($quote);
 
-        $featureModelMock = $this->getModelMock('ops/payment_features_zeroAmountAuth', array('isCCAndZeroAmountAuthAllowed'));
+        $featureModelMock = $this->getModelMock(
+            'ops/payment_features_zeroAmountAuth', array('isCCAndZeroAmountAuthAllowed')
+        );
         $featureModelMock->expects($this->any())
             ->method('isCCAndZeroAmountAuthAllowed')
             ->will($this->returnValue(true));
@@ -544,21 +559,20 @@ class Netresearch_OPS_Test_Helper_PaymentTest
         $this->_helper->addCCForZeroAmountCheckout($block);
 
         $methods = $block->getMethods();
-        $this->assertTrue( $methods[1] instanceof Netresearch_OPS_Model_Payment_Cc);
-        $this->assertFalse( $methods[0] instanceof Netresearch_OPS_Model_Payment_Cc);
+        $this->assertTrue($methods[1] instanceof Netresearch_OPS_Model_Payment_Cc);
+        $this->assertFalse($methods[0] instanceof Netresearch_OPS_Model_Payment_Cc);
 
     }
-
 
     protected function getProtectedMethod($class, $method)
     {
         $reflection_class = new ReflectionClass(get_class($class));
         $method = $reflection_class->getMethod($method);
         $method->setAccessible(true);
+
         return $method;
     }
-
-
+    
     public function testIsInlinePaymentWithOrderIdIsTrueForInlineCcWithOrderId()
     {
         $configMock = $this->getModelMock('ops/config', array('getInlineOrderReference'));
@@ -584,7 +598,9 @@ class Netresearch_OPS_Test_Helper_PaymentTest
 
     public function testIsInlinePaymentWithOrderIdIsFalseForRedirectCcWithOrderId()
     {
-        $ccMock = $this->getModelMock('ops/payment_cc', array('getConfigPaymentAction', 'hasBrandAliasInterfaceSupport'));
+        $ccMock = $this->getModelMock(
+            'ops/payment_cc', array('getConfigPaymentAction', 'hasBrandAliasInterfaceSupport')
+        );
         $ccMock->expects($this->any())
             ->method('getConfigPaymentAction')
             ->will($this->returnValue('authorize'));
@@ -640,6 +656,7 @@ class Netresearch_OPS_Test_Helper_PaymentTest
 
         $this->assertFalse(Mage::helper('ops/payment')->isInlinePaymentWithOrderId($payment));
     }
+
     public function testIsInlinePaymentWithOrderIdIsTrueIfOrderIdIsConfiguredForDirectDebit()
     {
         $configMock = $this->getModelMock('ops/config', array('getInlineOrderReference'));
@@ -675,103 +692,17 @@ class Netresearch_OPS_Test_Helper_PaymentTest
 
     public function testSetInvoicesToPaid()
     {
+        /** @var Mage_Sales_Model_Resource_Order_Invoice_Collection $invoiceCollection */
+        $invoiceCollection = $this->getResourceModelMock('sales/order_invoice_collection', array('save'));
+        $invoiceCollection->addItem(Mage::getModel('sales/order_invoice'));
         $order = $this->getModelMock('sales/order', array('save', 'getInvoiceCollection'));
         $order->expects($this->any())
             ->method('getInvoiceCollection')
-            ->will($this->returnValue(array($this->getModelMock('sales/order_invoice', array('save')))));
+            ->will($this->returnValue($invoiceCollection));
         Mage::helper('ops/payment')->setInvoicesToPaid($order);
         foreach ($order->getInvoiceCollection() as $invoice) {
             $this->assertEquals(Mage_Sales_Model_Order_Invoice::STATE_PAID, $invoice->getState());
         }
     }
-
-
-    /**
-     * @expectedException Mage_Core_Exception
-     */
-    public function testCancelOrderWithException()
-    {
-        $params = array('status' => 2, 'payid' => 4711);
-        $status = Mage_Sales_Model_Order::STATE_CANCELED;
-        $comment = 'TestComment';
-
-        $order = $this->getModelMock('sales/order', array('save', 'cancel', 'setState'));
-        $order->expects($this->any())
-            ->method('cancel')
-            ->will($this->throwException(new Mage_Core_Exception('cancel failed')));
-        ;
-
-        $paymentHelperMock = $this->getHelperMock('ops/payment', array('_getCheckout'));
-
-        $paymentHelperMock->expects($this->any())
-            ->method('_getCheckout')
-            ->will($this->returnValue($this->getModelMock('checkout/session', array('init', 'save'))))
-        ;
-
-        $paymentHelperMock->cancelOrder($order, $params, $status, $comment);
-        Mage::unregister('ops_auto_void');
-    }
-
-    public function testDeclineOrder()
-    {
-        Mage::unregister('ops_auto_void');
-        $params = array('STATUS' => 2, 'PAYID' => 4711);
-        $status = Mage_Sales_Model_Order::STATE_CANCELED;
-        $comment = 'TestComment';
-
-        $order = $this->getModelMock('sales/order', array('save', 'cancel', 'setState', 'getPayment'));
-        $order->expects($this->once())
-            ->method('cancel')
-        ;
-        $order->expects($this->once())
-            ->method('getPayment')
-            ->will($this->returnValue($this->getModelMock('sales/order_payment', array('save'))));
-        ;
-
-        $paymentHelperMock = $this->getHelperMock('ops/payment', array('setPaymentTransactionInformation', '_getCheckout', 'cancelInvoices'));
-        $paymentHelperMock->expects($this->once())
-            ->method('setPaymentTransactionInformation');
-        $paymentHelperMock->expects($this->once())
-            ->method('cancelInvoices');
-
-        $paymentHelperMock->expects($this->any())
-            ->method('_getCheckout')
-            ->will($this->returnValue($this->getModelMock('checkout/session', array('init', 'save'))))
-        ;
-
-        $paymentHelperMock->declineOrder($order, $params);
-
-    }
-
-    /**
-     * @expectedException Mage_Core_Exception
-     */
-    public function testDeclineOrderWithException()
-    {
-        Mage::unregister('ops_auto_void');
-        $params = array('STATUS' => 2, 'PAYID' => 4711);
-        $status = Mage_Sales_Model_Order::STATE_CANCELED;
-        $comment = 'TestComment';
-
-        $order = $this->getModelMock('sales/order', array('save', 'cancel', 'setState'));
-        $order->expects($this->once())
-            ->method('cancel')
-            ->will($this->throwException(new Mage_Core_Exception('exceptional case')));
-
-
-        $paymentHelperMock = $this->getHelperMock('ops/payment', array('setPaymentTransactionInformation', '_getCheckout', 'cancelInvoices'));
-        $paymentHelperMock->expects($this->never())
-            ->method('setPaymentTransactionInformation');
-        $paymentHelperMock->expects($this->once())
-            ->method('cancelInvoices');
-
-
-        $paymentHelperMock->expects($this->any())
-            ->method('_getCheckout')
-            ->will($this->returnValue($this->getModelMock('checkout/session', array('init', 'save'))))
-        ;
-
-        $paymentHelperMock->declineOrder($order, $params);
-
-    }
+    
 }

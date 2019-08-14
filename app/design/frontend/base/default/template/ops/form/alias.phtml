@@ -19,10 +19,10 @@
 
 /* $this instanceof Netresearch_OPS_Block_Form_Alias */
 ?>
-<?php $_code = $this->getMethodCode() ?>
+<?php $code = $this->getMethodCode() ?>
 <?php $helper = Mage::helper('ops') ?>
 
-<ul class="form-list ops-form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+<ul class="form-list ops-form-list" id="payment_form_<?php echo $code ?>" style="display:none;">
     <li>
         <?php $inputType = (1 < count($this->getAvailableAliases())) ? 'radio' : 'hidden' ?>
         <?php foreach ($this->getAvailableAliases() as $offset=>$alias): ?>

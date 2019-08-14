@@ -37,7 +37,7 @@ class Netresearch_OPS_Model_Response_Type_Special extends Netresearch_OPS_Model_
     protected function _handleResponse()
     {
         if (!Netresearch_OPS_Model_Status::isSpecialStatus($this->getStatus())) {
-            throw new Mage_Core_Exception(Mage::helper('ops')->__('%s is not a special status!', $this->getStatus()));
+            Mage::throwException(Mage::helper('ops')->__('%s is not a special status!', $this->getStatus()));
         }
 
         /** @var Mage_Sales_Model_Order_Payment $payment */
@@ -60,21 +60,19 @@ class Netresearch_OPS_Model_Response_Type_Special extends Netresearch_OPS_Model_
                         'Customer received your payment instructions, waiting for actual payment.'
                     )
                 )
-
             );
 
             // gateway payments do not send confirmation emails by default
             Mage::helper('ops/data')->sendTransactionalEmail($order);
         }
 
-        if ($this->getStatus() == Netresearch_OPS_Model_Status::STORED_WAITING_EXTERNAL_RESULT) {
-            //TODO handle status 40
-        }
-
         if ($this->getStatus() == Netresearch_OPS_Model_Status::INVALID_INCOMPLETE) {
             //save status information to order before exception
-            $this->updateAdditionalInformation();
-            $payment->save();
+            if($this->getShouldRegisterFeedback()){
+                $this->updateAdditionalInformation();
+                $payment->save();
+            }
+
 
             $message = Mage::helper('ops')->__('Ingenico ePayments status 0, the action failed.');
             if ($helper->isAdminSession()) {

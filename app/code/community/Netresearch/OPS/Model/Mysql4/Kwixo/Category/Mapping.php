@@ -26,7 +26,7 @@ class Netresearch_OPS_Model_Mysql4_Kwixo_Category_Mapping
      */
     public function _construct()
     {
-        $this->_init('ops/kwixo_category_mapping','id');
+        $this->_init('ops/kwixo_category_mapping', 'id');
     }
 
 }

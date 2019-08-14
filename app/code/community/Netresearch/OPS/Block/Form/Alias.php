@@ -39,10 +39,10 @@ class Netresearch_OPS_Block_Form_Alias extends Netresearch_OPS_Block_Form
         }
         return array();
     }
-    
+
     /**
-     * 
-     * @param String $alias- the human readable alias
+     * @param $alias
+     * @return string
      */
     protected function getHumanReadableAlias($alias)
     {

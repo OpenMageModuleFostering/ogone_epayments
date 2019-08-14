@@ -13,7 +13,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixo_Shipping_Edit
 {
 
 
-    private $kwixoShippingModel = null;
+    protected $kwixoShippingModel = null;
 
     /**
      * gets the form action url
@@ -64,15 +64,18 @@ class Netresearch_OPS_Block_Adminhtml_Kwixo_Shipping_Edit
         return $this->kwixoShippingModel;
     }
 
-
-    private function getValues($carrierCode)
+    /**
+     * @param $carrierCode
+     * @return array
+     */
+    protected function getValues($carrierCode)
     {
         $values = array(
             'kwixo_shipping_type' => '',
             'kwixo_shipping_speed' => '',
             'kwixo_shipping_details' => ''
         );
-        if (!is_null($this->getData('postData')) && array_key_exists($carrierCode, $this->getData('postData'))) {
+        if (null != ($this->getData('postData')) && array_key_exists($carrierCode, $this->getData('postData'))) {
             $errorData = $this->getData('postData');
             $values =  $errorData[$carrierCode];
         } else {

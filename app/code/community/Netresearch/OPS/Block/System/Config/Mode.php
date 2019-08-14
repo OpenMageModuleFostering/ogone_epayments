@@ -6,7 +6,8 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License
  */
 
-class Netresearch_OPS_Block_System_Config_Mode extends Mage_Adminhtml_Block_System_Config_Form_Field {
+class Netresearch_OPS_Block_System_Config_Mode extends Mage_Adminhtml_Block_System_Config_Form_Field
+{
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {

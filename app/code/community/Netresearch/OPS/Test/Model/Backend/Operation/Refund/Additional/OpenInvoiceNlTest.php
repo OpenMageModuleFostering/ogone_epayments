@@ -3,30 +3,47 @@
 class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoiceNlTest extends EcomDev_PHPUnit_Test_Case
 {
     protected $openInvoiceNlModel = null;
-    protected $testInvoice = null;
+    protected $testPayment = null;
 
     public function setUp()
     {
         parent::setUp();
         $this->openInvoiceNlModel = Mage::getModel('ops/backend_operation_refund_additional_openInvoiceNl');
-
+        $creditMemo = Mage::getModel('sales/order_creditmemo');
         $invoice = Mage::getModel('sales/order_invoice');
         // add first item to invoice
-        $item      = Mage::getModel('sales/order_invoice_item');
+
+
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
+        $orderItem->setTaxPercent(19);
+
+        $item = Mage::getModel('sales/order_invoice_item');
         $item->setOrderItemId(1);
         $item->setOrderItem($orderItem);
         $item->setName('Item 1');
         $item->setBasePriceInclTax(42.99);
         $item->setQty(2);
         $item->setTaxPercent(19);
+
+        $orderItem->setQtyInvoiced(2);
+        $creditMemoItem = Mage::getModel('sales/order_creditmemo_item');
+        $creditMemoItem->setOrderItemId(1);
+        $creditMemoItem->setOrderItem($orderItem);
+        $creditMemoItem->setName('Item 1');
+        $creditMemoItem->setBasePriceInclTax(42.99);
+        $creditMemoItem->setQty(2);
+
+        $creditMemo->addItem($creditMemoItem);
         $invoice->addItem($item);
+
         // add second item to invoice
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(2);
         $orderItem->setQtyOrdered(2);
+        $orderItem->setTaxPercent(7);
+
         $item = Mage::getModel('sales/order_invoice_item');
         $item->setOrderItemId(2);
         $item->setOrderItem($orderItem);
@@ -34,6 +51,16 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $item->setBasePriceInclTax(19.99);
         $item->setQty(2);
         $item->setTaxPercent(7);
+
+        $orderItem->setQtyInvoiced(2);
+        $creditMemoItem = Mage::getModel('sales/order_creditmemo_item');
+        $creditMemoItem->setOrderItemId(2);
+        $creditMemoItem->setOrderItem($orderItem);
+        $creditMemoItem->setName('Item 2');
+        $creditMemoItem->setBasePriceInclTax(19.99);
+        $creditMemoItem->setQty(2);
+
+        $creditMemo->addItem($creditMemoItem);
         $invoice->addItem($item);
         // add shipping and discount
         $invoice->setBaseShippingInclTax(10.00);
@@ -43,17 +70,19 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $payment->setMethod('ops_openInvoiceNl');
         $order->setPayment($payment);
         $invoice->setOrder($order);
-        $this->testInvoice = $invoice;
+        $payment->setInvoice($invoice);
+        $payment->setCreditmemo($creditMemo);
+        $this->testPayment = $payment;
 
         $sessionMock = $this->getModelMockBuilder('adminhtml/session_quote')
-                            ->disableOriginalConstructor()
-                            ->setMethods(null)
-                            ->getMock();
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
         $this->replaceByMock('singleton', 'adminhtml/session_quote', $sessionMock);
         $sessionMock = $this->getModelMockBuilder('checkout/session')
-                            ->disableOriginalConstructor()
-                            ->setMethods(null)
-                            ->getMock();
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
         $this->replaceByMock('singleton', 'checkout/session', $sessionMock);
         $sessionMock = $this->getModelMockBuilder('customer/session')
             ->disableOriginalConstructor()
@@ -65,26 +94,17 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
 
     public function testExtractWithoutShippingAndAdjustments()
     {
-        $params =
-            array(
-                'creditmemo' => array(
-                    'items'               => array(
-                        1 => array(
-                            'qty' => 2
-                        ),
-                        2 => array(
-                            'qty' => 0
-                        )
-                    ),
-                    'shipping_amount'     => 0,
-                    'adjustment_positive' => 0,
-                    'adjustment_negative' => 0
+        $params = array(
 
-                )
-            );
+            'shipping_amount'     => 0,
+            'adjustment_positive' => 0,
+            'adjustment_negative' => 0
 
+
+        );
+        $this->testPayment->getCreditmemo()->addData($params);
         $this->mockRefundHelper($params);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($this->testInvoice);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($this->testPayment);
         // refunded item
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
@@ -112,33 +132,27 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $this->assertArrayHasKey('TAXINCLUDED2', $result);
         $this->assertEquals(1, $result['TAXINCLUDED2']);
         $this->assertArrayHasKey('ITEMQUANT2', $result);
-        $this->assertEquals(0, $result['ITEMQUANT2']);
+        $this->assertEquals(2, $result['ITEMQUANT2']);
         // amount
         $this->assertArrayHasKey('AMOUNT', $result);
-        $this->assertEquals(8598, $result['AMOUNT']);
+        $this->assertEquals(12596, $result['AMOUNT']);
     }
 
 
     public function testWithShippingAndAllAdjustments()
     {
         $params = array(
-            'creditmemo' => array(
-                'items'               => array(
-                    1 => array(
-                        'qty' => 0
-                    ),
-                    2 => array(
-                        'qty' => 0
-                    )
-                ),
-                'shipping_amount'     => 5,
-                'adjustment_positive' => 5,
-                'adjustment_negative' => 10
 
-            )
+            'base_shipping_incl_tax'     => 5,
+            'base_adjustment_positive' => 5,
+            'base_adjustment_negative' => 10
+
+
         );
         $this->mockRefundHelper($params);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($this->testInvoice);
+        $this->testPayment->getCreditmemo()->addData($params);
+
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($this->testPayment);
         // Test our items
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
@@ -153,7 +167,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $this->assertArrayHasKey('TAXINCLUDED1', $result);
         $this->assertEquals(1, $result['TAXINCLUDED1']);
         $this->assertArrayHasKey('ITEMQUANT1', $result);
-        $this->assertEquals(0, $result['ITEMQUANT1']);
+        $this->assertEquals(2, $result['ITEMQUANT1']);
         $this->assertArrayHasKey('ITEMID2', $result);
         $this->assertEquals(2, $result['ITEMID2']);
         $this->assertArrayHasKey('ITEMNAME2', $result);
@@ -165,7 +179,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $this->assertArrayHasKey('TAXINCLUDED2', $result);
         $this->assertEquals(1, $result['TAXINCLUDED2']);
         $this->assertArrayHasKey('ITEMQUANT2', $result);
-        $this->assertEquals(0, $result['ITEMQUANT2']);
+        $this->assertEquals(2, $result['ITEMQUANT2']);
 
         // shipping
         $this->assertArrayHasKey('ITEMID3', $result);
@@ -209,15 +223,17 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
         $this->assertEquals(1, $result['ITEMQUANT5']);
         // amount: 5+5+(-10)
         $this->assertArrayHasKey('AMOUNT', $result);
-        $this->assertEquals(0, $result['AMOUNT']);
+        $this->assertEquals(12596, $result['AMOUNT']);
     }
 
     protected function mockRefundHelper($params)
     {
-        $helperMock = $this->getHelperMock('ops/order_refund', array('getCreditMemoRequestParams', 'createRefundTransaction'));
+        $helperMock = $this->getHelperMock(
+            'ops/order_refund', array('getCreditMemoRequestParams', 'createRefundTransaction')
+        );
         $helperMock->expects($this->any())
-                   ->method('getCreditMemoRequestParams')
-                   ->will($this->returnValue($params));
+            ->method('getCreditMemoRequestParams')
+            ->will($this->returnValue($params));
         $this->replaceByMock('helper', 'ops/order_refund', $helperMock);
     }
 
@@ -226,7 +242,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Refund_Additional_OpenInvoice
     {
         parent::tearDown();
         $this->openInvoiceNlModel = null;
-        $this->testInvoice        = null;
+        $this->testPayment = null;
     }
 }
  

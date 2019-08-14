@@ -33,10 +33,10 @@ class Netresearch_OPS_Helper_Creditcard extends Netresearch_OPS_Helper_Payment_D
     }
 
 
-
     /**
-     * @param $quote
-     * @param $requestParams
+     * @param Mage_Sales_Model_Quote $quote
+     * @param array $requestParams
+     * @return $this
      */
     public function handleAdminPayment(Mage_Sales_Model_Quote $quote, $requestParams)
     {
@@ -46,13 +46,15 @@ class Netresearch_OPS_Helper_Creditcard extends Netresearch_OPS_Helper_Payment_D
     protected function getPaymentSpecificParams(Mage_Sales_Model_Quote $quote)
     {
         $alias = $quote->getPayment()->getAdditionalInformation('alias');
-        if (is_null($alias) && $this->getDataHelper()->isAdminSession()) {
+        if (null === $alias && $this->getDataHelper()->isAdminSession()) {
             $alias = $this->getAliasHelper()->getAlias($quote);
         }
+        $saveAlias = Mage::getModel('ops/alias')->load($alias, 'alias')->getId();
         $params = array (
-            'ALIAS' => $alias
+            'ALIAS' => $alias,
+            'ALIASPERSISTEDAFTERUSE' => $saveAlias ? 'Y' : 'N',
         );
-        if($this->getConfig()->getCreditDebitSplit($quote->getStoreId())){
+        if ($this->getConfig()->getCreditDebitSplit($quote->getStoreId())) {
             $params['CREDITDEBIT'] = 'C';
         }
         if (is_numeric($quote->getPayment()->getAdditionalInformation('cvc'))) {

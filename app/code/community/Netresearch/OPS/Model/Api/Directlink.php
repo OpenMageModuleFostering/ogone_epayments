@@ -36,6 +36,8 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      * Perform a CURL call and log request end response to logfile
      *
      * @param array $params
+     * @param string $url
+     *
      * @return mixed
      */
      public function call($params, $url)
@@ -47,36 +49,47 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
              $http->write(Zend_Http_Client::POST, $url, '1.1', array(), http_build_query($params));
              $response = $http->read();
              $response = substr($response, strpos($response, "<?xml"), strlen($response));
-
-             return $response;
-        } catch (Exception $e) {
+         } catch (Exception $e) {
             Mage::logException($e);
             Mage::throwException(
                 Mage::helper('ops')->__('Ingenico ePayments server is temporarily not available, please try again later.')
             );
-        }
+         }
+
+         return $response;
      }
 
     /**
      * Performs a POST request to the Direct Link Gateway with the given
      * parameters and returns the result parameters as array
      *
-     * @param array $params
+     * @param array $requestParams
+     * @param string $url
+     * @param int $storeId
+     *
      * @return array
      */
      public function performRequest($requestParams, $url, $storeId = 0)
      {
         $helper = Mage::helper('ops');
         $params = $this->getEncodedParametersWithHash(
-            array_merge($requestParams,$this->buildAuthenticationParams($storeId)) //Merge Logic Operation Data with Authentication Data
-        , null, $storeId);
+            array_merge(
+                $requestParams,
+                $this->buildAuthenticationParams($storeId)
+            ),//Merge Logic Operation Data with Authentication Data
+            null,
+            $storeId
+        );
         $responseParams = $this->getResponseParams($params, $url);
-        $helper->log($helper->__("Direct Link Request/Response in Ingenico ePayments \n\nRequest: %s\nResponse: %s\nMagento-URL: %s\nAPI-URL: %s",
-            serialize($params),
-            serialize($responseParams),
-            Mage::helper('core/url')->getCurrentUrl(),
-            $url
-        ));
+        $helper->log(
+            $helper->__(
+                "Direct Link Request/Response in Ingenico ePayments \n\nRequest: %s\nResponse: %s\nMagento-URL: %s\nAPI-URL: %s",
+                serialize($params),
+                serialize($responseParams),
+                Mage::helper('core/url')->getCurrentUrl(),
+                $url
+            )
+        );
         
         $this->checkResponse($responseParams);
 
@@ -122,7 +135,8 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
                     } elseif (array_key_exists('PAYID', $params)) {
                         $ref = $params['PAYID'];
                     }
-                    Mage::helper('ops')->log('DirectLink::getResponseParams failed: ' .
+                    Mage::helper('ops')->log(
+                        'DirectLink::getResponseParams failed: ' .
                         $e->getMessage() . ' current retry count: ' . $retryCount . ' for quote ' . $ref
                     );
                     $responseParams = $this->getResponseParams($params, $url, ++$retryCount);
@@ -137,6 +151,8 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
     /**
      * Return Authentication Params for OPS Call
      *
+     * @param int $storeId
+     *
      * @return array
      */
      protected function buildAuthenticationParams($storeId = 0)
@@ -148,11 +164,12 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
          );
      }
 
-     /**
+    /**
      * Parses the XML-String to an array with the result data
      *
-     * @param string xmlString
-     * @return array
+     * @param $xmlString
+     * @return mixed
+     * @throws Exception
      */
      public function getParamArrFromXmlString($xmlString)
      {
@@ -171,16 +188,19 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
              throw $e;
          }
      }
-     
-     /**
+
+    /**
      * Check if the Response from OPS reports Errors
      *
-     * @param array $responseParams
-     * @return mixed
+     * @param $responseParams
      */
      public function checkResponse($responseParams)
      {
-         if (false === is_array($responseParams) || false === array_key_exists('NCERROR', $responseParams) || $responseParams['NCERROR'] > 0) {
+         if (false === is_array($responseParams)
+             || false === array_key_exists('NCERROR', $responseParams)
+             || $responseParams['NCERROR'] > 0
+         )
+         {
             if (empty($responseParams['NCERRORPLUS'])) {
                 $responseParams['NCERRORPLUS'] = Mage::helper('ops')->__('Invalid payment information')." Errorcode:".$responseParams['NCERROR'];
             }
@@ -191,7 +211,7 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
             }
             
             Mage::throwException(
-                Mage::helper('ops')->__("An error occured during the Ingenico ePayments request. Your action could not be executed. Message: '%s.'",$responseParams['NCERRORPLUS'])
+                Mage::helper('ops')->__("An error occured during the Ingenico ePayments request. Your action could not be executed. Message: '%s.'", $responseParams['NCERRORPLUS'])
             );
          }
      }

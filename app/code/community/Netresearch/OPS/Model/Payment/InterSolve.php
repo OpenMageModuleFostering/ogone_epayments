@@ -41,7 +41,7 @@ class Netresearch_OPS_Model_Payment_InterSolve
         if (strlen(trim($brand)) === 0) {
             $brand = 'InterSolve';
         }
-        $payment = Mage::getSingleton('checkout/session')->getQuote()->getPayment();
+        $payment = $this->getInfoInstance();
         $payment->setAdditionalInformation('BRAND', $brand);
 
         parent::assignData($data);

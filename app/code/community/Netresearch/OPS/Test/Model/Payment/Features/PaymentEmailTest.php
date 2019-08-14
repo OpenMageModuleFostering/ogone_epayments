@@ -47,27 +47,26 @@ class Netresearch_OPS_Test_Model_Payment_Features_PaymentEmailTest extends EcomD
     public function testResendPaymentInfo()
     {
         $mailMock = $this->getMockBuilder('Zend_Mail')
-            ->setMethods(['send'])
-            ->getMock()
-        ;
+            ->setMethods(array('send'))
+            ->getMock();
         $mailMock
             ->expects($this->once())
             ->method('send')
-            ->willReturnSelf()
-        ;
+            ->willReturnSelf();
 
-        $templateMock = $this->getModelMock('core/email_template', ['getMail']);
+        $templateMock = $this->getModelMock('core/email_template', array('getMail'));
         $templateMock
             ->expects($this->any())
             ->method('getMail')
-            ->willReturn($mailMock)
-        ;
+            ->willReturn($mailMock);
         $this->replaceByMock('model', 'core/email_template', $templateMock);
 
         $payment = $this->getModelMock('sales/order_payment', array('save'));
         $payment->expects($this->once())
                 ->method('save')
                 ->will($this->returnValue(null));
+
+        $payment->setMethod(Netresearch_OPS_Model_Payment_Flex::CODE);
 
         $order = Mage::getModel('sales/order');
         $order->setData('customer_email', 'a@bc.de')
@@ -93,21 +92,18 @@ class Netresearch_OPS_Test_Model_Payment_Features_PaymentEmailTest extends EcomD
     public function testSendSuspendSubscriptionMail()
     {
         $mailMock = $this->getMockBuilder('Zend_Mail')
-            ->setMethods(['send'])
-            ->getMock()
-        ;
+            ->setMethods(array('send'))
+            ->getMock();
         $mailMock
             ->expects($this->once())
             ->method('send')
-            ->willReturnSelf()
-        ;
+            ->willReturnSelf();
 
-        $templateMock = $this->getModelMock('core/email_template', ['getMail']);
+        $templateMock = $this->getModelMock('core/email_template', array('getMail'));
         $templateMock
             ->expects($this->any())
             ->method('getMail')
-            ->willReturn($mailMock)
-        ;
+            ->willReturn($mailMock);
         $this->replaceByMock('model', 'core/email_template', $templateMock);
 
         $profile = Mage::getModel('sales/recurring_profile');

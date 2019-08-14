@@ -6,64 +6,67 @@
  * @copyright   Copyright (c) 2014 Netresearch GmbH & Co. KG (http://www.netresearch.de)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
 abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_OpenInvoiceNlAbstract
     implements Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Interface
 {
-    protected $additionalParams = array();
-    protected $opsDataHelper = null;
-    protected $itemIdx = 1;
+    protected $_additionalParams = array();
+    protected $_opsDataHelper = null;
+    protected $_itemIdx = 1;
 
 
     /**
-     * @param Mage_Sales_Model_Abstract $itemContainer
+     * @param Mage_Sales_Model_Order_Payment $payment
      *
      * @return array
      */
-    public function extractAdditionalParams(Mage_Sales_Model_Abstract $itemContainer)
+    public function extractAdditionalParams(Mage_Sales_Model_Order_Payment $payment)
     {
+        $itemContainer = $payment->getInvoice();
         if ($itemContainer instanceof Mage_Sales_Model_Order_Invoice) {
-            $this->extractFromInvoiceItems($itemContainer);
-            $this->extractFromDiscountData($itemContainer);
-            $this->extractFromInvoicedShippingMethod($itemContainer);
+            $requestHelper = Mage::helper('ops/payment_request');
+            $this->_additionalParams = $requestHelper->extractOrderItemParameters($itemContainer);
         }
 
-        return $this->additionalParams;
+        return $this->_additionalParams;
     }
 
     /**
+     * @deprecated Netresearch_OPS_Helper_Payment_Request should be used instead
+     *
      * extracts all necessary data from the invoice items
      *
      * @param Mage_Sales_Model_Order_Invoice $invoice
+     *
+     * @return Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Interface
      */
     protected function extractFromInvoiceItems(Mage_Sales_Model_Order_Invoice $invoice)
     {
         foreach ($invoice->getItemsCollection() as $item) {
             /** @var $item Mage_Sales_Model_Order_Invoice_Item */
             // filter out configurable products
-            if ($item->getParentItemId()
-                && $item->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-                || $item->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
+            if (!$this->isDataItem($item)) {
                 continue;
             }
-            $this->additionalParams['ITEMID' . $this->itemIdx]    = substr($item->getOrderItemId(), 0, 15);
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]  = substr($item->getName(), 0, 30);
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount(
-                                                                         $item->getBasePriceInclTax()
+            $this->_additionalParams['ITEMID' . $this->_itemIdx] = substr($item->getOrderItemId(), 0, 15);
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx] = substr($item->getName(), 0, 30);
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()->getAmount(
+                $item->getBasePriceInclTax()
             );
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx] = $item->getQty();
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx]
-                                                                    =
-                str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx] = $item->getQty();
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx]
+                = str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
 
         return $this;
     }
 
+
     /**
      * extract the necessary data from the shipping data of the invoice
+     *
+     * @deprecated Netresearch_OPS_Helper_Payment_Request should be used instead
      *
      * @param Mage_Sales_Model_Order_Invoice $invoice
      *
@@ -73,14 +76,14 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Open
     {
         $amount = $invoice->getBaseShippingInclTax();
         if (0 < $amount) {
-            $this->additionalParams['ITEMID' . $this->itemIdx]      = 'SHIPPING';
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]    =
-                substr($invoice->getOrder()->getShippingDescription(), 0, 30);
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx]   = $this->getOpsDataHelper()->getAmount($amount);
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx]   = 1;
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx] = $this->getShippingTaxRate($invoice) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+            $this->_additionalParams['ITEMID' . $this->_itemIdx] = 'SHIPPING';
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx]
+                = substr($invoice->getOrder()->getShippingDescription(), 0, 30);
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()->getAmount($amount);
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx] = 1;
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx] = $this->getShippingTaxRate($invoice) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
 
 
@@ -88,6 +91,8 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Open
     }
 
     /**
+     * @deprecated Netresearch_OPS_Helper_Payment_Request should be used instead
+     *
      * retrieves used shipping tax rate
      *
      * @param Mage_Sales_Model_Order_Invoice $invoice
@@ -96,8 +101,8 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Open
      */
     protected function getShippingTaxRate(Mage_Sales_Model_Order_Invoice $invoice)
     {
-        $taxRate       = 0.0;
-        $order         = $invoice->getOrder();
+        $taxRate = 0.0;
+        $order = $invoice->getOrder();
 
         $taxRate = (floatval(Mage::helper('ops/payment_request')->getShippingTaxRate($order)));
 
@@ -112,33 +117,35 @@ abstract class Netresearch_OPS_Model_Backend_Operation_Parameter_Additional_Open
      */
     protected function getOpsDataHelper()
     {
-        if (null === $this->opsDataHelper) {
-            $this->opsDataHelper = Mage::helper('ops/data');
+        if (null === $this->_opsDataHelper) {
+            $this->_opsDataHelper = Mage::helper('ops/data');
         }
 
-        return $this->opsDataHelper;
+        return $this->_opsDataHelper;
     }
 
 
     /**
-     * @param $itemContainer
+     * @deprecated Netresearch_OPS_Helper_Payment_Request should be used instead
+     *
+     * @param $invoice
      */
     protected function extractFromDiscountData($invoice)
     {
         $amount = $invoice->getBaseDiscountAmount();
         if (0 > $amount) {
             $couponRuleName = 'DISCOUNT';
-            $order          = $invoice->getOrder();
+            $order = $invoice->getOrder();
             if ($order->getCouponRuleName() && strlen(trim($order->getCouponRuleName())) > 0) {
                 $couponRuleName = substr(trim($order->getCouponRuleName()), 0, 30);
             }
-            $this->additionalParams['ITEMID' . $this->itemIdx]    = 'DISCOUNT';
-            $this->additionalParams['ITEMNAME' . $this->itemIdx]  = $couponRuleName;
-            $this->additionalParams['ITEMPRICE' . $this->itemIdx] = $this->getOpsDataHelper()->getAmount($amount);
-            $this->additionalParams['ITEMQUANT' . $this->itemIdx]   = 1;
-            $this->additionalParams['ITEMVATCODE' . $this->itemIdx] = $this->getShippingTaxRate($invoice) . '%';
-            $this->additionalParams['TAXINCLUDED' . $this->itemIdx] = 1;
-            ++$this->itemIdx;
+            $this->_additionalParams['ITEMID' . $this->_itemIdx] = 'DISCOUNT';
+            $this->_additionalParams['ITEMNAME' . $this->_itemIdx] = $couponRuleName;
+            $this->_additionalParams['ITEMPRICE' . $this->_itemIdx] = $this->getOpsDataHelper()->getAmount($amount);
+            $this->_additionalParams['ITEMQUANT' . $this->_itemIdx] = 1;
+            $this->_additionalParams['ITEMVATCODE' . $this->_itemIdx] = $this->getShippingTaxRate($invoice) . '%';
+            $this->_additionalParams['TAXINCLUDED' . $this->_itemIdx] = 1;
+            ++$this->_itemIdx;
         }
     }
 }

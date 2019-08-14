@@ -37,7 +37,7 @@ trait Netresearch_OPS_Trait_PaymentHelper
      */
     public function getPaymentHelper()
     {
-        if (is_null($this->paymentHelper)) {
+        if (null === $this->paymentHelper) {
             $this->paymentHelper = Mage::helper('ops/payment');
         }
 

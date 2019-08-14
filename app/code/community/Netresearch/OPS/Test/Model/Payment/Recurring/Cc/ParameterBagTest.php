@@ -112,6 +112,7 @@ class Netresearch_OPS_Test_Model_Payment_Recurring_Cc_ParameterBagTest extends E
         $profile = Mage::getModel('sales/recurring_profile');
         $address = Mage::getModel('sales/quote_address');
         $address->setCity('Leipzig');
+        $address->setStreet('Test 123');
         $quote = Mage::getModel('sales/quote');
         $quote->setShippingAddress($address);
         $quote->setBillingAddress($address);
@@ -222,7 +223,7 @@ class Netresearch_OPS_Test_Model_Payment_Recurring_Cc_ParameterBagTest extends E
 
         $params = $subject->collectProfileParameters($profile, true);
 
-        $this->assertEquals(Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag::PERIOD_UNIT_DAY,  $params['SUB_PERIOD_UNIT']);
+        $this->assertEquals(Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag::PERIOD_UNIT_DAY, $params['SUB_PERIOD_UNIT']);
 
         $id = Netresearch_OPS_Helper_Subscription::SUBSCRIPTION_PREFIX . $profile->getId() . Netresearch_OPS_Helper_Subscription::TRIAL_SUFFIX ;
         $this->assertArrayHasKey('SUBSCRIPTION_ID', $params);

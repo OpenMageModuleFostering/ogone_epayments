@@ -16,19 +16,11 @@ class Netresearch_OPS_Model_Payment_DirectEbanking
     /** info source path */
     protected $_infoBlockType = 'ops/info_redirect';
 
+    /** form block type  */
+    protected $_formBlockType = 'ops/form_directEbanking';
+
     /** payment code */
     protected $_code = 'ops_directEbanking';
-
-
-    protected function getPayment()
-    {
-        $checkout = Mage::getSingleton('checkout/session');
-        $payment = $checkout->getQuote()->getPayment();
-        if (!$payment->getId()) {
-            $payment = Mage::getModel('sales/order')->loadByIncrementId($checkout->getLastRealOrderId())->getPayment();
-        }
-        return $payment;
-    }
 
     /**
      * Assign data to info model instance
@@ -51,7 +43,7 @@ class Netresearch_OPS_Model_Payment_DirectEbanking
 
         $payment = $this->getInfoInstance();
         // brand == pm for all DirectEbanking methods
-        $payment->setAdditionalInformation('PM',    $brand);
+        $payment->setAdditionalInformation('PM', $brand);
         $payment->setAdditionalInformation('BRAND', $brand);
         parent::assignData($data);
         return $this;
@@ -64,8 +56,9 @@ class Netresearch_OPS_Model_Payment_DirectEbanking
      * @param string $value
      * @return string
      */
-    protected function fixSofortUberweisungBrand($value){
-        if($value === 'Sofort Uberweisung'){
+    protected function fixSofortUberweisungBrand($value)
+    {
+        if ($value === 'Sofort Uberweisung') {
             return 'DirectEbanking';
         }
         return $value;

@@ -108,7 +108,8 @@ class Netresearch_OPS_Test_Model_Subscription_ManagerTest extends EcomDev_PHPUni
                   ->will($this->returnValue(''));
         $this->replaceByMock('model', 'sales/order', $orderMock);
 
-        $paymentMock = $this->getModelMock('sales/order_payment',
+        $paymentMock = $this->getModelMock(
+            'sales/order_payment',
             array('registerAuthorizationNotification', 'registerCaptureNotification')
         );
         $paymentMock->expects($this->any())

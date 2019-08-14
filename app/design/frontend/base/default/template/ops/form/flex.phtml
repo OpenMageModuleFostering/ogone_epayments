@@ -51,14 +51,14 @@ $methods = $this->getFlexMethods();
                    data-brand=""
                    class="ops-flex-validation"
                    data-pm=""
-                   name="payment[ops_flex][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_TITLE ?>]"
+                   name="payment[ops_flex_data][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_TITLE ?>]"
                    id="flex_default">
             <label for="flex_default"><?php echo $this->escapeHtml($this->getDefaultOptionTitle()); ?></label>
         </li>
     <?php endif; ?>
     <?php foreach ($methods as $method): ?>
         <li><input type="radio" value="<?php echo $this->escapeHtml($method['title']); ?>"
-                   name="payment[ops_flex][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_TITLE ?>]"
+                   name="payment[ops_flex_data][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_TITLE ?>]"
                    data-brand="<?php echo $this->escapeHtml($method['brand']); ?>"
                    data-pm="<?php echo $this->escapeHtml($method['pm']); ?>"
                    class="ops-flex-validation"
@@ -69,9 +69,9 @@ $methods = $this->getFlexMethods();
         </li>
     <?php endforeach; ?>
     <input type="text" class="hidden" id="ops_flex_pm"
-           name="payment[ops_flex][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_PM ?>]"/>
+           name="payment[ops_flex_data][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_PM ?>]"/>
     <input type="text" class="hidden" id="ops_flex_brand"
-           name="payment[ops_flex][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_BRAND ?>]"/>
+           name="payment[ops_flex_data][<?php echo Netresearch_OPS_Model_Payment_Flex::INFO_KEY_BRAND ?>]"/>
 
     <script type="application/javascript">
 
@@ -95,3 +95,4 @@ $methods = $this->getFlexMethods();
         });
     </script>
 </ul>
+<p><?php echo $this->getRedirectMessage(); ?></p>

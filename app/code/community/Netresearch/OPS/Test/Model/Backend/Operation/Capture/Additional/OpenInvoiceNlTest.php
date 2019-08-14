@@ -23,12 +23,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
 
     public function testExtractAdditionalParamsWithoutShipping1()
     {
-        $itemsContainer = Mage::getModel('sales/order_shipment');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $itemsContainer = Mage::getModel('sales/order_invoice');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
@@ -40,7 +35,9 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $item->setQty(2);
         $item->setTaxPercent(19);
         $itemsContainer->addItem($item);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($itemsContainer);
+        $payment = Mage::getModel('sales/order_payment')->setMethod('ops_openInvoiceNl');
+        $payment->setInvoice($itemsContainer);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($payment);
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
         $this->assertArrayHasKey('ITEMID1', $result);
@@ -57,15 +54,11 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
 
     public function testExtractAdditionalParamsWithoutShippingButWithConfigurable()
     {
-        $itemsContainer = Mage::getModel('sales/order_shipment');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $itemsContainer = Mage::getModel('sales/order_invoice');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
+        $orderItem->setProductType(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
         $item = Mage::getModel('sales/order_invoice_item');
         $item->setOrderItemId(1);
         $item->setOrderItem($orderItem);
@@ -75,18 +68,21 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $item->setTaxPercent(19);
         $itemsContainer->addItem($item);
         $item = Mage::getModel('sales/order_invoice_item');
-        $orderItem = Mage::getModel('sales/order_item');
-        $orderItem->setId(1);
-        $orderItem->setQtyOrdered(2);
-        $orderItem->setParentItemId(1);
+        $simpleOrderItem = Mage::getModel('sales/order_item');
+        $simpleOrderItem->setId(1);
+        $simpleOrderItem->setQtyOrdered(2);
+        $simpleOrderItem->setParentItemId(1);
+        $simpleOrderItem->setParentItem($orderItem);
         $item->setOrderItemId(2);
-        $item->setOrderItem($orderItem);
+        $item->setOrderItem($simpleOrderItem);
         $item->setName('Item');
         $item->setBasePriceInclTax(19.99);
         $item->setQty(2);
         $item->setTaxPercent(19);
         $itemsContainer->addItem($item);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($itemsContainer);
+        $payment = Mage::getModel('sales/order_payment')->setMethod('ops_openInvoiceNl');
+        $payment->setInvoice($itemsContainer);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($payment);
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
         $this->assertArrayHasKey('ITEMID1', $result);
@@ -103,12 +99,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
 
     public function testExtractAdditionalParamsWithoutShippingButWithTwoNormalInvoiceItems()
     {
-        $itemsContainer = Mage::getModel('sales/order_shipment');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $itemsContainer = Mage::getModel('sales/order_invoice');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
@@ -131,7 +122,9 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $item->setQty(2);
         $item->setTaxPercent(19);
         $itemsContainer->addItem($item);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($itemsContainer);
+        $payment = Mage::getModel('sales/order_payment')->setMethod('ops_openInvoiceNl');
+        $payment->setInvoice($itemsContainer);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($payment);
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
         $this->assertArrayHasKey('ITEMID1', $result);
@@ -159,12 +152,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
 
     public function testExtractAdditionalParamsWithShipping()
     {
-        $itemsContainer = Mage::getModel('sales/order_shipment');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $itemsContainer = Mage::getModel('sales/order_invoice');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
@@ -177,13 +165,14 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $item->setTaxPercent(19);
         $itemsContainer->addItem($item);
         $itemsContainer->setBaseShippingInclTax(10.00);
-        $order = MAge::getModel('sales/order');
+        $order = Mage::getModel('sales/order');
         $order->setShippingDescription('foo');
         $payment = Mage::getModel('sales/order_payment');
         $payment->setMethod('ops_openInvoiceNl');
         $order->setPayment($payment);
         $itemsContainer->setOrder($order);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($itemsContainer);
+        $payment->setInvoice($itemsContainer);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($payment);
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
         $this->assertArrayHasKey('ITEMID1', $result);
@@ -212,12 +201,7 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
 
     public function testExtractAdditionalParamsWithShippingAndDiscount()
     {
-        $itemsContainer = Mage::getModel('sales/order_shipment');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $itemsContainer = Mage::getModel('sales/order_invoice');
-        $this->assertTrue(is_array($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
-        $this->assertEquals(0, count($this->openInvoiceNlModel->extractAdditionalParams($itemsContainer)));
         $orderItem = Mage::getModel('sales/order_item');
         $orderItem->setId(1);
         $orderItem->setQtyOrdered(2);
@@ -238,7 +222,8 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $payment->setMethod('ops_openInvoiceNl');
         $order->setPayment($payment);
         $itemsContainer->setOrder($order);
-        $result = $this->openInvoiceNlModel->extractAdditionalParams($itemsContainer);
+        $payment->setInvoice($itemsContainer);
+        $result = $this->openInvoiceNlModel->extractAdditionalParams($payment);
         $this->assertTrue(is_array($result));
         $this->assertTrue(0 < count($result));
         $this->assertArrayHasKey('ITEMID1', $result);
@@ -279,7 +264,8 @@ class Netresearch_OPS_Test_Model_Backend_Operation_Capture_Additional_OpenInvoic
         $this->assertEquals(1, $result['TAXINCLUDED3']);
     }
 
-    protected function mockSessions(){
+    protected function mockSessions()
+    {
         $sessionMock = $this->getModelMockBuilder('checkout/session')
                             ->disableOriginalConstructor()
                             ->setMethods(null)

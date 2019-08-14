@@ -44,7 +44,7 @@ class Netresearch_OPS_Model_Observer
 
     public function getHelper($name = null)
     {
-        if (is_null($name)) {
+        if (null === $name) {
             return Mage::helper('ops');
         }
 
@@ -74,7 +74,7 @@ class Netresearch_OPS_Model_Observer
                     $quote->getPayment()
                 )
             ) {
-                $this->confirmDdPayment($order, $quote, $observer);
+                $this->confirmDdPayment($order, $quote );
             } elseif ($quote->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract) {
                 $requestParams = $quote->getPayment()->getMethodInstance()->getFormFields($order, array(), false);
                 $this->invokeRequestParamValidation($requestParams);
@@ -82,7 +82,7 @@ class Netresearch_OPS_Model_Observer
         } catch (Exception $e) {
             $quote->setIsActive(true);
             $this->getOnepage()->getCheckout()->setGotoSection('payment');
-            throw new Mage_Core_Exception($e->getMessage());
+            Mage::throwException($e->getMessage());
         }
     }
 
@@ -135,10 +135,8 @@ class Netresearch_OPS_Model_Observer
         /**
          * allow null as valid state for creating the order with status 'pending'
          */
-        if (!is_null($response['STATUS'])
-            && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])
-        ) {
-            throw new Mage_Core_Exception($this->getHelper()->__('Ingenico ePayments Payment failed'));
+        if (null != $response['STATUS'] && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])) {
+            Mage::throwException($this->getHelper()->__('Ingenico ePayments Payment failed'));
         }
         $quote->getPayment()->setAdditionalInformation('ops_response', $response)->save();
 
@@ -184,7 +182,9 @@ class Netresearch_OPS_Model_Observer
         ) {
             //Build message and update cancel button
             $message = Mage::helper('ops')->__(
-                "Are you sure you want to cancel this order? Warning: Please check the payment status in the back-office of Ingenico ePayments before. By cancelling this order you won\\'t be able to update the status in Magento anymore."
+                "Are you sure you want to cancel this order? Warning:" .
+                " Please check the payment status in the back-office of Ingenico ePayments before." .
+                " By cancelling this order you won\\'t be able to update the status in Magento anymore."
             );
             $block->updateButton(
                 'order_cancel',
@@ -204,7 +204,7 @@ class Netresearch_OPS_Model_Observer
      *
      * @param Varien_Event_Observer $observer
      *
-     * @return void
+     * @return string
      */
     public function appendCheckBoxToRefundForm($observer)
     {
@@ -251,7 +251,7 @@ class Netresearch_OPS_Model_Observer
      *
      * @param Varien_Event_Observer $observer
      *
-     * @return void
+     * @return string
      */
     public function showWarningForClosedTransactions($observer)
     {
@@ -290,7 +290,7 @@ class Netresearch_OPS_Model_Observer
      *
      * @param $observer
      */
-    public function cleanUpOldPaymentData($observer)
+    public function cleanUpOldPaymentData()
     {
         Mage::helper('ops/quote')->cleanUpOldPaymentInformation();
     }
@@ -425,13 +425,15 @@ class Netresearch_OPS_Model_Observer
         $controller = $event->getControllerAction();
         $quote = $this->getOnepage()->getQuote();
         if ($quote->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract) {
+            /** @var Netresearch_OPS_Helper_Payment_Request $paramHelper */
             $paramHelper = Mage::helper('ops/payment_request');
             $shippingParams = array();
-            $billingParams = $paramHelper->getOwnerParams($quote->getBillingAddress(), $quote);
+            $ownerParams   = $paramHelper->getOwnerParams($quote->getBillingAddress(), $quote);
+            $billingParams = $paramHelper->extractBillToParameters($quote->getBillingAddress(), $quote);
             if ($quote->getShippingAddress()) {
                 $shippingParams = $paramHelper->extractShipToParameters($quote->getShippingAddress(), $quote);
             }
-            $params = array_merge($billingParams, $shippingParams);
+            $params = array_merge($ownerParams, $shippingParams, $billingParams);
             $validator = Mage::getModel('ops/validator_parameter_factory')->getValidatorFor(
                 Netresearch_OPS_Model_Validator_Parameter_Factory::TYPE_REQUEST_PARAMS_VALIDATION
             );
@@ -541,7 +543,9 @@ class Netresearch_OPS_Model_Observer
             if ($profile->getMethodCode() == Netresearch_OPS_Model_Payment_Recurring_Cc::CODE) {
                 $cancelMessage = Mage::helper('ops')
                     ->__(
-                        'Are you sure you want to perform this action? Canceling the subscription here will not actually cancel the subscription on Ingenico ePayments side. To stop charging the customer you will have to deactivate the subscription there.'
+                        'Are you sure you want to perform this action?' .
+                        ' Canceling the subscription here will not actually cancel the subscription on Ingenico ePayments side.' .
+                        ' To stop charging the customer you will have to deactivate the subscription there.'
                     );
                 $cancelUrl = $block->getUrl(
                     '*/*/updateState',
@@ -556,7 +560,9 @@ class Netresearch_OPS_Model_Observer
 
                 $suspendMessage = Mage::helper('ops')
                     ->__(
-                        'Are you sure you want to perform this action? Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments side. To stop charging the customer you will have to deactivate the subscription there.'
+                        'Are you sure you want to perform this action?' .
+                        'Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments side.' .
+                        'To stop charging the customer you will have to deactivate the subscription there.'
                     );
                 $suspendUrl = $block->getUrl(
                     '*/*/updateState',
@@ -677,14 +683,14 @@ class Netresearch_OPS_Model_Observer
     {
         /** @var Mage_Sales_Model_Order $order */
         $order = $observer->getOrder();
-        if (!$order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract) {
+        if ($order == null || !$order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract) {
             // ignore third-party payment methods
             return;
         }
 
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $observer->getQuote();
-        if ($quote->getPayment()->getOrderPlaceRedirectUrl()) {
+        if ($quote && $quote->getPayment()->getOrderPlaceRedirectUrl()) {
             // redirect payments require special treatment, may still get cancelled or declined
             return;
         }
@@ -695,5 +701,25 @@ class Netresearch_OPS_Model_Observer
         } catch (Exception $e) {
             Mage::logException($e);
         }
+    }
+
+    /**
+     * triggers the email sending for payment method payPerMail
+     *
+     * event: sales_order_place_after
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function sendPayPerMailInfo(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $observer->getOrder();
+        if (!$order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_PayPerMail) {
+            return;
+        }
+
+        /** @var Netresearch_OPS_Model_Payment_Features_PaymentEmail $sendEmailModel */
+        $sendEmailModel = Mage::getModel('ops/payment_features_paymentEmail');
+        $sendEmailModel->resendPaymentInfo($order);
     }
 }

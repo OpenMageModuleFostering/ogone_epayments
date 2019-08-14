@@ -20,9 +20,11 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function render(Varien_Data_Form_Element_Abstract $fieldset)
     {
         $originalData = $fieldset->getOriginalData();
-        $this->addData(array(
+        $this->addData(
+            array(
                            'fieldset_label' => $fieldset->getLegend(),
-                       ));
+            )
+        );
         return $this->toHtml();
     }
 
@@ -58,7 +60,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function getSupportMail()
     {
         $mail = $this->getConfig()->getConfigData('support_mail');
-        if (0 < strpos($mail, '@')) {
+        if (false !== strpos($mail, '@')) {
             return $mail;
         }
     }
@@ -81,7 +83,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function getDocLinkDe()
     {
         $link = $this->getConfig()->getConfigData('doc_link_de');
-        if (0 < strpos($link, '://')) {
+        if (false !== strpos($link, '://')) {
             return $link;
         }
     }
@@ -94,7 +96,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function getDocLinkEn()
     {
         $link = $this->getConfig()->getConfigData('doc_link_en');
-        if (0 < strpos($link, '://')) {
+        if (false !== strpos($link, '://')) {
             return $link;
         }
     }
@@ -116,7 +118,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function getFaqLinkDe()
     {
         $link = $this->getConfig()->getConfigData('faq_link_de');
-        if (0 < strpos($link, '://')) {
+        if (false !== strpos($link, '://')) {
             return $link;
         }
 
@@ -130,7 +132,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
     public function getFaqLinkEn()
     {
         $link = $this->getConfig()->getConfigData('faq_link_en');
-        if (0 < strpos($link, '://')) {
+        if (false !== strpos($link, '://')) {
             return $link;
         }
     }

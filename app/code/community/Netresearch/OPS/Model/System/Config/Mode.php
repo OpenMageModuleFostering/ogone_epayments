@@ -12,9 +12,9 @@ class Netresearch_OPS_Model_System_Config_Mode extends Mage_Core_Model_Config_Da
     public function _afterSave()
     {
 
-        if($this->getValue() != Netresearch_OPS_Model_Source_Mode::CUSTOM && $this->isValueChanged()){
+        if ($this->getValue() != Netresearch_OPS_Model_Source_Mode::CUSTOM && $this->isValueChanged()) {
             $xmlConfig = Mage::getConfig()->loadModulesConfiguration('config.xml');
-            foreach($this->getUrlPaths() as $path){
+            foreach ($this->getUrlPaths() as $path) {
                 $default = $xmlConfig->getNode('default/'.$path);
                 $newValue = preg_replace('/\/ncol\/\w+/', '/ncol/'.$this->getValue(), $default);
                 Mage::getConfig()->saveConfig($path, $newValue, $this->getScope(), $this->getScopeId());
@@ -25,7 +25,8 @@ class Netresearch_OPS_Model_System_Config_Mode extends Mage_Core_Model_Config_Da
         return parent::_afterSave();
     }
 
-    protected function getUrlPaths(){
+    protected function getUrlPaths()
+    {
         return array(
             Netresearch_OPS_Model_Config::OPS_PAYMENT_PATH.'ops_gateway',
             Netresearch_OPS_Model_Config::OPS_PAYMENT_PATH.'ops_alias_gateway',

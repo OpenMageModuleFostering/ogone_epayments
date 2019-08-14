@@ -155,7 +155,8 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
 
     protected function confirmPayment(Mage_Sales_Model_Order $order, Mage_Sales_Model_Quote $quote,
         Varien_Object $payment
-    ) {
+    ) 
+    {
         $this->handleAdminPayment($quote);
         $requestParams = $this->getRequestParamsHelper()->getDirectLinkRequestParams($quote, $order, $payment);
         $this->invokeRequestParamValidation($requestParams);
@@ -215,7 +216,8 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
 
 
     /**
-     * performs direct link request either for inline payments and direct sale mode or the normal maintenance call (invoice)
+     * performs direct link request either for inline payments and
+     * direct sale mode or the normal maintenance call (invoice)
      *
      * @override
      *

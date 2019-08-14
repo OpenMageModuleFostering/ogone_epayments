@@ -44,7 +44,7 @@ class Netresearch_Ops_Model_System_Config_Backend_Intersolve_Brands
     public function save()
     {
         $brands = $this->getValue();
-        if (is_array($brands) && sizeof($brands) > 1) {
+        if (is_array($brands) && count($brands) > 1) {
             $alreadyProcessedBrands = array();
             foreach ($brands as $brand) {
                 if (is_array($brand) && array_key_exists('brand', $brand)) {

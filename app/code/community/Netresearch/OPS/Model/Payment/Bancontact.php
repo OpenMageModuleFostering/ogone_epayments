@@ -38,11 +38,65 @@ class Netresearch_OPS_Model_Payment_Bancontact
     protected $_canBackendDirectCapture = true;
 
     /** info source path */
-    protected $_infoBlockType = 'ops/info_redirect';
+    protected $_infoBlockType = 'ops/info_bancontact';
 
     /** payment code */
     protected $_code = self::CODE;
 
+    protected $_mobileDetectHelper = null;
+
+    /**
+     * add needed params to dependend formfields
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param null $requestParams
+     * @return string[]
+     */
+    public function getMethodDependendFormFields($order, $requestParams = null)
+    {
+        $formFields = parent::getMethodDependendFormFields($order, $requestParams);
+        $formFields['DEVICE'] =  $this->getInfoInstance()->getAdditionalInformation('DEVICE');
+
+        return $formFields;
+    }
+
+    /**
+     * @param mixed $data
+     * @return $this
+     */
+    public function assignData($data)
+    {
+        parent::assignData($data);
+        $payment = $this->getInfoInstance();
+        $payment->setAdditionalInformation('DEVICE', $this->getMobileDetectHelper()->getDeviceType());
+
+        return $this;
+    }
+
+    /**
+     * Get Mobile Detect Helper
+     *
+     * @return Netresearch_OPS_Helper_MobileDetect
+     */
+    public function getMobileDetectHelper()
+    {
+        if ($this->_mobileDetectHelper === null) {
+            $this->_mobileDetectHelper = Mage::helper('ops/mobileDetect');
+        }
+        return $this->_mobileDetectHelper;
+    }
+
+    /**
+     * @param Netresearch_OPS_Helper_MobileDetect $mobileHelper
+     *
+     * @returns $this
+     */
+    public function setMobileDetectHelper($mobileHelper)
+    {
+        $this->_mobileDetectHelper = $mobileHelper;
+
+        return $this;
+    }
 
 }
 

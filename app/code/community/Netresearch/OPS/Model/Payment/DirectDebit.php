@@ -38,22 +38,23 @@ class Netresearch_OPS_Model_Payment_DirectDebit
         return $this->requestParamsHelper;
     }
 
-    protected function performPreDirectLinkCallActions(Mage_Sales_Model_Quote $quote, Varien_Object $payment, $requestParams = array())
+    protected function performPreDirectLinkCallActions(
+        Mage_Sales_Model_Quote $quote,
+        Varien_Object $payment, $requestParams = array()
+    )
     {
         return $this;
     }
 
     protected function performPostDirectLinkCallAction(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order)
     {
+        Mage::helper('ops/alias')->setAliasActive($quote, $order);
+
         return $this;
     }
 
     protected function handleAdminPayment(Mage_Sales_Model_Quote $quote)
     {
-        $directDebitHelper = Mage::helper('ops/directDebit');
-        $requestParams = Mage::app()->getRequest()->getParam('ops_directDebit');
-        $directDebitHelper->handleAdminPayment($quote, $requestParams);
-
         return $this;
     }
 }

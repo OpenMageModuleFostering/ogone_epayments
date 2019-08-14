@@ -356,7 +356,7 @@ class Netresearch_OPS_Test_Block_Form_CcTest extends EcomDev_PHPUnit_Test_Case
     }
 
 
-    public function testGetStoredAliasBrandWithNonInlineBrand()
+    public function testGetStoredAliasBrand()
     {
         /** @var Netresearch_OPS_Block_Form_Cc $blockMock */
 
@@ -368,11 +368,11 @@ class Netresearch_OPS_Test_Block_Form_CcTest extends EcomDev_PHPUnit_Test_Case
             ->will(
                 $this->returnValue(
                     array(new Varien_Object(
-                              array(
+                        array(
                                   'pseudo_account_or_cc_no' => 'xxxxxxxxxxxx1111',
                                   'brand'                   => 'VISA'
                               )
-                          ))
+                    ))
                 )
             );
         $blockMock->expects($this->any())
@@ -394,7 +394,7 @@ class Netresearch_OPS_Test_Block_Form_CcTest extends EcomDev_PHPUnit_Test_Case
 
         $this->replaceByMock('model', 'ops/config', $modelMock);
 
-        $this->assertEquals('', $blockMock->getStoredAliasBrand(0));
+        $this->assertEquals('VISA', $blockMock->getStoredAliasBrand(0));
     }
 
     public function testIsAliasInfoBlockEnabled()

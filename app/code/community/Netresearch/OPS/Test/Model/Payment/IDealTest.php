@@ -16,52 +16,40 @@ class Netresearch_OPS_Test_Model_Payment_IDealTest extends EcomDev_PHPUnit_Test_
     {
         $issuers = Mage::getModel('ops/payment_iDeal')->getIDealIssuers();
         $this->assertTrue(is_array($issuers));
-        $this->assertTrue(array_key_exists('ABNANL2A',$issuers));
-        $this->assertEquals('ABN AMRO',$issuers['ABNANL2A']);
+        $this->assertTrue(array_key_exists('ABNANL2A', $issuers));
+        $this->assertEquals('ABN AMRO', $issuers['ABNANL2A']);
 
-        $this->assertTrue(array_key_exists('RABONL2U',$issuers));
-        $this->assertEquals('Rabobank',$issuers['RABONL2U']);
+        $this->assertTrue(array_key_exists('RABONL2U', $issuers));
+        $this->assertEquals('Rabobank', $issuers['RABONL2U']);
 
-        $this->assertTrue(array_key_exists('INGBNL2A',$issuers));
-        $this->assertEquals('ING',$issuers['INGBNL2A']);
+        $this->assertTrue(array_key_exists('INGBNL2A', $issuers));
+        $this->assertEquals('ING', $issuers['INGBNL2A']);
 
-        $this->assertTrue(array_key_exists('SNSBNL2A',$issuers));
-        $this->assertEquals('SNS Bank',$issuers['SNSBNL2A']);
+        $this->assertTrue(array_key_exists('SNSBNL2A', $issuers));
+        $this->assertEquals('SNS Bank', $issuers['SNSBNL2A']);
 
-        $this->assertTrue(array_key_exists('RBRBNL21',$issuers));
-        $this->assertEquals('Regio Bank',$issuers['RBRBNL21']);
+        $this->assertTrue(array_key_exists('RBRBNL21', $issuers));
+        $this->assertEquals('Regio Bank', $issuers['RBRBNL21']);
 
-        $this->assertTrue(array_key_exists('ASNBNL21',$issuers));
-        $this->assertEquals('ASN Bank',$issuers['ASNBNL21']);
+        $this->assertTrue(array_key_exists('ASNBNL21', $issuers));
+        $this->assertEquals('ASN Bank', $issuers['ASNBNL21']);
 
-        $this->assertTrue(array_key_exists('TRIONL2U',$issuers));
-        $this->assertEquals('Triodos Bank',$issuers['TRIONL2U']);
+        $this->assertTrue(array_key_exists('TRIONL2U', $issuers));
+        $this->assertEquals('Triodos Bank', $issuers['TRIONL2U']);
 
-        $this->assertTrue(array_key_exists('FVLBNL22',$issuers));
-        $this->assertEquals('Van Lanschot Bankiers',$issuers['FVLBNL22']);
+        $this->assertTrue(array_key_exists('FVLBNL22', $issuers));
+        $this->assertEquals('Van Lanschot Bankiers', $issuers['FVLBNL22']);
 
-        $this->assertTrue(array_key_exists('KNABNL2H',$issuers));
-        $this->assertEquals('Knab Bank',$issuers['KNABNL2H']);
+        $this->assertTrue(array_key_exists('KNABNL2H', $issuers));
+        $this->assertEquals('Knab Bank', $issuers['KNABNL2H']);
 
     }
 
 
     public function testAssignData()
     {
-        $payment = $this->getModelMock('sales/quote_payment', array('setAdditionalInformation'));
-        $payment->setMethod('ops_iDeal');
-        $payment->expects($this->any())
-            ->method('setAdditionalInformation')
-            ->with($this->equalTo('iDeal_issuer_id'));
-
-        $quote = Mage::getModel('sales/quote');
-        $quote->setPayment($payment);
-
-        $checkout = $this->getModelMock('checkout/session');
-        $checkout->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quote));
-        $this->replaceByMock('singleton', 'checkout/session', $checkout);
+        $payment = Mage::getModel('sales/quote_payment')->setMethod('ops_iDeal');
+        $quote = Mage::getModel('sales/quote')->setPayment($payment);
 
         $data = array('iDeal_issuer_id' => 'RBRBNL21');
         $this->assertEquals('iDEAL', $payment->getMethodInstance()->getOpsCode());
@@ -69,26 +57,16 @@ class Netresearch_OPS_Test_Model_Payment_IDealTest extends EcomDev_PHPUnit_Test_
         $method = $payment->getMethodInstance()->assignData($data);
         $this->assertInstanceOf('Netresearch_OPS_Model_Payment_IDeal', $method);
 
-        $payment = Mage::getSingleton('checkout/session')->getQuote()->getPayment();
         $this->assertEquals('RBRBNL21', $payment->getAdditionalInformation('iDeal_issuer_id'));
     }
 
     public function testAssignDataWithVarienObject()
     {
-        $payment = $this->getModelMock('sales/quote_payment', array('setAdditionalInformation'));
+        $payment = Mage::getModel('sales/quote_payment');
         $payment->setMethod('ops_iDeal');
-        $payment->expects($this->any())
-            ->method('setAdditionalInformation')
-            ->with($this->equalTo('iDeal_issuer_id'));
 
         $quote = Mage::getModel('sales/quote');
         $quote->setPayment($payment);
-
-        $checkout = $this->getModelMock('checkout/session');
-        $checkout->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quote));
-        $this->replaceByMock('singleton', 'checkout/session', $checkout);
 
         $data = new Varien_object(array('iDeal_issuer_id' => 'ABNAMRO'));
         $this->assertEquals('iDEAL', $payment->getMethodInstance()->getOpsCode());
@@ -96,7 +74,6 @@ class Netresearch_OPS_Test_Model_Payment_IDealTest extends EcomDev_PHPUnit_Test_
         $method = $payment->getMethodInstance()->assignData($data);
         $this->assertInstanceOf('Netresearch_OPS_Model_Payment_IDeal', $method);
 
-        $payment = Mage::getSingleton('checkout/session')->getQuote()->getPayment();
         $this->assertEquals('ABNAMRO', $payment->getAdditionalInformation('iDeal_issuer_id'));
     }
 

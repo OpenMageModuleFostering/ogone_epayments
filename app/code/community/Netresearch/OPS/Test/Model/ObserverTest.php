@@ -125,7 +125,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
         $order->setPayment($payment);
         $invoice = new Varien_Object();
         $invoice->setTransactionId(1);
-        $creditMemo = $this->getModelMock('sales/order_creditmemo',
+        $creditMemo = $this->getModelMock(
+            'sales/order_creditmemo',
             array('getOrder', 'getInvoice', 'canRefund', 'getOrderId')
         );
         $creditMemo->expects($this->any())
@@ -143,7 +144,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
         Mage::register('current_creditmemo', $creditMemo);
         $block = Mage::app()->getLayout()->getBlockSingleton('adminhtml/sales_order_creditmemo_create');
 
-        $blockMock = $this->getBlockMock('ops/adminhtml_sales_order_creditmemo_closedTransaction_warning',
+        $blockMock = $this->getBlockMock(
+            'ops/adminhtml_sales_order_creditmemo_closedTransaction_warning',
             array('renderView')
         );
         $blockMock->expects($this->once())
@@ -187,7 +189,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
                         ->will($this->returnValue('USD'));
         $this->replaceByMock('helper', 'ops/quote', $quoteHelperMock);
 
-        $observerMock = $this->getModelMock('ops/observer',
+        $observerMock = $this->getModelMock(
+            'ops/observer',
             array('performDirectLinkRequest', 'invokeRequestParamValidation')
         );
         $observerMock->expects($this->any())
@@ -206,7 +209,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
                             ->will($this->returnValue(1));
         $this->replaceByMock('model', 'customer/session', $customerSessionMock);
 
-        $configModelMock = $this->getModelMock('ops/config', array(
+        $configModelMock = $this->getModelMock(
+            'ops/config', array(
                 'get3dSecureIsActive',
                 'getAcceptUrl',
                 'getDeclineUrl',
@@ -242,7 +246,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
                    ->will($this->returnValue(true));
         $this->replaceByMock('helper', 'ops/data', $helperMock);
 
-        $observerMock = $this->getModelMock('ops/observer',
+        $observerMock = $this->getModelMock(
+            'ops/observer',
             array('performDirectLinkRequest', 'invokeRequestParamValidation')
         );
 
@@ -352,7 +357,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
         $quote = Mage::getModel('sales/quote')->load(10);
         $order = Mage::getModel('sales/order')->load(11);
 
-        $observerMock = $this->getModelMock('ops/observer',
+        $observerMock = $this->getModelMock(
+            'ops/observer',
             array('performDirectLinkRequest', 'invokeRequestParamValidation')
         );
 
@@ -401,7 +407,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
         $order = Mage::getModel('sales/order')->load(11);
 
 
-        $observerMock = $this->getModelMock('ops/observer',
+        $observerMock = $this->getModelMock(
+            'ops/observer',
             array('performDirectLinkRequest', 'invokeRequestParamValidation')
         );
 
@@ -665,7 +672,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
                       ->method('getMessages')
                       ->will($this->returnValue(array('Foo' => 'Not Valid')));
         $this->replaceByMock('model', 'ops/validator_parameter_validator', $validatorMock);
-        $fakeResponse->setBody(Mage::helper('core/data')->jsonEncode(array('error' => false, 'update_section' => 'foo'))
+        $fakeResponse->setBody(
+            Mage::helper('core/data')->jsonEncode(array('error' => false, 'update_section' => 'foo'))
         );
         $fakeController->setResponse($fakeResponse);
         $event = new Varien_Event_Observer();
@@ -746,7 +754,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function testSetOrderStateForDirectLinkDoesNotChangeStateDueToMissingStatus()
     {
         $order = $this->getOrderForDirectDebitNlTest();
-        $event = $this->getEventForDirectDebitNlTests($order, 'ops/payment_directDebit',
+        $event = $this->getEventForDirectDebitNlTests(
+            $order, 'ops/payment_directDebit',
             array('PM' => 'Direct Debits NL')
         );
         $this->registerPaymentHelperMockForDirectDebitNlTests(true);
@@ -759,7 +768,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function testSetOrderStateForDirectLinkDoesNotChangeStateDueToWrongPm()
     {
         $order = $this->getOrderForDirectDebitNlTest();
-        $event = $this->getEventForDirectDebitNlTests($order, 'ops/payment_directDebit',
+        $event = $this->getEventForDirectDebitNlTests(
+            $order, 'ops/payment_directDebit',
             array('PM' => 'Direct Debits DE', 'STATUS' => 51)
         );
         $this->registerPaymentHelperMockForDirectDebitNlTests(true);
@@ -772,7 +782,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function testSetOrderStateForDirectLinkDoesNotChangeStateDueToWrongStatus()
     {
         $order = $this->getOrderForDirectDebitNlTest();
-        $event = $this->getEventForDirectDebitNlTests($order, 'ops/payment_directDebit',
+        $event = $this->getEventForDirectDebitNlTests(
+            $order, 'ops/payment_directDebit',
             array('PM' => 'Direct Debits NL', 'STATUS' => 5)
         );
         $this->registerPaymentHelperMockForDirectDebitNlTests(true);
@@ -785,7 +796,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function testSetOrderStateForDirectLinkDoesChangeState()
     {
         $order = $this->getOrderForDirectDebitNlTest();
-        $event = $this->getEventForDirectDebitNlTests($order, 'ops/payment_directDebit',
+        $event = $this->getEventForDirectDebitNlTests(
+            $order, 'ops/payment_directDebit',
             array('PM'     => 'Direct Debits NL',
                   'status' => Netresearch_OPS_Model_Status::AUTHORIZED)
         );
@@ -857,7 +869,8 @@ class Netresearch_OPS_Test_Model_ObserverTest
         $subject->updateRecurringProfileButtons($observer);
         $html = $block->getButtonsHtml('header');
 
-        $this->assertContains('Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments side.',
+        $this->assertContains(
+            'Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments side.',
             $html
         );
     }
@@ -886,30 +899,31 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function sendTransactionalEmailsNoOps()
     {
         // no emails on third party payments
-        $helperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $helperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $helperMock
             ->expects($this->never())
             ->method('sendTransactionalEmail')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order'))
-        ;
+            ->with($this->isInstanceOf('Mage_Sales_Model_Order'));
         $this->replaceByMock('helper', 'ops/data', $helperMock);
 
-        $payment = new Varien_Object([
+        $payment = new Varien_Object(
+            array(
             'method' => Mage::getModel('payment/method_checkmo')->getCode(),
-        ]);
-        $order = new Varien_Object([
+            )
+        );
+        $order = new Varien_Object(
+            array(
             'payment' => $payment,
-        ]);
+            )
+        );
 
         $observerMock = $this->getMockBuilder('Varien_Event_Observer')
-            ->setMethods(['getOrder'])
-            ->getMock()
-        ;
+            ->setMethods(array('getOrder'))
+            ->getMock();
         $observerMock
             ->expects($this->once())
             ->method('getOrder')
-            ->willReturn($order)
-        ;
+            ->willReturn($order);
 
         Mage::getModel('ops/observer')->sendTransactionalEmails($observerMock);
     }
@@ -920,39 +934,41 @@ class Netresearch_OPS_Test_Model_ObserverTest
     public function sendTransactionalEmailsGatewayPayment()
     {
         // no emails on ingenico redirect payments
-        $helperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $helperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $helperMock
             ->expects($this->never())
             ->method('sendTransactionalEmail')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order'))
-        ;
+            ->with($this->isInstanceOf('Mage_Sales_Model_Order'));
         $this->replaceByMock('helper', 'ops/data', $helperMock);
 
-        $payment = new Varien_Object([
+        $payment = new Varien_Object(
+            array(
             'method_instance' => Mage::getModel('ops/payment_bankTransfer'),
             'order_place_redirect_url' => 'foo',
-        ]);
-        $order = new Varien_Object([
+            )
+        );
+        $order = new Varien_Object(
+            array(
             'payment' => $payment,
-        ]);
-        $quote = new Varien_Object([
+            )
+        );
+        $quote = new Varien_Object(
+            array(
             'payment' => $payment,
-        ]);
+            )
+        );
 
         $observerMock = $this->getMockBuilder('Varien_Event_Observer')
-            ->setMethods(['getOrder', 'getQuote'])
-            ->getMock()
-        ;
+            ->setMethods(array('getOrder', 'getQuote'))
+            ->getMock();
         $observerMock
             ->expects($this->once())
             ->method('getOrder')
-            ->willReturn($order)
-        ;
+            ->willReturn($order);
         $observerMock
             ->expects($this->once())
             ->method('getQuote')
-            ->willReturn($quote)
-        ;
+            ->willReturn($quote);
 
         Mage::getModel('ops/observer')->sendTransactionalEmails($observerMock);
     }
@@ -964,7 +980,7 @@ class Netresearch_OPS_Test_Model_ObserverTest
     {
         // exception not really testable.
         // just assert that second call to sendTransactionalEmail is not invoked
-        $helperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $helperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $helperMock
             ->expects($this->exactly(1))
             ->method('sendTransactionalEmail')
@@ -972,38 +988,37 @@ class Netresearch_OPS_Test_Model_ObserverTest
                 $this->isInstanceOf('Mage_Sales_Model_Order'),
                 $this->isInstanceOf('Mage_Sales_Model_Order_Invoice')
             )
-            ->willThrowException(new Exception('no mails foo'))
-        ;
+            ->willThrowException(new Exception('no mails foo'));
         $this->replaceByMock('helper', 'ops/data', $helperMock);
 
 
-        $payment = new Varien_Object([
+        $payment = new Varien_Object(
+            array(
             'method_instance' => Mage::getModel('ops/payment_bankTransfer'),
-        ]);
-        $quote = new Varien_Object([
+            )
+        );
+        $quote = new Varien_Object(
+            array(
             'payment' => $payment,
-        ]);
-        $orderMock = $this->getModelMock('sales/order', ['getPayment']);
+            )
+        );
+        $orderMock = $this->getModelMock('sales/order', array('getPayment'));
         $orderMock
             ->expects($this->once())
             ->method('getPayment')
-            ->willReturn($payment)
-        ;
+            ->willReturn($payment);
 
         $observerMock = $this->getMockBuilder('Varien_Event_Observer')
-            ->setMethods(['getOrder', 'getQuote'])
-            ->getMock()
-        ;
+            ->setMethods(array('getOrder', 'getQuote'))
+            ->getMock();
         $observerMock
             ->expects($this->once())
             ->method('getOrder')
-            ->willReturn($orderMock)
-        ;
+            ->willReturn($orderMock);
         $observerMock
             ->expects($this->once())
             ->method('getQuote')
-            ->willReturn($quote)
-        ;
+            ->willReturn($quote);
 
         Mage::getModel('ops/observer')->sendTransactionalEmails($observerMock);
     }
@@ -1013,48 +1028,84 @@ class Netresearch_OPS_Test_Model_ObserverTest
      */
     public function sendTransactionalEmailsSuccess()
     {
-        $helperMock = $this->getHelperMock('ops/data', ['sendTransactionalEmail']);
+        $helperMock = $this->getHelperMock('ops/data', array('sendTransactionalEmail'));
         $helperMock
             ->expects($this->exactly(2))
             ->method('sendTransactionalEmail')
             ->withConsecutive(
                 $this->isInstanceOf('Mage_Sales_Model_Order'),
                 $this->isInstanceOf('Mage_Sales_Model_Order_Invoice')
-            )
-        ;
+            );
         $this->replaceByMock('helper', 'ops/data', $helperMock);
 
         // invoice
         $invoice = Mage::getModel('sales/order_invoice');
 
         // order payment
-        $payment = new Varien_Object([
+        $payment = new Varien_Object(
+            array(
             'method_instance' => Mage::getModel('ops/payment_cc'),
             'created_invoice' => $invoice,
-        ]);
+            )
+        );
 
         // order
-        $orderMock = $this->getModelMock('sales/order', ['getPayment']);
+        $orderMock = $this->getModelMock('sales/order', array('getPayment'));
         $orderMock
             ->expects($this->exactly(2))
             ->method('getPayment')
-            ->willReturn($payment)
-        ;
+            ->willReturn($payment);
         $this->replaceByMock('model', 'sales/order', $orderMock);
         $order = Mage::getModel('sales/order');
 
         // quote
-        $quote = new Varien_Object([
+        $quote = new Varien_Object(
+            array(
             'payment' => $payment,
-        ]);
+            )
+        );
 
         $observerMock = $this->getMockBuilder('Varien_Event_Observer')
-            ->setMethods(['getOrder', 'getQuote'])
-            ->getMock()
-        ;
+            ->setMethods(array('getOrder', 'getQuote'))
+            ->getMock();
         $observerMock->expects($this->once())->method('getOrder')->willReturn($order);
         $observerMock->expects($this->once())->method('getQuote')->willReturn($quote);
 
         Mage::getModel('ops/observer')->sendTransactionalEmails($observerMock);
     }
+
+    public function testSendPayPerMailInfoSuccess()
+    {
+        // order payment
+        $payment = Mage::getModel('sales/order_payment');
+        $payment->setMethodInstance(Mage::getModel('ops/payment_payPerMail'));
+
+        $order = Mage::getModel('sales/order');
+        $order->setPayment($payment);
+
+        $observerMock = $this->getMockBuilder('Varien_Event_Observer')
+            ->setMethods(['getOrder'])
+            ->getMock()
+        ;
+        $observerMock->expects($this->once())->method('getOrder')->willReturn($order);
+        Mage::getModel('ops/observer')->sendPayPerMailInfo($observerMock);
+    }
+
+    public function testSendPayPerMailInfoFailure()
+    {
+        // order payment
+        $payment = Mage::getModel('sales/order_payment');
+        $payment->setMethodInstance(Mage::getModel('ops/payment_cc'));
+
+        $order = Mage::getModel('sales/order');
+        $order->setPayment($payment);
+
+        $observerMock = $this->getMockBuilder('Varien_Event_Observer')
+            ->setMethods(['getOrder'])
+            ->getMock()
+        ;
+        $observerMock->expects($this->once())->method('getOrder')->willReturn($order);
+        Mage::getModel('ops/observer')->sendPayPerMailInfo($observerMock);
+    }
+
 }

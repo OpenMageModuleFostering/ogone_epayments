@@ -37,6 +37,7 @@ class Netresearch_OPS_Block_Info_Flex extends Mage_Payment_Block_Info
     protected function _construct()
     {
         parent::_construct();
+        /** @noinspection PhpUndefinedMethodInspection */
         $this->setTemplate('ops/info/flex.phtml');
     }
 
@@ -46,6 +47,7 @@ class Netresearch_OPS_Block_Info_Flex extends Mage_Payment_Block_Info
      */
     public function getFlexTitle()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->getMethod()->getInfoInstance()->getAdditionalInformation(
             Netresearch_OPS_Model_Payment_Flex::INFO_KEY_TITLE
         );

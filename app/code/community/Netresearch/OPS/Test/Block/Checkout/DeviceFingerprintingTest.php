@@ -55,7 +55,7 @@ class Netresearch_OPS_Test_Block_Checkout_DeviceFingerprintingTest
         $this->assertNotEmpty($html);
 
         $url = $block->getConsentUrl();
-        $this->assertStringEndsWith('ops/device/', $url);
+        $this->assertContains('ops/device/', $url);
     }
 
     /**
@@ -70,6 +70,6 @@ class Netresearch_OPS_Test_Block_Checkout_DeviceFingerprintingTest
         $this->assertEmpty($html);
 
         $url = $block->getConsentUrl();
-        $this->assertStringEndsWith('ops/device/', $url);
+        $this->assertContains('ops/device/', $url);
     }
 }

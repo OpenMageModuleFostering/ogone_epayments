@@ -21,7 +21,8 @@ class Netresearch_OPS_Model_Payment_Features_ZeroAmountAuth
     public function isCCAndZeroAmountAuthAllowed(
         Netresearch_OPS_Model_Payment_Abstract $opsPaymentMethod,
         Mage_Sales_Model_Quote $quote
-    ) {
+    ) 
+    {
         $result  = false;
         $storeId = $quote->getStoreId();
         if ($quote->getBaseGrandTotal() < 0.01

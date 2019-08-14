@@ -6,12 +6,14 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License
  */
 
-class Netresearch_OPS_Model_Source_TemplateType {
+class Netresearch_OPS_Model_Source_TemplateType
+{
 
     const URL = 'url';
     const ID  = 'id';
 
-    public function toOptionArray(){
+    public function toOptionArray()
+    {
         return array(
             array('value' => self::URL, 'label' => Mage::helper('ops')->__(self::URL)),
             array('value' => self::ID, 'label' => Mage::helper('ops')->__(self::ID))

@@ -38,11 +38,7 @@ class Netresearch_OPS_Model_Payment_IDeal
             $data = $data->getData();
         }
         if (array_key_exists('iDeal_issuer_id', $data)) {
-            $payment = Mage::getSingleton('checkout/session')
-                ->getQuote()
-                ->getPayment();
-            $payment
-                ->setAdditionalInformation('iDeal_issuer_id', $data['iDeal_issuer_id']);
+            $this->getInfoInstance()->setAdditionalInformation('iDeal_issuer_id', $data['iDeal_issuer_id']);
         }
         parent::assignData($data);
 

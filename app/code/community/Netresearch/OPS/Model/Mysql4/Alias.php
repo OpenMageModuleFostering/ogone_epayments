@@ -21,13 +21,13 @@ class Netresearch_OPS_Model_Mysql4_Alias
     extends Mage_Core_Model_Mysql4_Abstract
 {
    /**
-	* Constructor
-	* 
-	* @see lib/Varien/Varien_Object#_construct()
-	* @return Netresearch_OPS_Model_Mysql4_Alias
-	*/
+    * Constructor
+    * 
+    * @see lib/Varien/Varien_Object#_construct()
+    * @return Netresearch_OPS_Model_Mysql4_Alias
+    */
     public function _construct()
     {
-	   $this->_init('ops/alias','id');
+       $this->_init('ops/alias', 'id');
     }
 }

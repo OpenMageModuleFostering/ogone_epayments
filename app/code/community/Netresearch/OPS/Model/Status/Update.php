@@ -244,7 +244,8 @@ class Netresearch_OPS_Model_Status_Update
         }
 
         if (false != strlen(trim($this->getOrder()->getPayment()->getAdditionalInformation('paymentId')))) {
-            Mage::getModel('ops/response_handler')->processResponse($this->getOpsResponse(),
+            Mage::getModel('ops/response_handler')->processResponse(
+                $this->getOpsResponse(),
                 $this->getOrder()->getPayment()->getMethodInstance()
             );
         } else {
@@ -288,12 +289,13 @@ class Netresearch_OPS_Model_Status_Update
 
     /**
      * @param Mage_Sales_Model_Order_Payment $payment
+     * @return $this
      */
     protected function addPayIdSub(Mage_Sales_Model_Order_Payment $payment)
     {
         $lastTransaction = $payment->getLastTransId();
         $lastTransactionParts = explode('/', $lastTransaction);
-        if($lastTransaction && count($lastTransactionParts)>1){
+        if ($lastTransaction && count($lastTransactionParts)>1) {
             $this->requestParams['PAYIDSUB'] = $lastTransactionParts[1];
         }
         return $this;

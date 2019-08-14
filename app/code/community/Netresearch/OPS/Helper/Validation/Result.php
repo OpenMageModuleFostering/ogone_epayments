@@ -107,7 +107,7 @@ class Netresearch_OPS_Helper_Validation_Result
     }
 
     /**
-     * @return null
+     * @return Netresearch_OPS_Block_Form
      */
     public function getFormBlock()
     {
@@ -139,7 +139,6 @@ class Netresearch_OPS_Helper_Validation_Result
 
     /**
      * @param $messages
-     * @param $result
      *
      * @return mixed
      */
@@ -163,8 +162,10 @@ class Netresearch_OPS_Helper_Validation_Result
     }
 
     /**
-     * @param $quote
-     * @param $gotoSection
+     * @param Mage_Sales_Model_Quote $quote
+     * @param string $gotoSection
+     *
+     * @return $this
      */
     protected function addErrorToExistingAddress($quote, $gotoSection)
     {
@@ -183,9 +184,8 @@ class Netresearch_OPS_Helper_Validation_Result
     }
 
     /**
-     * @param $messages
-     * @param $result
-     * @param $gotoSection
+     * @param string[] $messages
+     * @param string $gotoSection
      *
      * @return mixed
      */

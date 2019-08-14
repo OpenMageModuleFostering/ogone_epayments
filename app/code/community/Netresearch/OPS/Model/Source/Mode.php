@@ -7,7 +7,8 @@
  */
 
 
-class Netresearch_OPS_Model_Source_Mode {
+class Netresearch_OPS_Model_Source_Mode
+{
 
     const PROD = 'prod';
     const TEST = 'test';
@@ -18,7 +19,8 @@ class Netresearch_OPS_Model_Source_Mode {
      *
      * @return array
      */
-    public function toOptionArray(){
+    public function toOptionArray()
+    {
         return array(
             array('value' => self::TEST, 'label' => Mage::helper('ops')->__(self::TEST)),
             array('value' => self::PROD, 'label' => Mage::helper('ops')->__(self::PROD)),

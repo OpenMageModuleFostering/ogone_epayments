@@ -29,7 +29,7 @@ class Netresearch_OPS_Test_Block_Alias_ListTest
 
     public function testGetMethodName()
     {
-        $this->assertNull($this->block->getMethodName('something_stupid'));
+        $this->assertEquals('', $this->block->getMethodName('something_stupid'));
 
         Mage::app()->getStore()->setConfig('payment/ops_cc/title', 'OPS Credit Card');
         $this->assertEquals(

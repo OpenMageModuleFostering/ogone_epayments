@@ -33,6 +33,8 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
 
     protected $config = null;
 
+    protected $_aliasDataForCustomer = array();
+
     /**
      * Frontend Payment Template
      */
@@ -78,7 +80,12 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
      */
     public function getQuote()
     {
-        return Mage::getSingleton('checkout/session')->getQuote();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
+        if (Mage::app()->getStore()->isAdmin()) {
+            $quote = Mage::getSingleton('adminhtml/sales_order_create')->getQuote();
+        }
+
+        return $quote;
     }
 
     /**
@@ -159,32 +166,11 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
     }
 
     /**
-     * @return Simple_Xml
+     * @return array
      */
     protected function getFieldMapping()
     {
         return $this->getConfig()->getFrontendFieldMapping();
-    }
-
-    /**
-     * returns the corresponding fields for frontend validation if needed
-     *
-     * @return string - the json encoded fields
-     */
-    public function getFrontendValidators()
-    {
-        $frontendFields = array();
-        if ($this->getConfig()->canSubmitExtraParameter($this->getQuote()->getStoreId())) {
-            $fieldsToValidate = $this->getConfig()->getParameterLengths();
-            $mappedFields = $this->getFieldMapping();
-            foreach ($fieldsToValidate as $key => $value) {
-                if (array_key_exists($key, $mappedFields)) {
-                    $frontendFields = $this->getFrontendValidationFields($mappedFields, $key, $value, $frontendFields);
-                }
-            }
-        }
-
-        return Mage::helper('core/data')->jsonEncode($frontendFields);
     }
 
     /**
@@ -213,4 +199,165 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
         $brandName = str_replace(' ', '', $brand);
         return $this->getSkinUrl('images/ops/alias/brands/'. $brandName .'.png');
     }
+
+    /**
+     * Function to add the Payment Logo to the according title
+     *
+     * @return string
+     */
+    public function getMethodLabelAfterHtml()
+    {
+        $paymentCode  = $this->getMethod()->getCode();
+        $logoValue    = Mage::getStoreConfig('payment/' . $paymentCode . '/image');
+        $logoPosition = Mage::getStoreConfig('payment/' . $paymentCode . '/position');
+
+        if ($logoPosition != 'hidden') {
+            if (!empty($logoValue)) {
+                $url = Mage::getBaseUrl('media') . 'ops/paymentLogo/' . $logoValue;
+            } else {
+                $url = Mage::helper('ops/payment')->getPaymentDefaultLogo($paymentCode);
+            }
+
+            return "<span class='payment-logo $logoPosition'><img src='$url' alt='$paymentCode' title='$paymentCode'/></span>";
+        }
+
+        return '';
+    }
+
+    /**
+     * Obtain redirect message.
+     *
+     * @return string
+     */
+    public function getRedirectMessage()
+    {
+        return $this->__('You will be redirected to finalize your payment.');
+    }
+
+    /**
+     * retrieves the alias data for the logged in customer
+     *
+     * @return array | null - array the alias data or null if the customer
+     * is not logged in
+     */
+    protected function getStoredAliasForCustomer()
+    {
+        if (Mage::helper('customer/data')->isLoggedIn()
+            && Mage::getModel('ops/config')->isAliasManagerEnabled($this->getMethodCode())
+        ) {
+            $quote = $this->getQuote();
+            $aliases = Mage::helper('ops/alias')->getAliasesForAddresses(
+                $quote->getCustomer()->getId(), $quote->getBillingAddress(),
+                $quote->getShippingAddress(), $quote->getStoreId()
+            )
+                ->addFieldToFilter('state', Netresearch_OPS_Model_Alias_State::ACTIVE)
+                ->addFieldToFilter('payment_method', $this->getMethodCode())
+                ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC);
+
+
+            foreach ($aliases as $key => $alias) {
+                $this->_aliasDataForCustomer[$key] = $alias;
+            }
+        }
+
+        return $this->_aliasDataForCustomer;
+    }
+
+    /**
+     * @param null $storeId
+     * @param bool $admin
+     *
+     * @return string
+     */
+    public function getAliasAcceptUrl($storeId = null, $admin = false)
+    {
+        return Mage::getModel('ops/config')->getAliasAcceptUrl($storeId, $admin);
+    }
+
+    /**
+     * @param null $storeId
+     * @param bool $admin
+     *
+     * @return string
+     */
+    public function getAliasExceptionUrl($storeId = null, $admin = false)
+    {
+        return Mage::getModel('ops/config')->getAliasExceptionUrl($storeId, $admin);
+    }
+
+
+    /**
+     * @param null $storeId
+     *
+     * @return string
+     */
+    public function getAliasGatewayUrl($storeId = null)
+    {
+        return Mage::getModel('ops/config')->getAliasGatewayUrl($storeId);
+    }
+
+    /**
+     *
+     * @param $aliasId
+     *
+     * @return null|string - the card holder either from alias data or
+     * the name from the the user who is logged in, null otherwise
+     */
+    public function getCardHolderName($aliasId)
+    {
+        $cardHolderName = $this->getStoredAliasDataForCustomer($aliasId, 'card_holder');
+        $customerHelper = Mage::helper('customer/data');
+        if ((null === $cardHolderName || 0 === strlen(trim($cardHolderName)))
+            && $customerHelper->isLoggedIn()
+            && Mage::getModel('ops/config')->isAliasManagerEnabled($this->getMethodCode())
+        ) {
+            $cardHolderName = $customerHelper->getCustomerName();
+        }
+
+        return $cardHolderName;
+    }
+
+    /**
+     * @param $aliasId
+     * @return null|string
+     */
+    public function getAliasCardNumber($aliasId)
+    {
+        $aliasCardNumber = $this->getStoredAliasDataForCustomer($aliasId, 'pseudo_account_or_cc_no');
+        if (0 < strlen(trim($aliasCardNumber))) {
+            $aliasCardNumber = Mage::helper('ops/alias')->formatAliasCardNo(
+                $this->getStoredAliasDataForCustomer($aliasId, 'brand'), $aliasCardNumber
+            );
+        }
+
+        return $aliasCardNumber;
+    }
+
+    /**
+     * retrieves single values to given keys from the alias data
+     *
+     * @param $aliasId
+     * @param $key - string the key for the alias data
+     *
+     * @return null|string - null if key is not set in the alias data, otherwise
+     * the value for the given key from the alias data
+     */
+    protected function getStoredAliasDataForCustomer($aliasId, $key)
+    {
+        $returnValue = null;
+        $aliasData   = array();
+
+        if (empty($this->_aliasDataForCustomer)) {
+            $aliasData = $this->getStoredAliasForCustomer();
+        } else {
+            $aliasData = $this->_aliasDataForCustomer;
+        }
+
+        if (array_key_exists($aliasId, $aliasData) && $aliasData[$aliasId]->hasData($key)) {
+            $returnValue = $aliasData[$aliasId]->getData($key);
+        }
+
+        return $returnValue;
+    }
+
 }

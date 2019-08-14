@@ -56,7 +56,7 @@ protected $options = array(
     /**
     * @return array
     */
-    public function toOptionArray($isMultiselect = false)
+    public function toOptionArray()
     {
         foreach ($this->options as $key => $value) {
             $this->options[$key]['label'] = Mage::helper('ops')->__($value['value']);

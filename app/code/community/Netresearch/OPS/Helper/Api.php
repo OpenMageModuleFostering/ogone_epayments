@@ -11,7 +11,7 @@
 class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
 {
 
-    private $configModel = null;
+    protected $configModel = null;
 
 
     /**
@@ -38,7 +38,7 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
         }
 
         // in case none of the cases above match then the status is not known
-        if (is_null($route)) {
+        if (null === $route) {
             Mage::throwException('invalid status provided');
         }
 
@@ -51,9 +51,9 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
      *
      * @return Netresearch_OPS_Model_Config
      */
-    private function getConfigModel()
+    protected function getConfigModel()
     {
-        if (is_null($this->configModel)) {
+        if (null === $this->configModel) {
             $this->configModel = Mage::getModel('ops/config');
         }
         return $this->configModel;
@@ -66,9 +66,10 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
      *
      * @return bool - true if the status is known as accept status, false otherwise
      */
-    private function isAcceptStatus($status)
+    protected function isAcceptStatus($status)
     {
-        return in_array($status, array(
+        return in_array(
+            $status, array(
                 Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_ACCEPT
             )
         );
@@ -81,9 +82,10 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
      *
      * @return bool - true if the status is known as canceled status, false otherwise
      */
-    private function isCancelStatus($status)
+    protected function isCancelStatus($status)
     {
-        return in_array($status, array(
+        return in_array(
+            $status, array(
                 Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_CANCEL
             )
         );
@@ -96,9 +98,10 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
      *
      * @return bool - true if the status is known as declined status, false otherwise
      */
-    private function isDeclineStatus($status)
+    protected function isDeclineStatus($status)
     {
-        return in_array($status, array(
+        return in_array(
+            $status, array(
                 Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_DECLINE
             )
         );
@@ -111,9 +114,10 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
      *
      * @return bool - true if the status is known as exception status, false otherwise
      */
-    private function isExceptionStatus($status)
+    protected function isExceptionStatus($status)
     {
-        return in_array($status, array(
+        return in_array(
+            $status, array(
                 Netresearch_OPS_Model_Status_Feedback::OPS_ORDER_FEEDBACK_STATUS_EXCEPTION
             )
         );

@@ -49,7 +49,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function getSubscriptionHelper()
     {
-        if (is_null($this->subscriptionHelper)) {
+        if (null === $this->subscriptionHelper) {
             $this->subscriptionHelper = Mage::helper('ops/subscription');
         }
 
@@ -73,7 +73,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function getDataHelper()
     {
-        if (is_null($this->dataHelper)) {
+        if (null === $this->dataHelper) {
             $this->dataHelper = Mage::helper('ops');
         }
 
@@ -97,7 +97,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function getQuoteHelper()
     {
-        if (is_null($this->quoteHelper)) {
+        if (null === $this->quoteHelper) {
             $this->quoteHelper = Mage::helper('ops/quote');
         }
 
@@ -121,7 +121,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function getConfig()
     {
-        if (is_null($this->config)) {
+        if (null === $this->config) {
             $this->config = Mage::getModel('ops/config');
         }
 
@@ -145,7 +145,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function getRequestHelper()
     {
-        if (is_null($this->requestHelper)) {
+        if (null === $this->requestHelper) {
             $this->requestHelper = Mage::helper('ops/payment_request');
         }
 
@@ -223,7 +223,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      *
      * @return Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag
      */
-    public function collectPaymentParameters(Mage_Payment_Model_Info $paymentInfo, $trial = false)
+    public function collectPaymentParameters(Mage_Payment_Model_Info $paymentInfo)
     {
         $this->setData('CN', $paymentInfo->getAdditionalInformation('CC_CN'))
              ->setData('ALIAS', $paymentInfo->getAdditionalInformation('alias'))
@@ -286,7 +286,8 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
              ->setData('SUB_AMOUNT', $this->getDataHelper()->getAmount($subscriptionAmount))
             // amount is always 0 for subscription transactions
              ->setData('AMOUNT', 0)
-             ->setData('SUB_PERIOD_MOMENT',
+             ->setData(
+                 'SUB_PERIOD_MOMENT',
                  $this->getSubscriptionHelper()->getBillingDayForPeriodUnit($periodUnit, $profile->getStoreId())
              );
 
@@ -309,7 +310,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function calculateEndDate(DateTime $startDate, $periodUnit, $frequency, $maxCycles)
     {
-        if(!$this->isMappedUnit($periodUnit)){
+        if (!$this->isMappedUnit($periodUnit)) {
             $frequency = $this->adjustFrequencyToUnitSpecialCases($periodUnit, $frequency);
             $periodUnit = $this->mapUnit($periodUnit);
         }
@@ -337,12 +338,15 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      *
      * @return bool
      */
-    protected function isMappedUnit($unit){
-        return in_array($unit, array(
+    protected function isMappedUnit($unit)
+    {
+        return in_array(
+            $unit, array(
             self::PERIOD_UNIT_DAY,
             self::PERIOD_UNIT_WEEK,
             self::PERIOD_UNIT_MONTH
-        ));
+            )
+        );
     }
 
     /**
@@ -355,7 +359,8 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function collectAllParameters(Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile
-    ) {
+    ) 
+    {
         $this->collectProfileParameters($profile)
              ->collectPaymentParameters($paymentInfo);
 
@@ -372,7 +377,8 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      */
     public function collectAllParametersForTrial(Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile
-    ) {
+    ) 
+    {
         $this->collectProfileParameters($profile, true)
              ->collectPaymentParameters($paymentInfo, true);
 
@@ -391,7 +397,8 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
     public function collectAllParametersForInitialFee(Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Sales_Model_Order $order
-    ) {
+    ) 
+    {
         /** @var $profile Mage_Sales_Model_Recurring_Profile */
         $this->collectPaymentParameters($paymentInfo)->collectAddressParameters($profile);
 
@@ -419,7 +426,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      * Determines base values for the subscription depending on the trial parameter
      *
      * @param Mage_Sales_Model_Recurring_Profile   $profile
-     * @param                                      $trial - if the values for the trial subscription should be used or not
+     * @param $trial - if the values for the trial subscription should be used or not
      *
      * @return string[] - containing the following:
      *                  [0] => amount for the subscription,

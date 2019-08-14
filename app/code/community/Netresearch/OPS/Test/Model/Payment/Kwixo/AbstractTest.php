@@ -209,7 +209,6 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
             'ops/payment_kwixo_abstract', array(
                 'getShippingMethodTypeValues',
                 'getShippingMethodType',
-                'splitHouseNumber'
             )
         );
         $kwixoAbstractModelMock->expects($this->any())
@@ -220,13 +219,6 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
             ->method('getShippingMethodType')
             ->will($this->returnValue(4));
 
-        $kwixoAbstractModelMock->expects($this->any())
-            ->method('splitHouseNumber')
-            ->will(
-                $this->returnValue(
-                    array('housenumber' => 4, 'street' => 'testStreet')
-                )
-            );
 
         $this->replaceByMock(
             'model', 'ops/payment_kwixo_abstract', $kwixoAbstractModelMock
@@ -353,15 +345,6 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
             'street'      => 'teststreet'
         );
 
-        $kwixoModelMock = $this->getModelMock(
-            'ops/payment_kwixo_abstract', array('splitHouseNumber')
-        );
-        $kwixoModelMock->expects($this->any())
-            ->method('splitHouseNumber')
-            ->will($this->returnValue($addressData));
-        $this->replaceByMock(
-            'model', 'ops/payment_kwixo_abstract', $kwixoModelMock
-        );
 
         $formFields = Mage::getModel('ops/payment_kwixo_abstract')
             ->getKwixoBillToParams($order);
@@ -624,10 +607,7 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
         $params = array();
         $this->assertEquals(
             'Please make sure that the displayed data is correct.',
-            Mage::getModel('ops/payment_kwixo_abstract')->getQuestion(
-                $order, $params
-            )
-        );
+            Mage::getModel('ops/payment_kwixo_abstract')->getQuestion());
     }
 
     public function testGetQuestionedFormFields()
@@ -635,7 +615,7 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
         $order  = new Varien_Object();
         $params = array();
         $fields = Mage::getModel('ops/payment_kwixo_abstract')
-            ->getQuestionedFormFields($order, $params);
+            ->getQuestionedFormFields($order);
         $this->assertTrue(in_array('OWNERADDRESS', $fields));
         $this->assertTrue(
             in_array('ECOM_BILLTO_POSTAL_STREET_NUMBER', $fields)
@@ -670,24 +650,6 @@ class Netresearch_OPS_Test_Model_Payment_Kwixo_AbstractTest
         );
     }
 
-    /**
-     * @test
-     * @loadFixture ../../../../../var/fixtures/orders.yaml
-     */
-    public function testSplitHouseNumber()
-    {
-        $order           = Mage::getModel('sales/order')->load(24);
-        $shippingAddress = $order->getShippingAddress();
-        $addressData     = Mage::getModel('ops/payment_kwixo_abstract')
-            ->splitHouseNumber($shippingAddress->getStreet(-1));
-        $this->assertEquals('44', $addressData['housenumber']);
-        $this->assertEquals('rue Parmentier', $addressData['street']);
-
-
-        $addressData = Mage::getModel('ops/payment_kwixo_abstract')
-            ->splitHouseNumber('55, rue du Faubourg-Saint-Honoré');
-        $this->assertEquals('55', $addressData['housenumber']);
-    }
 
     public function testPopulateFromArray()
     {

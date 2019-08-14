@@ -1,7 +1,7 @@
 <?php
 
 class Netresearch_OPS_Test_Block_FormTest
-    extends EcomDev_PHPUnit_Test_Case_Controller
+    extends EcomDev_PHPUnit_Test_Case
 {
     private $_block;
 
@@ -35,99 +35,72 @@ class Netresearch_OPS_Test_Block_FormTest
         $this->assertFalse($block->isUserNotRegistering());
     }
 
-
     public function testGetPmLogo()
     {
         $this->assertEquals(null, $this->_block->getPmLogo());
     }
 
-    public function testGetFrontendValidatorsAreEmtpyWhenNoExtraParamtersAreSubmitted()
+    public function getMethodLabelAfterHtmlSuccess()
     {
-        $quoteMock = Mage::getModel('sales/quote');
-        $quoteMock->setStoreId(0);
-        $sessionMock = $this->getModelMockBuilder('checkout/session')
-            ->disableOriginalConstructor()// This one removes session_start and other methods usage
-            ->setMethods(array('getQuote'))
-            ->getMock();
-        $sessionMock->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quoteMock));
-        $this->replaceByMock('singleton', 'checkout/session', $sessionMock);
+        $method = new Varien_Object();
+        $method->setData('code', 'ops_cc');
 
-        $configMock = $this->getModelMock('ops/config', array('canSubmitExtraParameter'));
-        $configMock->expects($this->once())
-            ->method('canSubmitExtraParameter')
-            ->will($this->returnValue(false));
-        $this->_block->setConfig($configMock);
-        $this->_block->setQuote($quoteMock);
-        $this->assertEquals(Mage::helper('core/data')->jsonEncode(array()), $this->_block->getFrontendValidators());
-    }
+        $blockMock = $this->getBlockMock('ops/form', array('getMethod'));
 
-    public function testGetFrontendValidatorsAreEmptyDueToEmptyValidators()
-    {
-        $configMock = $this->getModelMock('ops/config', array('canSubmitExtraParameter', 'getParameterLengths'));
-        $configMock->expects($this->once())
-            ->method('canSubmitExtraParameter')
-            ->will($this->returnValue(true));
-        $configMock->expects($this->once())
-            ->method('getParameterLengths')
-            ->will($this->returnValue(array()));
-
-        $quote = Mage::getModel('sales/quote');
-        $blockMock = $this->getBlockMock('ops/form', array('getQuote'));
         $blockMock->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quote));
-        $blockMock->setConfig($configMock);
-        $this->assertEquals(Mage::helper('core/data')->jsonEncode(array()), $blockMock->getFrontendValidators());
+                  ->method('getMethod')
+                  ->will($this->returnValue($method));
+        $this->replaceByMock('block', 'ops/form', $blockMock);
+
+        $formBlock = Mage::app()->getLayout()->createBlock('ops/form');
+
+        $result = $formBlock->getMethodLabelAfterHtml();
+
+        $this->assertContains('cc.jpg', $result);
+        $this->assertContains(' left', $result);
+
+        $result = $formBlock->getMethodLabelAfterHtml();
+
+        $this->assertContains('store_one', $result);
     }
 
-    public function testGetFrontendValidatorsAreEmptyDueToUnmappedValidators()
+    public function getMethodLabelAfterHtmlHidden()
     {
-        $configMock = $this->getModelMock('ops/config', array('canSubmitExtraParameter', 'getParameterLengths'));
-        $configMock->expects($this->once())
-            ->method('canSubmitExtraParameter')
-            ->will($this->returnValue(true));
-        $configMock->expects($this->once())
-            ->method('getParameterLengths')
-            ->will($this->returnValue(array('Foo' => 50)));
+        $method = new Varien_Object();
+        $method->setData('code', 'ops_dc');
 
-        $quote = Mage::getModel('sales/quote');
-        $blockMock = $this->getBlockMock('ops/form', array('getQuote'));
+        $blockMock = $this->getBlockMock('ops/form', array('getMethod'));
+
         $blockMock->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quote));
-        $blockMock->setConfig($configMock);
-        $this->assertEquals(Mage::helper('core/data')->jsonEncode(array()), $blockMock->getFrontendValidators());
+                  ->method('getMethod')
+                  ->will($this->returnValue($method));
+        $this->replaceByMock('block', 'ops/form', $blockMock);
+
+        $formBlock = Mage::app()->getLayout()->createBlock('ops/form');
+
+        $result = $formBlock->getMethodLabelAfterHtml();
+
+        $this->assertEmpty($result);
     }
 
-
-    public function testGetFrontendValidatorsAreNotEmpty()
+    public function getMethodLabelAfterHtmlFail()
     {
+        $method = new Varien_Object();
+        $method->setData('code', 'ops_iDEAL');
 
-        $configValues = array('CN' => 50, 'ECOM_BILLTO_POSTAL_POSTALCODE' => 10, 'ECOM_SHIPTO_POSTAL_POSTALCODE' => 10);
+        $blockMock = $this->getBlockMock('ops/form', array('getMethod'));
 
-        $configMock = $this->getModelMock('ops/config', array('canSubmitExtraParameter', 'getParameterLengths'));
-        $configMock->expects($this->once())
-            ->method('canSubmitExtraParameter')
-            ->will($this->returnValue(true));
-        $configMock->expects($this->once())
-            ->method('getParameterLengths')
-            ->will($this->returnValue($configValues));
-
-        $quote = Mage::getModel('sales/quote');
-        $blockMock = $this->getBlockMock('ops/form', array('getQuote'));
         $blockMock->expects($this->any())
-            ->method('getQuote')
-            ->will($this->returnValue($quote));
-        $blockMock->setConfig($configMock);
-        $this->assertEquals(
-            Mage::helper('core/data')->jsonEncode(
-                array(
-                    'billing:firstname' => 50, 'billing:lastname' => 50, 'billing:postcode' => 10,
-                    'shipping:postcode' => 10
-                )
-            ), $blockMock->getFrontendValidators()
-        );
+                  ->method('getMethod')
+                  ->will($this->returnValue($method));
+        $this->replaceByMock('block', 'ops/form', $blockMock);
+
+        $formBlock = Mage::app()->getLayout()->createBlock('ops/form');
+
+        $result = $formBlock->getMethodLabelAfterHtml();
+
+        $this->assertContains('ops_iDEAL.jpg', $result);
+        $this->assertContains('skin/frontend', $result);
     }
+
 }

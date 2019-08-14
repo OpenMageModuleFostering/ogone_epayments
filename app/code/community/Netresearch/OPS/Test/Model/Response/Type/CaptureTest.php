@@ -134,7 +134,7 @@ class Netresearch_OPS_Test_Model_Response_Type_CaptureTest
         $this->assertEquals(Mage_Sales_Model_Order::STATE_PROCESSING, $order->getState());
         $this->assertNotEmpty($order->getAllStatusHistory());
         $this->assertNotEmpty($order->getInvoiceCollection());
-        $this->assertEquals($response['status'],  $order->getPayment()->getAdditionalInformation('status'));
+        $this->assertEquals($response['status'], $order->getPayment()->getAdditionalInformation('status'));
     }
 
     /**
@@ -182,7 +182,7 @@ class Netresearch_OPS_Test_Model_Response_Type_CaptureTest
 
         /** @var Netresearch_OPS_Model_Response_Type_Capture $handler */
         $handler = Mage::getModel('ops/response_type_capture');
-        $handler->handleResponse($response,  $order->getPayment()->getMethodInstance());
+        $handler->handleResponse($response, $order->getPayment()->getMethodInstance());
         $this->assertEquals(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, $order->getState());
     }
 }

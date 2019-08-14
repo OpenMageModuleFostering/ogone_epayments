@@ -30,14 +30,14 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
     extends Netresearch_OPS_Model_Payment_Abstract
 {
 
-    private $kwixoShippingModel = null;
+    protected $kwixoShippingModel = null;
 
-    private $shippingSettings = null;
+    protected $shippingSettings = null;
 
     /**
-     *
      * @param Mage_Sales_Model_Order $order
-     * @param array                  $requestParams
+     * @param null $requestParams
+     * @return string[]
      */
     public function getMethodDependendFormFields($order, $requestParams = null)
     {
@@ -58,8 +58,8 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
 
         $formFields['ECOM_ESTIMATEDELIVERYDATE']
                                             = $this->getEstimatedDeliveryDate(
-            $this->getCode(), $order->getStoreId()
-        );
+                                                $this->getCode(), $order->getStoreId()
+                                            );
         $formFields['RNPOFFERT']            = $this->getRnpFee(
             $this->getCode(), $order->getStoreId()
         );
@@ -122,7 +122,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         foreach ($product->getCategoryIds() as $categoryId) {
             $kwixoCategory = Mage::getModel('ops/kwixo_category_mapping')
                 ->loadByCategoryId($categoryId);
-            if (!is_null($kwixoCategory->getId())) {
+            if (null != $kwixoCategory->getId()) {
                 $kwixoCategoryId = $kwixoCategory->getKwixoCategoryId();
                 break;
             }
@@ -135,38 +135,23 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      *
      *
      * @param Mage_Sales_Model_Order $order
-     * @param array                  $requestParams
      *
      * @return array
      */
     public function getKwixoBillToParams(Mage_Sales_Model_Order $order)
     {
-        $formFields = array();
-        $billingAddress
-                        = $order->getBillingAddress();
-        $splittedStreet = $this->splitHouseNumber(
-            $billingAddress->getStreet1()
-        );
-        $formFields['ECOM_BILLTO_POSTAL_NAME_FIRST']
-                        = $billingAddress->getFirstname();
-        $formFields['ECOM_BILLTO_POSTAL_NAME_LAST']
-                                    = $billingAddress->getLastname();
-        $formFields['OWNERADDRESS'] = str_replace(
-            "\n", ' ', $billingAddress->getStreet1()
-        );
-        if (array_key_exists('street', $splittedStreet)) {
-            $formFields['OWNERADDRESS'] = trim($splittedStreet['street']);
-        }
-        $streetAppendix = trim($billingAddress->getStreet2());
-        if (0 < strlen($streetAppendix)) {
-            $formFields['OWNERADDRESS2'] = $streetAppendix;
-        }
-        $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER'] = '';
-        if (array_key_exists('housenumber', $splittedStreet)) {
-            $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER']
-                = $splittedStreet['housenumber'];
-        }
-        $formFields['OWNERTELNO'] = $billingAddress->getTelephone();
+        $formFields    = array();
+        $billingAddress = $order->getBillingAddress();
+
+        $billingStreet         = str_replace("\n", ' ', $billingAddress->getStreet(-1));
+        $splittedBillingStreet = Mage::Helper('ops/address')->splitStreet($billingStreet);
+
+        $formFields['ECOM_BILLTO_POSTAL_NAME_FIRST']    = $billingAddress->getFirstname();
+        $formFields['ECOM_BILLTO_POSTAL_NAME_LAST']     = $billingAddress->getLastname();
+        $formFields['OWNERADDRESS']                     = $splittedBillingStreet['street_name'];
+        $formFields['OWNERADDRESS2']                    = $splittedBillingStreet['supplement'];
+        $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER'] = $splittedBillingStreet['street_number'];
+        $formFields['OWNERTELNO']                       = $billingAddress->getTelephone();
 
         return $formFields;
     }
@@ -175,7 +160,6 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      * return the shipping parameters as array based on shipping method type
      *
      * @param Mage_Sales_Model_Order $order
-     * @param array                  $requestParams
      *
      * @return array
      */
@@ -183,66 +167,42 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
     {
         $formFields      = array();
         $shippingAddress = $order->getShippingAddress();
+
         if ($shippingAddress === false) {
             $shippingAddress = $order->getBillingAddress();
         }
-        $splittedStreet = $this->splitHouseNumber(
-            $shippingAddress->getStreet1()
-        );
 
-        $shippingMethodType = (int)$this->getShippingMethodType(
-            $this->getCode(), $order->getStoreId()
-        );
+        $shippingStreet         = str_replace("\n", ' ', $shippingAddress->getStreet(-1));
+        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
+        $shippingMethodType     = (int)$this->getShippingMethodType($this->getCode(), $order->getStoreId());
 
-        if (in_array(
-            $shippingMethodType, $this->getShippingMethodTypeValues()
-        )
-        ) {
+        if (in_array($shippingMethodType, $this->getShippingMethodTypeValues())) {
             if (4 === $shippingMethodType) {
-                $formFields['ECOM_SHIPTO_POSTAL_NAME_PREFIX']
-                    = $shippingAddress->getPrefix();
+                $formFields['ECOM_SHIPTO_POSTAL_NAME_PREFIX'] = $shippingAddress->getPrefix();
             }
-
 
             $company = trim($shippingAddress->getCompany());
             if (0 < strlen($company)) {
                 $formFields['ECOM_SHIPTO_COMPANY'] = $company;
             }
+
             $fax = trim($shippingAddress->getFax());
             if (0 < strlen($fax)) {
                 $formFields['ECOM_SHIPTO_TELECOM_FAX_NUMBER'] = $fax;
             }
 
-
-            $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']
-                = $shippingAddress->getStreet1();
-            if (array_key_exists('street', $splittedStreet)) {
-                $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']
-                    = $splittedStreet['street'];
-            }
-            $streetAppendix = trim($shippingAddress->getStreet2());
-            if (0 < strlen($streetAppendix)) {
-                $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE2']
-                    = $streetAppendix;
-            }
-            $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER'] = '';
-            if (array_key_exists('housenumber', $splittedStreet)) {
-                $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER']
-                    = $splittedStreet['housenumber'];
-            }
-            $formFields['ECOM_SHIPTO_POSTAL_POSTALCODE']
-                = $shippingAddress->getPostcode();
-            $formFields['ECOM_SHIPTO_POSTAL_CITY']
-                = $shippingAddress->getCity();
-            $formFields['ECOM_SHIPTO_POSTAL_COUNTRYCODE']
-                = $shippingAddress->getCountryId();
+            $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']  = $shippingAddress->getStreet1();
+            $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1']  = $splittedShippingStreet['street_name'];
+            $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE2']  = $splittedShippingStreet['supplement'];
+            $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER'] = $splittedShippingStreet['street_number'];
+            $formFields['ECOM_SHIPTO_POSTAL_POSTALCODE']    = $shippingAddress->getPostcode();
+            $formFields['ECOM_SHIPTO_POSTAL_CITY']          = $shippingAddress->getCity();
+            $formFields['ECOM_SHIPTO_POSTAL_COUNTRYCODE']   = $shippingAddress->getCountryId();
         }
-        $formFields['ECOM_SHIPTO_POSTAL_NAME_FIRST']
-            = $shippingAddress->getFirstname();
-        $formFields['ECOM_SHIPTO_POSTAL_NAME_LAST']
-            = $shippingAddress->getLastname();
-        $formFields['ECOM_SHIPTO_TELECOM_PHONE_NUMBER']
-            = $shippingAddress->getTelephone();
+
+        $formFields['ECOM_SHIPTO_POSTAL_NAME_FIRST']    = $shippingAddress->getFirstname();
+        $formFields['ECOM_SHIPTO_POSTAL_NAME_LAST']     = $shippingAddress->getLastname();
+        $formFields['ECOM_SHIPTO_TELECOM_PHONE_NUMBER'] = $shippingAddress->getTelephone();
 
         return $formFields;
     }
@@ -268,11 +228,11 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
                 }
 
                 $subtotal += $item->getBasePriceInclTax(
-                    ) * $item->getQtyOrdered();
+                ) * $item->getQtyOrdered();
                 $formFields['ITEMFDMPRODUCTCATEG' . $itemCounter]
                                                         = $this->getKwixoCategoryFromOrderItem(
-                    $item
-                );
+                                                            $item
+                                                        );
                 $formFields['ITEMID' . $itemCounter]    = $item->getItemId();
                 $formFields['ITEMNAME' . $itemCounter]  = substr(
                     $item->getName(), 0, 40
@@ -282,7 +242,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
                 );
                 $formFields['ITEMQUANT' . $itemCounter]
                                                           = (int)$item->getQtyOrdered(
-                );
+                                                          );
                 $formFields['ITEMVAT' . $itemCounter]     = str_replace(
                     ',', '.', (string)(float)$item->getBaseTaxAmount()
                 );
@@ -318,25 +278,6 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         return $formFields;
     }
 
-    /**
-     * splits house number and street for france addresses
-     *
-     * @param string $address
-     *
-     * @return array
-     */
-    public function splitHouseNumber($address)
-    {
-        $splittedStreet = array();
-        $street         = str_replace("\n", ' ', $address);
-        $regexp         = '/(?P<housenumber>[0-9]+)([,:\s])(?P<street>.+)/';
-        if (!preg_match($regexp, $street, $splittedStreet)) {
-            $splittedStreet[1] = $street;
-            $splittedStreet[2] = '';
-        }
-
-        return $splittedStreet;
-    }
 
     /**
      * returns the delivery date as date based on actual date and adding
@@ -376,10 +317,10 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
     /**
      * returns the Shipping Method Type configured in backend
      *
-     * @param string $code
-     * @param int    $storeId
-     *
-     * @return string
+     * @param $code
+     * @param null $storeId
+     * @param bool $isVirtual
+     * @return int
      */
     public function getShippingMethodType(
         $code, $storeId = null, $isVirtual = false
@@ -463,12 +404,10 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      * get question for fields with disputable value
      * users are asked to correct the values before redirect to Ingenico ePayments
      *
-     * @param Mage_Sales_Model_Order $order         Current order
-     * @param array                  $requestParams Request parameters
      *
      * @return string
      */
-    public function getQuestion($order, $requestParams)
+    public function getQuestion()
     {
         return Mage::helper('ops/data')->__(
             'Please make sure that the displayed data is correct.'
@@ -480,12 +419,12 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      * users are asked to correct the values before redirect to Ingenico ePayments
      *
      * @param Mage_Sales_Model_Order $order         Current order
-     * @param array                  $requestParams Request parameters
      *
      * @return array
      */
-    public function getQuestionedFormFields($order, $requestParams)
+    public function getQuestionedFormFields($order)
     {
+
         $questionedFormFields = array(
             'CIVILITY',
             'OWNERADDRESS',
@@ -499,10 +438,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         $shippingMethodType = (int)$this->getShippingMethodType(
             $this->getCode(), $storeId
         );
-        if (in_array(
-            $shippingMethodType, $this->getShippingMethodTypeValues()
-        )
-        ) {
+        if (in_array($shippingMethodType, $this->getShippingMethodTypeValues())) {
             $questionedFormFields [] = 'ECOM_SHIPTO_POSTAL_STREET_NUMBER';
             $questionedFormFields [] = 'ECOM_SHIPTO_POSTAL_STREET_LINE1';
         }
@@ -530,6 +466,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      *
      * @param array $formFields - the array to populate
      * @param null  $dataArray  - the array containing the data
+     * @param Mage_Sales_Model_Order  $order
      *
      * @return array - the populated array
      */
@@ -544,7 +481,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
                 if (array_key_exists($key, $formFields)
                     && in_array(
                         $key,
-                        $this->getQuestionedFormFields($order, $dataArray), true
+                        $this->getQuestionedFormFields($order), true
                     )
                     || $key == 'CIVILITY'
                 ) {
@@ -601,8 +538,9 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
 
     /**
      * @param $carrierCode
+     * @return null
      */
-    private function loadShippingSettingForCarrierCode($carrierCode)
+    protected function loadShippingSettingForCarrierCode($carrierCode)
     {
         $this->shippingSettings = $this->getKwixoShippingModel()->load(
             $carrierCode, 'shipping_code'

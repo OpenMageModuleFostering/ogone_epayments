@@ -1,8 +1,18 @@
 <?php
 
 class Netresearch_OPS_Test_Block_FrauddetectionTest
-    extends EcomDev_PHPUnit_Test_Case_Controller
+    extends EcomDev_PHPUnit_Test_Case
 {
+
+    private $store;
+
+    public function setUp()
+    {
+        @session_start();
+        parent::setUp();
+        $this->store = Mage::app()->getStore(0)->load(0);
+        $this->store->resetConfig();
+    }
 
     public function testToHtml()
     {
@@ -15,7 +25,10 @@ class Netresearch_OPS_Test_Block_FrauddetectionTest
                    ->will($this->returnValue(true));
         $this->replaceByMock('model', 'ops/config', $configMock);
 
-        $sessionMock = $this->getModelMock('customer/session', array('getData'));
+        $sessionMock = $this->getModelMockBuilder('customer/session')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getData'))
+            ->getMock();
         $sessionMock->expects($this->once())
                      ->method('getData')
                      ->with(Netresearch_OPS_Model_Payment_Abstract::FINGERPRINT_CONSENT_SESSION_KEY)

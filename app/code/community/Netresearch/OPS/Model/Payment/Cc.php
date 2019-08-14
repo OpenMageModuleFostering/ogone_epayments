@@ -24,7 +24,10 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
     protected $featureModel = null;
 
 
-    /** ops payment code */
+    /**
+     * @param null $payment
+     * @return string
+     */
     public function getOpsCode($payment = null)
     {
         $opsBrand = $this->getOpsBrand($payment);
@@ -45,7 +48,7 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
      */
     public function getOpsBrand($payment = null)
     {
-        if (is_null($payment)) {
+        if (null === $payment) {
             $payment = Mage::getSingleton('checkout/session')->getQuote()->getPayment();
         }
 
@@ -63,7 +66,7 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
     public function getOrderPlaceRedirectUrl($payment = null)
     {
         $salesObject = $this->getInfoInstance()->getOrder() ? : $this->getInfoInstance()->getQuote();
-        if ($this->hasBrandAliasInterfaceSupport($payment) || is_null($salesObject->getRemoteIp())) {
+        if ($this->hasBrandAliasInterfaceSupport($payment) || null === $salesObject->getRemoteIp()) {
             if ('' == $this->getOpsHtmlAnswer($payment)) {
                 return false;
             } // Prevent redirect on cc payment
@@ -143,9 +146,11 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
     }
 
 
-    protected function performPreDirectLinkCallActions(Mage_Sales_Model_Quote $quote, Varien_Object $payment,
+    protected function performPreDirectLinkCallActions(
+        Mage_Sales_Model_Quote $quote, Varien_Object $payment,
         $requestParams = array()
-    ) {
+    ) 
+    {
         Mage::helper('ops/alias')->cleanUpAdditionalInformation($payment, true);
         if (true === Mage::getModel('ops/config')->isAliasManagerEnabled($this->getCode())) {
             $this->validateAlias($quote, $payment);
@@ -246,7 +251,7 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
      */
     public function isAvailable($quote = null)
     {
-        if (!is_null($quote) && !$quote->getItemsCount() > 0 && $this->getDataHelper()->isAdminSession()) {
+        if (null != $quote && !$quote->getItemsCount() > 0 && $this->getDataHelper()->isAdminSession()) {
             /* Disable payment method in backend as long as there are no items in quote to
             *  avoid problems with alias creation in EE1.12 & EE1.13
             */
@@ -269,6 +274,26 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
         $formFields = parent::getMethodDependendFormFields($order, $requestParams);
         if ($this->getConfig()->getCreditDebitSplit($order->getStoreId())) {
             $formFields['CREDITDEBIT'] = "C";
+        }
+
+        $alias = $order->getPayment()->getAdditionalInformation('alias');
+
+        if ($alias) {
+            $formFields['ALIAS'] = $alias;
+            $formFields['ALIASOPERATION'] = "BYPSP";
+            $formFields['ECI'] = 9;
+            $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForExistingAlias(
+                $order->getPayment()->getMethodInstance()->getCode(),
+                $order->getStoreId()
+            );
+        } else {
+            $formFields['ALIAS'] = "";
+            $formFields['ALIASOPERATION'] = "BYPSP";
+            $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForNewAlias(
+                $order->getPayment()->getMethodInstance()->getCode(),
+                $order->getStoreId()
+            );
+
         }
 
         return $formFields;

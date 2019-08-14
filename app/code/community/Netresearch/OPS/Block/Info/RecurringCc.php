@@ -27,6 +27,9 @@
  * @author   Paul Siedler <paul.siedler@netresearch.de>
  */ 
 
-class Netresearch_OPS_Block_Info_RecurringCc extends Netresearch_OPS_Block_Info_Cc {
+class Netresearch_OPS_Block_Info_RecurringCc extends Netresearch_OPS_Block_Info_Cc
+{
+
+
 
 }

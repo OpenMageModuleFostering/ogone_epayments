@@ -27,37 +27,6 @@
 
 /** @var $this Netresearch_OPS_Block_Form_Cc */
 ?>
-<script type="text/javascript">
-    Translator.add(
-        'Payment failed. Please select another payment method.',
-        '<?php echo Mage::helper('ops')->__('Payment failed. Please select another payment method.') ?>'
-    );
-    Translator.add(
-        'Payment failed. Please review your input or select another payment method.',
-        '<?php echo Mage::helper('ops')->__(
-            'Payment failed. Please review your input or select another payment method.'
-        ) ?>'
-    );
-    Translator.add(
-        'LOAD_TOKEN',
-        '<?php echo $this->__('Please wait, while we load the Ingenico ePayments payment form.'); ?>'
-    );
-
-    Translator.add(
-        'SUCCESS_TOKEN',
-        "<?php echo $this->__(
-            "Your payment data is ready to be processed by Ingenico ePayments. You can <a href='javascript:void(0)' onclick='payment.reloadIframe();'>reset it</a> or still select another payment method."
-        ); ?>"
-    );
-
-    Translator.add(
-        'FAILURE_TOKEN',
-        "<?php echo $this->__(
-            "Your payment data could not be saved by Ingenico ePayments. Please <a href='javascript:void(0)' onclick='payment.reloadIframe();'>retry</a> or select another payment method."
-        ); ?>"
-    );
-</script>
-
 <style>
     .ops_tokenization_frame {
         height: 475px;
@@ -78,7 +47,7 @@
             <?php echo implode(', ', $this->getAliasBrands()), '.' ?>
         </li>
         <li><?php echo $this->__('Payment using 3D secure is not supported.'); ?></li>
-        <input style="display:none;" name="payment[<?php echo $_code; ?>][alias]" value=""
+        <input style="display:none;" name="payment[<?php echo $_code; ?>_data][alias]" value=""
                id="<?php echo $_code ?>_alias_input">
     </ul>
 
@@ -104,7 +73,9 @@
             'brandsForAliasInterface': '<?php echo json_encode(
                 $this->getMethod()->getBrandsForAliasInterface()
             ) ?>'.evalJSON(),
-            'aliasManager': 'N'
+            'paymentMethod': 'CreditCard',
+            'aliasManager': 'N',
+            'brand': function () {return false}
         };
 
         locale = '<?php echo Mage::app()->getLocale()->getLocaleCode(); ?>';
@@ -152,34 +123,11 @@
             }
         });
 
-        payment.switchMethod = payment.switchMethod.wrap(function (originalMethod, method) {
+        order.setPaymentMethod = order.setPaymentMethod.wrap(function (originalMethod, method) {
 
-            if (typeof window[method] != 'undefined') {
-                if (typeof payment.currentMethodObject != 'undefined'
-                    && payment.currentMethodObject.code != method
-                ) {
-                    payment.opsAliasSuccess = false;
-                }
-
-                payment.currentMethodObject = window[method];
-                if (!payment.opsAliasSuccess && payment.currentMethodObject.tokenizationFrame.src == 'about:blank') {
-                    payment.reloadIframe();
-                } else {
-                    toggleOrderSubmit(true);
-                }
-            } else {
-                delete payment.currentMethodObject;
-            }
+            payment.opsAdminSwitchMethod(method);
             originalMethod(method);
         });
-
-        var toggleOrderSubmit = function (active) {
-            if (active) {
-                enableElements('save')
-            } else {
-                disableElements('save')
-            }
-        };
 
         // on reload we have to hide the iframe and show a success token if save was successfull already
 

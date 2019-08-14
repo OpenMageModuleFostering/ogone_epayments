@@ -39,17 +39,20 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
     /**
      * Return order instance loaded by increment id'
      *
+     * @param  $opsOrderId
+     *
      * @return Mage_Sales_Model_Order
      */
 
     protected function _getOrder($opsOrderId = null)
     {
         if (empty($this->_order)) {
-            if (is_null($opsOrderId)) {
+            if (null === $opsOrderId) {
                 $opsOrderId = $this->getRequest()->getParam('orderID');
             }
             $this->_order = Mage::helper('ops/order')->getOrder($opsOrderId);
         }
+
         return $this->_order;
     }
 
@@ -60,11 +63,12 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
      */
     protected function _getApi()
     {
-        if (!is_null($this->getRequest()->getParam('orderID'))):
-            return $this->_getOrder()->getPayment()->getMethodInstance();
-        else:
-            return Mage::getSingleton('checkout/session')->getQuote()->getPayment()->getMethodInstance();
-        endif;
+        $api = Mage::getSingleton('checkout/session')->getQuote()->getPayment()->getMethodInstance();
+        if (null != $this->getRequest()->getParam('orderID')) {
+            $api = $this->_getOrder()->getPayment()->getMethodInstance();
+        }
+
+        return $api;
     }
 
     /**
@@ -95,12 +99,17 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
     /**
      * Validation of incoming OPS data
      *
+     * @param mixed[]|bool $paramOverwrite array of parameters with SHASIGN to validate instead of standard request
+     *                                     parameters
+     *
      * @return bool
      */
-    protected function _validateOPSData()
+    protected function _validateOPSData($paramOverwrite = false)
     {
         $helper = Mage::helper('ops');
-        $params = $this->getRequest()->getParams();
+
+        $params = $paramOverwrite ? : $this->getRequest()->getParams();
+
         if ($this->getSubscriptionHelper()->isSubscriptionFeedback($params)) {
             $profile = $this->getSubscriptionHelper()->getProfileForSubscription($params['orderID']);
             if (!$profile->getId()) {

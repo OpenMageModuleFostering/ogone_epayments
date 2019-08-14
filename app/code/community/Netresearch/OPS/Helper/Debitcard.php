@@ -13,7 +13,7 @@ class Netresearch_OPS_Helper_Debitcard extends Netresearch_OPS_Helper_Creditcard
     protected function getPaymentSpecificParams(Mage_Sales_Model_Quote $quote)
     {
         $params = parent::getPaymentSpecificParams($quote);
-        if($this->getConfig()->getCreditDebitSplit($quote->getStoreId())){
+        if ($this->getConfig()->getCreditDebitSplit($quote->getStoreId())) {
             $params['CREDITDEBIT'] = 'D';
         }
         return $params;

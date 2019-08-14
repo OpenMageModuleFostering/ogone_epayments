@@ -37,8 +37,14 @@ class Netresearch_OPS_Model_Source_OrderReference
     public function toOptionArray()
     {
         return array(
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::REFERENCE_QUOTE_ID, 'label' => Mage::helper('ops')->__('quote id')),
-            array('value' => Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID, 'label' => Mage::helper('ops')->__('order id')),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::REFERENCE_QUOTE_ID,
+                'label' => Mage::helper('ops')->__('quote id')
+            ),
+            array(
+                'value' => Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID,
+                'label' => Mage::helper('ops')->__('order id')
+            ),
         );
     }
 }

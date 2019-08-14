@@ -160,3 +160,140 @@ ul.ops-form-list.ops_card input[type=radio]:checked + label li.cvc input + div.v
     display: inline;
     vertical-align: middle;
 }
+
+img.ops-brandlogo {
+    display: inline-block;
+    height: 30px;
+}
+
+.sp-methods dt > input.radio + label {
+    display: inline-block;
+}
+
+/* OPS styles for payment methods */
+#co-payment-form .payment-logo {
+    height: 31px;
+    display: inline-block;
+    box-sizing: border-box;
+    margin-top: -3px;
+    padding: 0 5px 5px;
+}
+
+#co-payment-form .payment-logo.left {
+    float: left;
+}
+
+#co-payment-form .payment-logo.right {
+    float: right;
+}
+
+#co-payment-form .payment-logo img {
+    height: 100%;
+}
+
+/* OPS Styles for payment retry page */
+.ops-payment-retry #co-payment-form {
+    display: inline-block;
+    width: 65%;
+    vertical-align: top;
+    float: left;
+}
+
+.ops-payment-retry .payment-information {
+    display: inline-block;
+    width: 33%;
+    vertical-align: top;
+    float: right;
+    border-left: 1px solid #aaa;
+    padding-left: 25px;
+}
+
+.ops-payment-retry .payment-information .block-title {
+    border: none;
+    padding: 0;
+}
+
+.ops-payment-retry #co-payment-form .section .step-title {
+    border: none;
+}
+
+.ops-payment-retry #co-payment-form .step-title h2 {
+    margin: 0 0 0 20px;
+}
+
+.ops-payment-retry .payment-information .billing-address,
+.ops-payment-retry .payment-information .shipping-address {
+    padding-top: 10px;
+}
+
+.ops-payment-retry .payment-information .billing-address span,
+.ops-payment-retry .payment-information .shipping-address span {
+    display: block;
+}
+
+.ops-payment-retry .payment-information .billing-address span.zipcode,
+.ops-payment-retry .payment-information .shipping-address span.zipcode,
+.ops-payment-retry .payment-information .billing-address span.city,
+.ops-payment-retry .payment-information .shipping-address span.city {
+    display: inline-block;
+}
+
+.ops-table-responsive {
+    width: 100%;
+    overflow-y: auto;
+    margin: 0 0 1em;
+}
+
+.ops-table-responsive::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+}
+
+.ops-table-responsive::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 3px solid #fff;
+    background-color: rgba(0, 0, 0, .3);
+}
+
+@media screen and (max-width: 768px) {
+    .ops-payment-retry #co-payment-form {
+        display: inline-block;
+        width: 100%;
+        vertical-align: top;
+        float: none;
+    }
+
+    .ops-payment-retry .payment-information {
+        width: 100%;
+        float: none;
+        border-left: none;
+        padding-left: 0;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 10px;
+    }
+
+    .ops-payment-retry #co-payment-form .step-title h2 {
+        margin: 0;
+    }
+
+    .ops-payment-retry .payment-information .billing-address {
+        margin-right: 30px;
+    }
+
+    .ops-payment-retry .payment-information .billing-address,
+    .ops-payment-retry .payment-information .shipping-address {
+        display: inline-block;
+        vertical-align: top;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .ops-payment-retry #payment-buttons-container button {
+        margin-bottom: 10px;
+    }
+
+    .ops-payment-retry #payment-buttons-container button + button {
+        clear: left;
+    }
+}

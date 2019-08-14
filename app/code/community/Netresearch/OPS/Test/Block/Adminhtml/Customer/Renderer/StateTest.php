@@ -17,7 +17,7 @@ class Netresearch_OPS_Test_Block_Adminhtml_Customer_Renderer_StateTest
         $this->assertEquals(
             Mage::helper('ops/data')->__(
                 Netresearch_OPS_Model_Alias_State::ACTIVE
-            ) , $block->render($row)
+            ), $block->render($row)
         );
     }
 }

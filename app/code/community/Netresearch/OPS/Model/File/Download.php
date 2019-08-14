@@ -25,11 +25,11 @@ class Netresearch_OPS_Model_File_Download
     public function getFile($path, $threshold = self::ONE_MEGABYTE)
     {
         $this->_filePath = $path;
-        if(!file_exists($this->_filePath) || !is_readable($this->_filePath)){
+        if (!file_exists($this->_filePath) || !is_readable($this->_filePath)) {
            Mage::throwException('File '.$this->_filePath.' does not exist or is not readable.');
            return '';
         }
-        if(filesize($path) > $threshold){
+        if (filesize($path) > $threshold) {
             return $this->_trimFileToThreshold($threshold);
         } else {
             return $this->_filePath;
@@ -46,7 +46,7 @@ class Netresearch_OPS_Model_File_Download
     protected function _trimFileToThreshold($threshold)
     {
         $this->_fileHandler = fopen($this->_filePath, 'r');
-        if(0 > fseek($this->_fileHandler, filesize($this->_filePath)-$threshold, SEEK_SET)){
+        if (0 > fseek($this->_fileHandler, filesize($this->_filePath)-$threshold, SEEK_SET)) {
             Mage::throwException('Function fseek on file '. $this->_filePath.' failed.');
         }
         $content = fread($this->_fileHandler, $threshold);
