@@ -48,9 +48,9 @@
                     <strong>
                         <?php
                         if ($this->isIframeTarget()) {
-                            echo Mage::helper('ops')->__('Please wait a moment while the Ingenico ePayments payment page is loading.');
+                            echo Mage::helper('ops')->__('Please wait a moment while the Ingenico ePayments (Ogone) payment page is loading.');
                         } else {
-                            echo Mage::helper('ops')->__('Please wait a moment. This page will transfer your data to Ingenico ePayments payment gateway in a few seconds.');
+                            echo Mage::helper('ops')->__('Please wait a moment. This page will transfer your data to Ingenico ePayments (Ogone) payment gateway in a few seconds.');
                         }
 
                         ?>
@@ -77,9 +77,11 @@
                                     <em>*</em></label>
                                 <div class="input-box">
                                     <select class="required-entry" id="prefix" name="<?php echo($name); ?>">
-                                        <option <?php if ($value == 'Mr'): echo 'selected'; endif; ?> value='Mr'>Mr
+                                        <option <?php if ($value == 'Mr'): echo 'selected'; 
+                                       endif; ?> value='Mr'>Mr
                                         </option>
-                                        <option <?php if ($value == 'Mrs'): echo 'selected'; endif; ?> value='Mrs'>Mrs
+                                        <option <?php if ($value == 'Mrs'): echo 'selected'; 
+                                       endif; ?> value='Mrs'>Mrs
                                         </option>
                                     </select>
                                 </div>
@@ -103,7 +105,7 @@
             <span><span>OK</span></span>
         </button>
     </div>
-<?php endif; ?>
+            <?php endif; ?>
 </form>
 <?php if ($this->isIframeTarget()): ?>
     <iframe id="ops_placeform_iframe" name="ops_placeform_iframe" src="" style="display: none; width: 100%;"></iframe>

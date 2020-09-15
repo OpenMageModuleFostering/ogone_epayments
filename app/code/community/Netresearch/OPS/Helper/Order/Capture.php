@@ -40,6 +40,7 @@ class Netresearch_OPS_Helper_Order_Capture extends Netresearch_OPS_Helper_Order_
             $arrInfo           = $params['invoice'];
             $arrInfo['amount'] = $amount;
         }
+
         $arrInfo['type']      = $this->determineType($payment, $amount);
         $arrInfo['operation'] = $this->determineOperationCode($payment, $amount);
 

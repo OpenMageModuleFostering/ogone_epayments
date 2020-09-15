@@ -18,10 +18,10 @@ $websites = Mage::app()->getWebsites();
 foreach($websites as $website){
     $oldWebsiteAliasUrl = $website->getConfig($aliasUrlPath);
     if(strlen($oldWebsiteAliasUrl) > 0 && $oldWebsiteAliasUrl != $oldAliasUrl){
-
         $newWebsiteAliasUrl = str_replace('ncol/prod/alias_gateway_utf8.asp', 'Tokenization/HostedPage', $oldWebsiteAliasUrl);
         Mage::getConfig()->saveConfig($aliasUrlPath, $newWebsiteAliasUrl, 'websites', $website->getId());
     }
+
     /** @var Mage_Core_Model_Store $store */
     foreach($website->getStores() as $store){
         $oldStoreAliasUrl = Mage::getStoreConfig($aliasUrlPath, $store->getId());

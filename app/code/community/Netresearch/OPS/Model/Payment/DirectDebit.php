@@ -1,15 +1,17 @@
 <?php
 /**
  * Netresearch_OPS_Model_Payment_DirectDebit
- * 
- * @package   
+ *
+ * @package
  * @copyright 2011 Netresearch
- * @author    Thomas Kappel <thomas.kappel@netresearch.de> 
+ * @author    Thomas Kappel <thomas.kappel@netresearch.de>
  * @license   OSL 3.0
  */
 class Netresearch_OPS_Model_Payment_DirectDebit
     extends Netresearch_OPS_Model_Payment_DirectLink
 {
+    const CODE = 'ops_directDebit';
+
     /** info source path */
     protected $_infoBlockType = 'ops/info_redirect';
 
@@ -17,12 +19,12 @@ class Netresearch_OPS_Model_Payment_DirectDebit
     protected $_formBlockType = 'ops/form_directDebit';
 
     /** payment code */
-    protected $_code = 'ops_directDebit';
+    protected $_code = self::CODE;
 
     public function getOrderPlaceRedirectUrl()
     {
         // Prevent redirect on direct debit payment
-        return false; 
+        return false;
     }
 
 
@@ -40,9 +42,9 @@ class Netresearch_OPS_Model_Payment_DirectDebit
 
     protected function performPreDirectLinkCallActions(
         Mage_Sales_Model_Quote $quote,
-        Varien_Object $payment, $requestParams = array()
-    )
-    {
+        Varien_Object $payment,
+        $requestParams = array()
+    ) {
         return $this;
     }
 

@@ -41,8 +41,8 @@
             <?php echo $this->escapeHtml($brand['value']); ?>
         <?php else: ?>
             <label class="required-entry" for="ops_intersolve_brand"><?php echo $this->escapeHtml(
-                    $this->__('Please select a brand')
-                ); ?></label><br/>
+                $this->__('Please select a brand')
+            ); ?></label><br/>
             <select name="payment[intersolve_brand]" id="ops_intersolve_brand">
                 <?php foreach ($brands as $brand): ?>
                     <option value="<?php echo $this->escapeHtml($brand['brand']); ?>">

@@ -65,6 +65,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
                 $kwixoCatMapModel->save();
             }
         }
+
         Mage::getSingleton('adminhtml/session')->addSuccess(
             Mage::helper('ops/data')->__(
                 'Successfully added Kwixo category mapping'
@@ -103,6 +104,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
             $message = $helper->__('Invalid id provided');
             $isValid = false;
         }
+
         if (false === $isValid) {
             Mage::throwException($message);
         }
@@ -149,8 +151,8 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
         if (!array_key_exists('category_id', $postData)) {
             $isValid = false;
             $message = $helper->__('Invalid category provided');
-
         }
+
         if ($isValid
             && (!is_numeric($postData['category_id'])
             || null === Mage::getModel('catalog/category')->load($postData['category_id'])->getId())
@@ -158,6 +160,7 @@ class Netresearch_OPS_Helper_Kwixo extends Mage_Core_Helper_Abstract
             $isValid = false;
             $message = $helper->__('Invalid category provided');
         }
+
         if (false === $isValid) {
             Mage::throwException($message);
         }

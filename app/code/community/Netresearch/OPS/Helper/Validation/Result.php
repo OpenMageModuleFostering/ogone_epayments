@@ -156,6 +156,7 @@ class Netresearch_OPS_Helper_Validation_Result
                 );
             }
         }
+
         $this->result['fields'] = $frontendFields;
 
         return $this;
@@ -174,6 +175,7 @@ class Netresearch_OPS_Helper_Validation_Result
                 'Billing address contains invalid data'
             );
         }
+
         if ($gotoSection == 'shipping' && 0 < $quote->getShippingAddress()->getId()) {
             $this->result['fields']['shipping-address-select'] = $this->getDataHelper()->__(
                 'Shipping address contains invalid data'

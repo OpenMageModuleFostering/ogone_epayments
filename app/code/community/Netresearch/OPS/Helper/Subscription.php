@@ -91,6 +91,7 @@ class Netresearch_OPS_Helper_Subscription extends Mage_Core_Helper_Abstract
         if ($this->isTrialFeedback($orderId)) {
             $orderId = substr($orderId, -0, strlen(self::TRIAL_SUFFIX));
         }
+
         $orderId = substr($orderId, strlen(self::SUBSCRIPTION_PREFIX));
         $profile = Mage::getModel('sales/recurring_profile')->load($orderId);
         if (!$profile->getId()) {
@@ -130,7 +131,7 @@ class Netresearch_OPS_Helper_Subscription extends Mage_Core_Helper_Abstract
                 $day = $config->getMonthlyBillingDay($storeId);
                 break;
             case Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag::PERIOD_UNIT_WEEK:
-                // offset the day by one, since Magento counts from 0, but Ingenico ePayments from 1
+                // offset the day by one, since Magento counts from 0, but Ingenico ePayments (Ogone) from 1
                 $day = $config->getWeeklyBillingDay($storeId) + 1;
                 break;
         }

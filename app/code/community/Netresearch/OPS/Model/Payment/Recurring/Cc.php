@@ -114,7 +114,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
     }
 
     /**
-     * Submits the trial subscription to the Ingenico ePayments webservice
+     * Submits the trial subscription to the Ingenico ePayments (Ogone) webservice
      *
      * @param Mage_Payment_Model_Recurring_Profile $profile
      * @param Mage_Payment_Model_Info              $paymentInfo
@@ -123,8 +123,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
     protected function submitTrialSubscription(
         Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Payment_Model_Info $paymentInfo
-    ) 
-    {
+    ) { 
         if ($profile->getTrialPeriodUnit()) {
             $requestParams = $this->getParameterModel()->collectAllParametersForTrial($paymentInfo, $profile);
             $this->getParameterModel()->unsetData();
@@ -149,8 +148,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
     public function submitRecurringProfile(
         Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Payment_Model_Info $paymentInfo
-    ) 
-    {
+    ) { 
         $this->performPreDirectLinkCallActions($profile->getQuote(), $paymentInfo);
 
         $this->submitTrialSubscription($profile, $paymentInfo);
@@ -168,7 +166,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
      */
     public function getRecurringProfileDetails($referenceId, Varien_Object $result)
     {
-        Mage::throwException('Fetching profile details from Ingenico ePayments not supported');
+        Mage::throwException('Fetching profile details from Ingenico ePayments (Ogone) not supported');
     }
 
     /**
@@ -204,7 +202,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
             case Mage_Sales_Model_Recurring_Profile::STATE_ACTIVE:
                 if (Mage::getSingleton('admin/session')->isLoggedIn()) {
                     $this->addAdminNotice(
-                        'To actually activate the subscription an update in the Ingenico ePayments backend is needed.'
+                        'To actually activate the subscription an update in the Ingenico ePayments (Ogone) backend is needed.'
                     );
                 } else {
                     Mage::throwException(
@@ -217,7 +215,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
             case Mage_Sales_Model_Recurring_Profile::STATE_CANCELED:
                 if (Mage::getSingleton('admin/session')->isLoggedIn()) {
                     $this->addAdminNotice(
-                        'To actually cancel the subscription an update in the Ingenico ePayments backend is needed.'
+                        'To actually cancel the subscription an update in the Ingenico ePayments (Ogone) backend is needed.'
                     );
                 } else {
                     $this->sendSuspendMail($profile);
@@ -226,7 +224,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
             case Mage_Sales_Model_Recurring_Profile::STATE_SUSPENDED:
                 if (Mage::getSingleton('admin/session')->isLoggedIn()) {
                     $this->addAdminNotice(
-                        'To actually suspend the subscription an update in the Ingenico ePayments backend is needed.'
+                        'To actually suspend the subscription an update in the Ingenico ePayments (Ogone) backend is needed.'
                     );
                 } else {
                     $this->sendSuspendMail($profile);
@@ -268,6 +266,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
                 $this->getDataHelper()->__('You are not allowed to suspend this subscription!')
             );
         }
+
         $customer = Mage::getModel('customer/customer')->load($profile->getCustomerId());
         $result = $mailModel->sendSuspendSubscriptionMail($profile, $customer);
         if ($result) {
@@ -276,9 +275,9 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
             $profile->setOverrideState(true);
             $session->addSuccess(
                 $this->getDataHelper()
-                     ->__(
-                         'Your suspend request was successfully sent. A copy of the email will be sent to your address.'
-                     )
+                    ->__(
+                        'Your suspend request was successfully sent. A copy of the email will be sent to your address.'
+                    )
             );
         } else {
             // sending the mail failed
@@ -307,12 +306,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
 
     }
 
-    public function hasBrandAliasInterfaceSupport($payment = null)
-    {
-        // only support inline, since we need the alias
-        return true;
-    }
-
     public function getOrderPlaceRedirectUrl($payment = null)
     {
         if ('' == $this->getOpsHtmlAnswer($payment)) {
@@ -321,7 +314,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
         } else {
             // 3ds redirect
             return Mage::getModel('ops/config')->get3dSecureRedirectUrl();
-
         }
     }
 
@@ -341,10 +333,10 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
      *
      * @throws Mage_Core_Exception
      */
-    protected function submitRegularSubscription(Mage_Payment_Model_Recurring_Profile $profile,
+    protected function submitRegularSubscription(
+        Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Payment_Model_Info $paymentInfo
-    ) 
-    {
+    ) { 
         $requestParams = $this->getParameterModel()->collectAllParameters($paymentInfo, $profile);
         $this->getParameterModel()->unsetData();
         $response = $this->getDirectLinkHelper()->performDirectLinkRequest(
@@ -363,8 +355,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
     protected function submitInitialFee(
         Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Payment_Model_Info $paymentInfo
-    ) 
-    {
+    ) { 
         /** @var $profile Mage_Sales_Model_Recurring_Profile */
         if ($profile->getInitAmount() > 0) {
             $order = $this->getSubscriptionManager()->createInitialOrder($profile);
@@ -373,7 +364,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
                                   ->collectAllParametersForInitialFee($paymentInfo, $profile, $order);
             $this->getParameterModel()->unsetData();
             try{
-
                 $response = $this->getDirectLinkHelper()->performDirectLinkRequest(
                     $profile->getQuote(), $requestParams, $profile->getQuote()->getStoreId()
                 );
@@ -382,7 +372,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc
             }
 
             $this->getSubscriptionManager()->processSubscriptionFeedback($response, $profile, $order);
-
         }
 
     }

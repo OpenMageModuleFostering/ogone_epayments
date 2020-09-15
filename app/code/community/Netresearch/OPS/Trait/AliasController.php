@@ -31,7 +31,7 @@
 trait Netresearch_OPS_Trait_AliasController
 {
     use Netresearch_OPS_Trait_PaymentHelper;
-    
+
     /**
      * @return Netresearch_OPS_Model_Config
      */
@@ -39,7 +39,7 @@ trait Netresearch_OPS_Trait_AliasController
     {
         return Mage::getSingleton('ops/config');
     }
-    
+
     /**
      * accept-action for Alias-generating iframe-response
      *
@@ -50,15 +50,14 @@ trait Netresearch_OPS_Trait_AliasController
         $requiredParams = array_fill_keys(array('Alias_OrderId', 'Alias_AliasId'), '');
         $missingParams = count(array_diff_key($requiredParams, $params));
         if ($missingParams) {
-
-            return $this->parseFrontendException();
+            return $this->parseFrontendException(null);
         } else {
             $helper = Mage::helper('ops');
             $helper->log(
                 $helper->__(
-                    "Incoming accepted Ingenico ePayments Alias Feedback\n\nRequest Path: %s\nParams: %s\n",
+                    "Incoming accepted Ingenico ePayments (Ogone) Alias Feedback\n\nRequest Path: %s\nParams: %s\n",
                     $this->getRequest()->getPathInfo(),
-                    serialize($params)
+                    json_encode($params, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)
                 )
             );
             Mage::helper('ops/alias')->saveAlias($params);
@@ -81,7 +80,7 @@ trait Netresearch_OPS_Trait_AliasController
             return $this->parseFrontendSuccess($params['Alias_AliasId']);
         }
     }
-    
+
     /**
      * exception-action for Alias-generating iframe-response
      *
@@ -89,26 +88,38 @@ trait Netresearch_OPS_Trait_AliasController
     public function exceptionAction()
     {
         $params = $this->getRequest()->getParams();
+        /** @var Netresearch_OPS_Model_ErrorMessageBuilder $messageBuilder */
+        $messageBuilder = Mage::getModel('ops/errorMessageBuilder');
         $errors = array();
-        
+
+
         foreach ($params as $key => $value) {
             if (stristr($key, 'error') && 0 != $value) {
                 $errors[] = $value;
             }
         }
-        
+
         $helper = Mage::helper('ops');
         $helper->log(
             $helper->__(
-                "Incoming exception Ingenico ePayments Alias Feedback\n\nRequest Path: %s\nParams: %s\n",
+                "Incoming exception Ingenico ePayments (Ogone) Alias Feedback\n\nRequest Path: %s\nParams: %s\n",
                 $this->getRequest()->getPathInfo(),
-                serialize($params)
+                json_encode($params, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)
             )
         );
-        
-        return $this->parseFrontendException();
+
+        if (array_key_exists('Alias_OrderId', $params)) {
+            $quote = Mage::getModel('sales/quote');
+        } else {
+            $quote = Mage::getSingleton('checkout/session')->getQuote();
+        }
+
+        $storeId = $quote->getStoreId();
+        $errorMessage = $messageBuilder->generateErrorMessage($errors, $storeId);
+
+        return $this->parseFrontendException($errorMessage);
     }
-    
+
     /**
      * Generates the hash for the hosted tokenization page request
      *
@@ -117,12 +128,12 @@ trait Netresearch_OPS_Trait_AliasController
     public function generateHashAction()
     {
         $storeId = $this->getStoreId();
-        
+
         $result = $this->generateHash($storeId);
-        
+
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
     }
-    
+
     /**
      * Get store id from quote or request
      *
@@ -131,30 +142,31 @@ trait Netresearch_OPS_Trait_AliasController
     protected function getStoreId()
     {
         $storeId = null;
-        
+
         if (Mage::app()->getStore()->isAdmin()) {
             $quote = Mage::getSingleton('adminhtml/session_quote');
             $storeId = $quote->getStoreId();
         } else {
             $quoteId = $this->getRequest()->getParam('orderid');
-            
+
             $quote = Mage::getModel('sales/quote')->load($quoteId);
-            
+
             if ($quote->getId() === null) {
                 $quote = Mage::getModel('sales/quote')->loadByIdWithoutStore($quoteId);
             }
-            
+
             if ($quote->getId() !== null) {
                 $storeId = $quote->getStoreId();
             }
+
             if ($this->getRequest()->getParam('storeId') !== null) {
                 $storeId = $this->getRequest()->getParam('storeId');
             }
         }
-        
+
         return $storeId;
     }
-    
+
     /**
      * updates the additional information from payment, thats needed for backend reOrders
      *
@@ -168,20 +180,24 @@ trait Netresearch_OPS_Trait_AliasController
             if (array_key_exists('Alias_AliasId', $params)) {
                 $payment->setAdditionalInformation('alias', $params['Alias_AliasId']);
             }
+
             if (array_key_exists('Card_Brand', $params)) {
                 $payment->setAdditionalInformation('CC_BRAND', $params['Card_Brand']);
             }
+
             if (array_key_exists('Card_CardHolderName', $params)) {
                 $payment->setAdditionalInformation('CC_CN', $params['Card_CardHolderName']);
             }
+
             if ($this->userIsRegistering()) {
                 $payment->setAdditionalInformation('userIsRegistering', true);
             }
+
             $quote->setPayment($payment)->setDataChanges(true)->save();
             $quote->setDataChanges(true)->save();
         }
     }
-    
+
     /**
      * Checks if checkout method is registering
      *
@@ -192,7 +208,7 @@ trait Netresearch_OPS_Trait_AliasController
         return Mage::getSingleton('checkout/type_onepage')->getCheckoutMethod()
         === Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER;
     }
-    
+
     /**
      * Generate hash from request parameters
      *
@@ -203,14 +219,14 @@ trait Netresearch_OPS_Trait_AliasController
     protected function generateHash($storeId)
     {
         $data = $this->cleanParamKeys();
-        
+
         $secret = $this->getConfig()->getShaOutCode($storeId);
         $raw = $this->getPaymentHelper()->getSHAInSet($data, $secret);
         $result = array('hash' => Mage::helper('ops/payment')->shaCrypt($raw));
-        
+
         return $result;
     }
-    
+
     /**
      * Cleans param array from magentos admin params, fixes underscored keys
      *
@@ -223,24 +239,28 @@ trait Netresearch_OPS_Trait_AliasController
             if ($key == 'form_key' || $key == 'isAjax' || $key == 'key') {
                 continue;
             }
-            $data[str_replace('_', '.', $key)] = $value;
+
+            $data[str_replace(array('_', '?'), array('.',''), $key)] = $value;
         }
-        
+
         return $data;
     }
-    
+
     /**
      * @return Mage_Core_Controller_Response_Http
      */
-    protected function parseFrontendException()
+    protected function parseFrontendException($message)
     {
-        $result = "<script type='application/javascript'>" .
-            "window.onload =  function() {  top.document.fire('alias:failure'); };" .
-            "</script>";
-        
+        $result = sprintf(
+            "<script type='application/javascript'>" .
+            "window.onload =  function() {  top.document.fire('alias:failure', '%s'); };" .
+            "</script>",
+            $message
+        );
+
         return $this->getResponse()->setBody($result);
     }
-    
+
     /**
      * @param string $alias alias to be parsed in frontend javascript event
      *
@@ -253,7 +273,7 @@ trait Netresearch_OPS_Trait_AliasController
             "window.onload =  function() {  top.document.fire('alias:success', '%s'); };</script>",
             $alias
         );
-        
+
         return $this->getResponse()->setBody($result);
     }
 }

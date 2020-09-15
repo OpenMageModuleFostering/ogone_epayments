@@ -75,11 +75,12 @@
             ) ?>'.evalJSON(),
             'paymentMethod': 'CreditCard',
             'aliasManager': 'N',
-            'brand': function () {return false}
+            'brand': function () {return false},
+            'htpTemplateName': '',
+            'transmitPaymentMethod': true
         };
 
         locale = '<?php echo Mage::app()->getLocale()->getLocaleCode(); ?>';
-        transmitPaymentMethod = true;
 
         Event.observe(document, 'alias:success', function (event) {
             payment.fillOpsLoader('SUCCESS_TOKEN');
@@ -124,7 +125,6 @@
         });
 
         order.setPaymentMethod = order.setPaymentMethod.wrap(function (originalMethod, method) {
-
             payment.opsAdminSwitchMethod(method);
             originalMethod(method);
         });
@@ -140,6 +140,7 @@
             payment.currentMethodObject.tokenizationFrame.src = 'about:blank';
             payment.opsAliasSuccess = false;
             payment.generateHash();
+            payment.handleBrandChange();
         };
 
         if (typeof payment.prepareOpsForm != 'undefined') {

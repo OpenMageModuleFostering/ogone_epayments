@@ -67,7 +67,6 @@ class Netresearch_OPS_ApiController extends Netresearch_OPS_Controller_Abstract
      */
     public function directLinkPostBackAction()
     {
-
         $params = $this->getRequest()->getParams();
 
         try {

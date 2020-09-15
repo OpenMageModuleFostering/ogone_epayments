@@ -17,6 +17,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_Edit_Form
         if ($categoryId <= 0) {
             return parent::_prepareForm();
         }
+
         $kwixoCategoryMapping = Mage::getModel('ops/kwixo_category_mapping')->loadByCategoryId($categoryId);
         $storeId = (int) $this->getRequest()->getParam('store');
 

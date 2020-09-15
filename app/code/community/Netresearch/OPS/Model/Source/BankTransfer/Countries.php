@@ -54,11 +54,13 @@ class Netresearch_OPS_Model_Source_BankTransfer_Countries
                     )
                 );
             }
+
             foreach ($this->options as $offset=>$option) {
                 if (!in_array($option['value'], $this->countries)) {
                     unset($this->options[$offset]);
                 }
             }
+
             $this->options['*'] = array(
                 'value'=>'*',
                 'label'=> Mage::helper('adminhtml')->__(Mage::helper('ops')->__('Miscellaneous Countries'))

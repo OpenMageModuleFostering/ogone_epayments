@@ -37,6 +37,7 @@ class Netresearch_OPS_Model_Source_Cc_RecurringTypes
         foreach ($types as $type) {
             $translatedTypes[Mage::helper('ops')->__($type)] = $type;
         }
+
         ksort($translatedTypes);
         foreach ($translatedTypes as $label => $value) {
             $options[] = array(
@@ -44,6 +45,7 @@ class Netresearch_OPS_Model_Source_Cc_RecurringTypes
                 'label' => $label
             );
         }
+
         return $options;
     }
 

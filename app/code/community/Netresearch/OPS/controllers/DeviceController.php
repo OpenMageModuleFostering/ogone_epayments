@@ -49,7 +49,7 @@ class Netresearch_OPS_DeviceController extends Mage_Core_Controller_Front_Action
     }
 
     /**
-     * Toggles the customers consent to transmit the generated deviceid to Ingenico ePayments
+     * Toggles the customers consent to transmit the generated deviceid to Ingenico ePayments (Ogone)
      * to the value specified in request parameter consent
      *
      */

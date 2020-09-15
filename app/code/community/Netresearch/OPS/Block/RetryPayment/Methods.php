@@ -72,6 +72,7 @@ class Netresearch_OPS_Block_RetryPayment_Methods extends Mage_Checkout_Block_One
                     unset($methods[$key]);
                 }
             }
+
             $this->setData('methods', $methods);
         }
 

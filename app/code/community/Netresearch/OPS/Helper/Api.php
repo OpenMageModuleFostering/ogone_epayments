@@ -27,12 +27,15 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
         if ($this->isAcceptStatus($status)) {
             $route = $configModel->getAcceptRedirectRoute();
         }
+
         if ($this->isCancelStatus($status)) {
             $route = $configModel->getCancelRedirectRoute();
         }
+
         if ($this->isDeclineStatus($status)) {
             $route = $configModel->getDeclineRedirectRoute();
         }
+
         if ($this->isExceptionStatus($status)) {
             $route = $configModel->getExceptionRedirectRoute();
         }
@@ -56,6 +59,7 @@ class Netresearch_OPS_Helper_Api extends Mage_Core_Helper_Abstract
         if (null === $this->configModel) {
             $this->configModel = Mage::getModel('ops/config');
         }
+
         return $this->configModel;
     }
 

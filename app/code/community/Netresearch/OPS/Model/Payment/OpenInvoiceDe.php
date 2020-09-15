@@ -1,28 +1,54 @@
 <?php
 /**
  * Netresearch_OPS_Model_Payment_OpenInvoiceDe
- * 
- * @package   
+ *
+ * @package
  * @copyright 2011 Netresearch
- * @author    Thomas Kappel <thomas.kappel@netresearch.de> 
+ * @author    Thomas Kappel <thomas.kappel@netresearch.de>
  * @license   OSL 3.0
  */
 class Netresearch_OPS_Model_Payment_OpenInvoiceDe
     extends Netresearch_OPS_Model_Payment_OpenInvoice_Abstract
 {
+    /**
+     * @var string
+     */
     protected $pm = 'Open Invoice DE';
+
+    /**
+     * @var string
+     */
     protected $brand = 'Open Invoice DE';
 
-    /** if we can capture directly from the backend */
+    /**
+     * Whether we can capture directly from the backend
+     *
+     * @var bool
+     */
     protected $_canBackendDirectCapture = false;
 
+    /**
+     * @var bool
+     */
     protected $_canCapturePartial = false;
+
+    /**
+     * @var bool
+     */
     protected $_canRefundInvoicePartial = false;
 
-    /** info source path */
+    /**
+     * Info source path
+     *
+     * @var string
+     */
     protected $_infoBlockType = 'ops/info_redirect';
 
-    /** payment code */
+    /**
+     * Payment code
+     *
+     * @var string
+     */
     protected $_code = 'ops_openInvoiceDe';
 
     /**
@@ -45,29 +71,33 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceDe
             return false;
         }
 
-        /* not available if there is no gender or no birthday */
-        if (null === $quote->getCustomerGender() || is_null($quote->getCustomerDob())) {
-            return false;
-        }
-
         return parent::isAvailable($quote);
     }
 
+    /**
+     * @return string
+     */
     public function getPaymentAction()
     {
         return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
     }
 
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @param null|array $requestParams
+     * @return string[]
+     */
     public function getMethodDependendFormFields($order, $requestParams=null)
     {
         $formFields = parent::getMethodDependendFormFields($order, $requestParams);
 
         $shippingAddress = $order->getShippingAddress();
 
+        $gender = $order->getPayment()->getAdditionalInformation('gender');
         $gender = Mage::getSingleton('eav/config')
             ->getAttribute('customer', 'gender')
             ->getSource()
-            ->getOptionText($order->getCustomerGender());
+            ->getOptionText($gender);
 
         $formFields[ 'CIVILITY' ]               = $gender == 'Male' ? 'Herr' : 'Frau';
         $formFields[ 'ECOM_CONSUMER_GENDER' ]   = $gender == 'Male' ? 'M' : 'F';
@@ -82,14 +112,12 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceDe
     }
 
     /**
-     * getter for the allow_discounted_carts
+     * Getter for the allow_discounted_carts
      *
-     * @return array
+     * @return bool
      */
     protected function isAvailableForDiscountedCarts()
     {
         return (bool) $this->getConfigData('allow_discounted_carts');
     }
-
 }
-

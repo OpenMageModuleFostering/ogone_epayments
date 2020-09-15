@@ -65,31 +65,90 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
      */
     public function getOpsOrderId($salesObject, $useOrderIdIfPossible = true)
     {
-        $config = $this->getConfig();
-        $devPrefix = $config->getConfigData('devprefix');
-        if ($salesObject instanceof Mage_Sales_Model_Order) {
-            /** @var $salesObject Mage_Sales_Model_Order */
-            $orderRef = $salesObject->getQuoteId();
-        } elseif ($salesObject instanceof Mage_Sales_Model_Quote) {
-            /** @var $salesObject Mage_Sales_Model_Quote */
-            $orderRef = $salesObject->getId();
+        $orderReference = $this->getConfig()->getOrderReference($salesObject->getStoreId());
+        $devPrefix = $this->getConfig()->getConfigData('devprefix');
+
+        if ($useOrderIdIfPossible === false) {
+            // force usage of quote id
+            $orderReference = Netresearch_OPS_Model_Payment_Abstract::REFERENCE_QUOTE_ID;
         }
 
-        if ($config->getOrderReference($salesObject->getStoreId())
-            == Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID
-            && $useOrderIdIfPossible === true
-        ) {
-            if ($salesObject instanceof Mage_Sales_Model_Quote) {
-                $salesObject->reserveOrderId();
-                $orderRef = self::DELIMITER . $salesObject->getReservedOrderId();
-            } elseif ($salesObject instanceof Mage_Sales_Model_Order) {
-                $orderRef = self::DELIMITER . $salesObject->getIncrementId();
-            }
-
+        switch ($orderReference) {
+            case Netresearch_OPS_Model_Payment_Abstract::REFERENCE_QUOTE_ID:
+                // quote ID as per legacy config setting
+                $orderRef = $this->getSalesObjectQuoteId($salesObject);
+                break;
+            case Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID:
+                // increment ID as per legacy config setting (with hash character)
+                $orderRef = $this->getSalesObjectIncrementIdWithDelimiter($salesObject);
+                break;
+            default:
+                // increment ID as current default behaviour (no legacy config setting available)
+                $orderRef = $this->getSalesObjectIncrementId($salesObject);
         }
 
         return $devPrefix . $orderRef;
     }
+
+    /**
+     * Returns the QuoteId from the SalesObject
+     *
+     * @param Mage_Sales_Model_Order | Mage_Sales_Model_Quote $salesObject
+     *
+     * @return int
+     */
+    protected function getSalesObjectQuoteId($salesObject)
+    {
+        $orderRef = '';
+        if ($salesObject instanceof Mage_Sales_Model_Quote) {
+            $orderRef = $salesObject->getId();
+        } elseif ($salesObject instanceof Mage_Sales_Model_Order) {
+            $orderRef = $salesObject->getQuoteId();
+        }
+
+        return $orderRef;
+    }
+
+    /**
+     * Returns the OrderIncrementId with Delimiter from the SalesObject
+     *
+     * @param Mage_Sales_Model_Quote | Mage_Sales_Model_Order $salesObject
+     *
+     * @return int
+     */
+    protected function getSalesObjectIncrementIdWithDelimiter($salesObject)
+    {
+        $orderRef = '';
+        if ($salesObject instanceof Mage_Sales_Model_Quote) {
+            $salesObject->reserveOrderId();
+            $orderRef = self::DELIMITER . $salesObject->getReservedOrderId();
+        } elseif ($salesObject instanceof Mage_Sales_Model_Order) {
+            $orderRef = self::DELIMITER . $salesObject->getIncrementId();
+        }
+
+        return $orderRef;
+    }
+
+    /**
+     * Returns the OrderIncrementId without Delimiter from the SalesObject
+     *
+     * @param Mage_Sales_Model_Quote | Mage_Sales_Model_Order $salesObject
+     *
+     * @return int
+     */
+    protected function getSalesObjectIncrementId($salesObject)
+    {
+        $orderRef = '';
+        if ($salesObject instanceof Mage_Sales_Model_Quote) {
+            $salesObject->reserveOrderId();
+            $orderRef = $salesObject->getReservedOrderId();
+        } elseif ($salesObject instanceof Mage_Sales_Model_Order) {
+            $orderRef = $salesObject->getIncrementId();
+        }
+
+        return $orderRef;
+    }
+
 
     /**
      * getting the order from opsOrderId which can either the quote id or the order increment id
@@ -101,28 +160,29 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
      */
     public function getOrder($opsOrderId)
     {
-        $order = null;
-        $fieldToFilter = 'quote_id';
-        $devPrefix = $this->getConfig()->getConfigData('devprefix');
-        if ($devPrefix == substr($opsOrderId, 0, strlen($devPrefix))) {
+        $opsOrderId = ltrim($opsOrderId, '#');
+        $devPrefix  = $this->getConfig()->getConfigData('devprefix');
+
+        if ($devPrefix === substr($opsOrderId, 0, strlen($devPrefix))) {
             $opsOrderId = substr($opsOrderId, strlen($devPrefix));
         }
-        // opsOrderId was created from order increment id, use increment id for filtering
-        if (0 === strpos($opsOrderId, self::DELIMITER)) {
-            $opsOrderId = substr($opsOrderId, strlen(self::DELIMITER));
-            $fieldToFilter = 'increment_id';
-        }
 
-        /* @var $order Mage_Sales_Model_Resource_Order_Collection */
-        $order = Mage::getModel('sales/order')->getCollection()
-                     ->addFieldToFilter($fieldToFilter, $opsOrderId)
-            // filter for OPS payment methods
+        /* @var $orderCollection Mage_Sales_Model_Resource_Order_Collection */
+        $orderCollection = Mage::getModel('sales/order')->getCollection()
+                     ->addFieldToFilter('increment_id', $opsOrderId)
                      ->join(array('payment' => 'sales/order_payment'), 'main_table.entity_id=parent_id', 'method')
                      ->addFieldToFilter('method', array(array('like' => 'ops_%')))
-            // sort by increment_id of order to get only the latest (relevant for quote id search)
                      ->addOrder('main_table.increment_id');
 
-        return $order->getFirstItem();
+        if ($orderCollection->getSize() < 1) {
+            $orderCollection = Mage::getModel('sales/order')->getCollection()
+                ->addFieldToFilter('quote_id', $opsOrderId)
+                ->join(array('payment' => 'sales/order_payment'), 'main_table.entity_id=parent_id', 'method')
+                ->addFieldToFilter('method', array(array('like' => 'ops_%')))
+                ->addOrder('main_table.increment_id');
+        }
+
+        return $orderCollection->getFirstItem();
     }
 
     /**
@@ -154,6 +214,7 @@ class Netresearch_OPS_Helper_Order extends Mage_Core_Helper_Abstract
                 $order->getBillingAddress()
             );
         }
+
         if ($order->getShippingAddress() instanceof Mage_Customer_Model_Address_Abstract) {
             $shippingAddressHash = Mage::helper('ops/alias')->generateAddressHash(
                 $order->getShippingAddress()

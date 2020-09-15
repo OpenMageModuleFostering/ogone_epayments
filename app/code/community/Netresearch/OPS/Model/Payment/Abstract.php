@@ -128,10 +128,14 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
     /**
      * @param string $encoding
+     *
+     * @return $this
      */
     public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
+
+        return $this;
     }
 
     /**
@@ -143,12 +147,12 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     }
 
     /**
-     * @return Netresearch_OPS_Model_Backend_Operation_Parameter
+     * @return Netresearch_OPS_Model_Backend_Parameter
      */
     public function getBackendOperationParameterModel()
     {
         if (null === $this->backendOperationParameterModel) {
-            $this->backendOperationParameterModel = Mage::getModel('ops/backend_operation_parameter');
+            $this->backendOperationParameterModel = Mage::getModel('ops/backend_parameter');
         }
 
         return $this->backendOperationParameterModel;
@@ -232,6 +236,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if (null != $quote && null != $quote->getId()) {
             $storeId = $quote->getStoreId();
         }
+
         if (Mage_Core_Model_App::ADMIN_STORE_ID == Mage::app()->getStore()->getId()
             && false == $this->isEnabledForBackend($storeId)
         ) {
@@ -267,7 +272,13 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if (null === $payment) {
             $payment = $this->getInfoInstance();
         }
+
         $brand = trim($payment->getAdditionalInformation('BRAND'));
+
+        if (!strlen($brand)) {
+            $brand = trim($payment->getAdditionalInformation('CC_BRAND'));
+        }
+
         if (!strlen($brand)) {
             $brand = $this->brand;
         }
@@ -280,6 +291,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if (null === $payment) {
             $payment = $this->getInfoInstance();
         }
+
         $pm = trim($payment->getAdditionalInformation('PM'));
         if (!strlen($pm)) {
             $pm = $this->pm;
@@ -311,11 +323,12 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if (null === $shippingAddress || false === $shippingAddress) {
             $shippingAddress = $billingAddress;
         }
+
         $payment = $order->getPayment()->getMethodInstance();
         $quote = Mage::helper('ops/order')->getQuote($order->getQuoteId());
 
         $formFields = array();
-        $formFields['ORIG'] = Mage::helper("ops")->getModuleVersionString();
+        $formFields['SHOPPINGCARTEXTENSIONID'] = Mage::helper("ops")->getModuleVersionString();
         $formFields['BRAND'] = $payment->getOpsBrand($order->getPayment());
         if ($this->getConfig()->canSubmitExtraParameter($order->getStoreId())) {
             $formFields['CN'] = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
@@ -406,9 +419,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         $formFields['DECLINEURL']   = $this->getConfig()->getDeclineUrl();
         $formFields['EXCEPTIONURL'] = $this->getConfig()->getExceptionUrl();
         $formFields['CANCELURL']    = $this->getConfig()->getCancelUrl();
-        $formFields['BACKURL']      = $this->getConfig()->getPaymentRetryUrl(
-            Mage::helper('ops/payment')->validateOrderForReuse($opsOrderId, $order->getStoreId())
-        );
+        $formFields['BACKURL']      = Mage::getModel('ops/retry_page')->getRetryUrl($opsOrderId, $order->getStoreId());
 
 
         /** @var  $order Mage_Sales_Model_Order */
@@ -445,9 +456,9 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             $helper = Mage::helper('ops');
             $helper->log(
                 $helper->__(
-                    "Register Order %s in Ingenico ePayments \n\nAll form fields: %s\nIngenico ePayments String to hash: %s\nHash: %s",
+                    "Register Order %s in Ingenico ePayments (Ogone) \n\nAll form fields: %s\nIngenico ePayments (Ogone) String to hash: %s\nHash: %s",
                     $order->getIncrementId(),
-                    serialize($formFields),
+                    json_encode($formFields, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),
                     Mage::helper('ops/payment')->getSHASign($formFields, null, $order->getStoreId()),
                     $shaSign
                 )
@@ -496,9 +507,13 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
                 if (!$item->getParentItem()) {
                     $acc .= ($acc != '' ? ', ' : '') . $item->getName();
                 }
+
                 return $acc;
             }, ''
         );
+
+        list($description) = $this->transliterateParams(array($description));
+        $description = mb_substr($description, 0, 100);
 
         return $description;
     }
@@ -532,7 +547,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         }
 
         $message = $this->getHelper()
-            ->__('Customer got redirected to Ingenico ePayments for %s. Awaiting feedback.', $paymentAction);
+            ->__('Customer got redirected to Ingenico ePayments (Ogone) for %s. Awaiting feedback.', $paymentAction);
 
         /** @var Mage_Sales_Model_Order $order */
         $order = $this->getInfoInstance()->getOrder();
@@ -565,7 +580,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
         Mage::throwException(
             $this->getHelper()->__(
-                'The order can not be accepted via Magento. For the actual status of the payment check the Ingenico ePayments backend.'
+                'The order can not be accepted via Magento. For the actual status of the payment check the Ingenico ePayments (Ogone) backend.'
             )
         );
     }
@@ -586,7 +601,8 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
         Mage::getSingleton('admin/session')->addNotice(
             $this->getHelper()->__(
-                'Order has been canceled permanently in Magento. Changes in Ingenico ePayments platform will no longer be considered.')
+                'Order has been canceled permanently in Magento. Changes in Ingenico ePayments (Ogone) platform will no longer be considered.'
+            )
         );
 
         return true;
@@ -616,7 +632,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
      */
     public function capture(Varien_Object $payment, $amount)
     {
-        // disallow Ingenico ePayments online capture if amount is zero
+        // disallow Ingenico ePayments (Ogone) online capture if amount is zero
         if ($amount < 0.01) {
             return parent::capture($payment, $amount);
         }
@@ -634,6 +650,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if ($this->isRedirectNoticed($orderId)) {
             return $this;
         }
+
         try {
             $requestParams = $this->getBackendOperationParameterModel()->getParameterFor(
                 self::OPS_CAPTURE_TRANSACTION_TYPE,
@@ -649,7 +666,6 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             );
 
             Mage::getModel('ops/response_handler')->processResponse($response, $this, false);
-
         } catch (Exception $e) {
             Mage::getModel('ops/status_update')->updateStatusFor($payment->getOrder());
             Mage::helper('ops')->log("Exception in capture request:" . $e->getMessage());
@@ -676,7 +692,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             Mage::throwException(
                 $this->getHelper()->__(
                     "There is already one creditmemo in the queue." .
-                    "The Creditmemo will be created automatically as soon as Ingenico ePayments sends an acknowledgement."
+                    "The Creditmemo will be created automatically as soon as Ingenico ePayments (Ogone) sends an acknowledgement."
                 )
             );
         }
@@ -708,7 +724,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     }
 
     /**
-     * Returns the mandatory fields for requests to Ingenico ePayments
+     * Returns the mandatory fields for requests to Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order $order
      *
@@ -765,10 +781,10 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             return parent::cancel($payment);
         }
 
-        //If order has state 'pending_payment' and the payment has Ingenico ePayments-status 0 or null (unknown) then cancel the order
+        //If order has state 'pending_payment' and the payment has Ingenico ePayments (Ogone)-status 0 or null (unknown) then cancel the order
         if (true === $this->canCancelManually($payment->getOrder())) {
             $payment->getOrder()->addStatusHistoryComment(
-                $this->getHelper()->__("The order was cancelled manually. The Ingenico ePayments-state is 0 or null.")
+                $this->getHelper()->__("The order was cancelled manually. The Ingenico ePayments (Ogone)-state is 0 or null.")
             );
 
             return parent::cancel($payment);
@@ -779,7 +795,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     }
 
     /**
-     * Custom void behavior, trigger Ingenico ePayments cancel request
+     * Custom void behavior, trigger Ingenico ePayments (Ogone) cancel request
      *
      * @param Varien_Object $payment
      * @return $this|void
@@ -843,13 +859,12 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
                 );
             }
 
-
+            /** @var Netresearch_OPS_Model_Response_Handler $handler */
             $handler = Mage::getModel('ops/response_handler');
             $handler->processResponse($response, $this, false);
 
 
             return $this;
-
         } catch (Exception $e) {
             Mage::getModel('ops/status_update')->updateStatusFor($payment->getOrder());
             Mage::helper('ops')->log(
@@ -861,7 +876,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
     /**
      * get question for fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      *
      * @return string
@@ -873,7 +888,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
     /**
      * get an array of fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order $order         Current order
      *
@@ -886,11 +901,11 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
     /**
      * if we need some missing form params
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order $order
      * @param array                  $requestParams Parameters sent in current request
-     * @param array                  $formFields    Parameters to be sent to Ingenico ePayments
+     * @param array                  $formFields    Parameters to be sent to Ingenico ePayments (Ogone)
      *
      * @return bool
      */
@@ -899,9 +914,11 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if (false == is_array($requestParams)) {
             $requestParams = array();
         }
+
         if (null === $formFields) {
             $formFields = $this->getFormFields($order, $requestParams, false);
         }
+
         $availableParams = array_merge($requestParams, $formFields);
         $requiredParams = $this->getQuestionedFormFields($order);
         foreach ($requiredParams as $requiredParam) {
@@ -926,7 +943,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     {
         $payment = $order->getPayment();
 
-        //If payment has Ingenico ePayments-status 0 or null (unknown) or another offline cancelable status
+        //If payment has Ingenico ePayments (Ogone)-status 0 or null (unknown) or another offline cancelable status
         $status = $payment->getAdditionalInformation('status');
 
         return (null === $status)
@@ -940,6 +957,10 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         );
     }
 
+    /**
+     * @param Mage_Payment_Model_Info|null $payment
+     * @return string
+     */
     public function getOpsHtmlAnswer($payment = null)
     {
         $returnValue = '';
@@ -951,6 +972,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             } else {
                 $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
             }
+
             if ($order instanceof Mage_Sales_Model_Order && 0 < $order->getId()) {
                 $payment = $order->getPayment();
                 $returnValue = $payment->getAdditionalInformation('HTML_ANSWER');
@@ -959,7 +981,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
             $returnValue = $payment->getAdditionalInformation('HTML_ANSWER');
         }
 
-        return $returnValue;
+        return (string) $returnValue;
     }
 
     public function getShippingTaxRate($order)
@@ -979,6 +1001,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
 
             return true;
         }
+
         if (Mage::helper('ops/directlink')->checkExistingTransact(self::OPS_VOID_TRANSACTION_TYPE, $orderId)) {
             $this->getHelper()->redirectNoticed(
                 $orderId,
@@ -999,7 +1022,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     }
 
     /**
-     * If cart Item information has to be transmitted to Ingenico ePayments
+     * If cart Item information has to be transmitted to Ingenico ePayments (Ogone)
      *
      * @return bool
      */
@@ -1010,7 +1033,7 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     }
 
     /**
-     * Returns array with the order item data formatted in Ingenico ePayments fashion if payment method implementation
+     * Returns array with the order item data formatted in Ingenico ePayments (Ogone) fashion if payment method implementation
      * needs the data otherwise just returns false.
      *
      * @param Mage_Sales_Model_Order $order
@@ -1045,12 +1068,16 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
     public function assignData($data)
     {
         parent::assignData($data);
-
         $paymentInfo = $this->getInfoInstance();
-        if ($data instanceof Varien_Object && $data->getData($this->getCode().'_data')) {
-            foreach ($data->getData($this->getCode().'_data') as $key => $value) {
+        if ($data instanceof Varien_Object) {
+            $additionalData = (array) $data->getData('additional_data');
+            $methodData     = (array) $data->getData($this->getCode().'_data');
+            $mergedResult   = array_merge($additionalData, $methodData);
+            foreach ($mergedResult as $key => $value) {
                 $paymentInfo->setAdditionalInformation($key, $value);
             }
+
+            $paymentInfo->setAdditionalData(null);
         }
 
         return $this;
@@ -1086,9 +1113,11 @@ class Netresearch_OPS_Model_Payment_Abstract extends Mage_Payment_Model_Method_A
         if ($shippingParams) {
             $params = array_merge($params, $shippingParams);
         }
+
         if ($billingParams) {
             $params = array_merge($params, $billingParams);
         }
+
         $params['CN'] = $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname();
 
         if (false === $validator->isValid($params)) {

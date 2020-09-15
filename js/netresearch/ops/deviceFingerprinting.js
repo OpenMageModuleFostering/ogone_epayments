@@ -13,7 +13,8 @@ ConsentHandler.prototype = {
      * @param callback - callback to call with consent result
      */
     toggleConsent: function (targetState, callback) {
-        new Ajax.Request(this.consentUrl + 'toggleConsent', {
+        new Ajax.Request(
+            this.consentUrl + 'toggleConsent', {
             method: 'post',
             parameters: {consent: targetState},
             onSuccess: function (transport) {
@@ -23,7 +24,8 @@ ConsentHandler.prototype = {
             onFailure: function () {
                 callback(null);
             }
-        })
+            }
+        )
     },
 
     /**
@@ -32,7 +34,8 @@ ConsentHandler.prototype = {
      * @param callback - callback to call with consent result
      */
     getConsent: function (callback) {
-        new Ajax.Request(this.consentUrl + 'consent', {
+        new Ajax.Request(
+            this.consentUrl + 'consent', {
             method: 'post',
             onSuccess: function (transport) {
                 var data = transport.responseText.evalJSON();
@@ -41,7 +44,8 @@ ConsentHandler.prototype = {
             onFailure: function () {
                 callback(null);
             }
-        })
+            }
+        )
     }
 
 };

@@ -74,10 +74,11 @@ class Netresearch_OPS_Model_Response_Type_Special extends Netresearch_OPS_Model_
             }
 
 
-            $message = Mage::helper('ops')->__('Ingenico ePayments status 0, the action failed.');
+            $message = Mage::helper('ops')->__('Ingenico ePayments (Ogone) status 0, the action failed.');
             if ($helper->isAdminSession()) {
                 $message .= ' ' . $this->getNcerror() . ' ' . $this->getNcerrorplus();
             }
+
             Mage::throwException($message);
         }
 

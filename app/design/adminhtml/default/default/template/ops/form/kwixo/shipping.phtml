@@ -26,7 +26,7 @@ if (0 < count($shippingMethods)):
                 <?php echo $this->__('Shipping method type'); ?>
             </th>
             <th>
-                <?php echo $this->__('Kwixo shipping type'); ?>
+                <?php echo $this->__('Kwixo shipping method type'); ?>
             </th>
             <th>
                 <?php echo $this->__('Shipping speed (in hours)'); ?>
@@ -48,8 +48,7 @@ if (0 < count($shippingMethods)):
                     <select
                             class="kwixo_shipping_select"
                             name="<?php echo $code; ?>[kwixo_shipping_type]">
-                        <?php foreach (
-                            $kwixoShippingTypes as $kwixoShippingType
+                        <?php foreach ($kwixoShippingTypes as $kwixoShippingType
                         ): ?>
                             <option
                                 value="<?php echo $kwixoShippingType['value']; ?>"
@@ -95,7 +94,7 @@ if (0 < count($shippingMethods)):
         ?>
     </table>
     <?php
-    endif;
+endif;
     ?>
     <script type="text/javascript">
         var editForm = new varienForm('edit_form', '');

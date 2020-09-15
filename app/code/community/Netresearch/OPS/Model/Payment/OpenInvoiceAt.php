@@ -32,29 +32,24 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceAt
      *
      * @return boolean
      */
-    public function isAvailable( $quote = null ) 
+    public function isAvailable( $quote = null )
     {
         /* availability depends on quote */
-        if ( false == $quote instanceof Mage_Sales_Model_Quote ) {
+        if (false == $quote instanceof Mage_Sales_Model_Quote ) {
             return false;
         }
 
         /* not available if quote contains a coupon and allow_discounted_carts is disabled */
-        if ( !$this->isAvailableForDiscountedCarts()
+        if (!$this->isAvailableForDiscountedCarts()
             && $quote->getSubtotal() != $quote->getSubtotalWithDiscount()
         ) {
-            return false;
-        }
-
-        /* not available if there is no gender or no birthday */
-        if ($quote->getCustomerGender() == null || $quote->getCustomerDob() == null) {
             return false;
         }
 
         return parent::isAvailable($quote);
     }
 
-    public function getPaymentAction() 
+    public function getPaymentAction()
     {
         return Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE;
     }
@@ -65,16 +60,17 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceAt
      *
      * @return array
      */
-    public function getMethodDependendFormFields( $order, $requestParams = null ) 
+    public function getMethodDependendFormFields( $order, $requestParams = null )
     {
         $formFields = parent::getMethodDependendFormFields($order, $requestParams);
 
         $shippingAddress = $order->getShippingAddress();
 
+        $gender = $order->getPayment()->getAdditionalInformation('gender');
         $gender = Mage::getSingleton('eav/config')
                       ->getAttribute('customer', 'gender')
                       ->getSource()
-                      ->getOptionText($order->getCustomerGender());
+                      ->getOptionText($gender);
 
         $formFields[ 'CIVILITY' ]               = $gender == 'Male' ? 'Herr' : 'Frau';
         $formFields[ 'ECOM_CONSUMER_GENDER' ]   = $gender == 'Male' ? 'M' : 'F';
@@ -99,7 +95,7 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceAt
      *
      * @return bool
      */
-    protected function isAvailableForDiscountedCarts() 
+    protected function isAvailableForDiscountedCarts()
     {
         return (bool) $this->getConfigData('allow_discounted_carts');
     }

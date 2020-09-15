@@ -139,6 +139,7 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
                 $this->localizeDate($this->getRegularSubscriptionEndDate())
             );
         }
+
         return $message;
     }
 
@@ -186,6 +187,7 @@ class Netresearch_OPS_Block_Checkout_SubscriptionNotice extends Mage_Core_Block_
         } else {
             $startDate = new DateTime($this->getProfile()->getStartDatetime());
         }
+
         $enddate = $parameterModel->calculateEndDate(
             $startDate, $this->getProfile()->getPeriodUnit(),
             $this->getProfile()->getPeriodFrequency(), $this->getProfile()->getPeriodMaxCycles()

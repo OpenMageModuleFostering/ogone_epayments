@@ -16,6 +16,7 @@ class Netresearch_OPS_Helper_Debitcard extends Netresearch_OPS_Helper_Creditcard
         if ($this->getConfig()->getCreditDebitSplit($quote->getStoreId())) {
             $params['CREDITDEBIT'] = 'D';
         }
+
         return $params;
     }
 } 

@@ -23,14 +23,13 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Replace all dots or any content following and including plus ("+") and minus ("-") signs.
      * @return string
      */
     public function getModuleVersionString()
     {
-        $version = Mage::getConfig()->getNode('modules/Netresearch_OPS/version');
-        $plainversion = preg_replace('/\.|[+-].+$/', '', $version);
-        return 'IG1X' . $plainversion;
+        $parts = array('Ingenico ePayments (Ogone)', 'M1', 'OGONE', Mage::getConfig()->getNode('modules/Netresearch_OPS/version'));
+
+        return implode('-', $parts);
     }
 
     /**
@@ -74,12 +73,14 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
                 }
             }
         }
+
         if (is_string($message)) {
             $message = preg_replace('/"CVC":".*"(,)/i', '', $message);
             $message = preg_replace('/"CVC":".*"/i', '', $message);
             $message = preg_replace('/"CVC".*"[A-Z]*";/', '', $message);
             $message = preg_replace('/"CVC":".*"(})/i', '}', $message);
         }
+
         return $message;
     }
 
@@ -130,6 +131,7 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->getAdminSession()->getUser()) {
             return 0 < $this->getAdminSession()->getUser()->getUserId() || $this->getAdminSession()->isLoggedIn();
         }
+
         return false;
     }
 
@@ -145,6 +147,7 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
            ) {
                 $isRegistering = true;
         }
+
         return $isRegistering;
 
     }
@@ -159,6 +162,7 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
         if ($checkoutMethod === Mage_Sales_Model_Quote::CHECKOUT_METHOD_REGISTER) {
                 $isRegistering = true;
         }
+
         return $isRegistering;
 
     }
@@ -175,17 +179,13 @@ class Netresearch_OPS_Helper_Data extends Mage_Core_Helper_Abstract
     public function sendTransactionalEmail(Mage_Sales_Model_Abstract $document)
     {
         if ($document instanceof Mage_Sales_Model_Order) {
-
             if (!$document->getEmailSent() && $document->getCanSendNewEmailFlag()) {
                 $document->sendNewOrderEmail();
             }
-
         } elseif ($document instanceof Mage_Sales_Model_Order_Invoice) {
-
             if (!$document->getEmailSent() && Mage::getModel('ops/config')->getSendInvoice()) {
                 $document->sendEmail();
             }
-
         }
 
         return $document;

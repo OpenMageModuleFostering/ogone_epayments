@@ -31,6 +31,7 @@ class Netresearch_OPS_Helper_Validation_Checkout_Step
             if (strpos($value, self::BILLING_PARAMETER_STRING_VALUE) === 0) {
                 $result[self::BILLING_PARAMETER_STRING_VALUE][]  = $paramName;
             }
+
             if (strpos($value, self::SHIPPING_PARAMETER_STRING_VALUE) === 0) {
                 $result[self::SHIPPING_STEP][] = $paramName;
             }
@@ -78,6 +79,7 @@ class Netresearch_OPS_Helper_Validation_Checkout_Step
                 $checkoutStep = self::BILLING_STEP;
                 break;
             }
+
             if (isset($stepParams[self::SHIPPING_STEP])
                 && in_array($erroneousField, $stepParams[self::SHIPPING_STEP])
             ) {

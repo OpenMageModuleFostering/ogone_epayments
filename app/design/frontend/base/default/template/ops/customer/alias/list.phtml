@@ -49,7 +49,7 @@
                     <td><?php echo $this->getMethodName($alias->getPaymentMethod()); ?></td>
                     <td><?php echo $this->escapeHtml($alias->getBrand()); ?></td>
                     <td><?php echo $this->escapeHtml($alias->getPseudoAccountOrCCNo()); ?></td>
-                    <td><?php echo $this->escapeHtml($alias->getExpirationDate()); ?></td>
+                    <td><?php echo $this->escapeHtml($alias->getExpirationDate() ?: 'none'); ?></td>
                     <td><?php echo $this->escapeHtml($alias->getCardHolder()); ?></td>
                     <td><?php echo $this->escapeHtml($this->__($alias->getState())); ?></td>
                     <td><a href="<?php echo $deleteUrl ?>"><?php echo Mage::helper('ops')->__('Delete') ?></a></td>

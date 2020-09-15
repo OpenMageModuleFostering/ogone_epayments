@@ -61,6 +61,7 @@ protected $options = array(
         foreach ($this->options as $key => $value) {
             $this->options[$key]['label'] = Mage::helper('ops')->__($value['value']);
         }
+
         return $this->options;
     }
 

@@ -83,6 +83,7 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
                     $cancelState = Mage_Sales_Model_Order::STATE_COMPLETE;
                 }
             }
+
             $item->cancel();
         }
 
@@ -125,7 +126,6 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
         if ($this->getStatus() == Netresearch_OPS_Model_Status::AUTHORISATION_DECLINED
         ) {
             $this->processAuthorizationDeclined($order, $payment);
-
         } elseif ($this->getStatus() == Netresearch_OPS_Model_Status::CANCELED_BY_CUSTOMER) {
             $order->registerCancellation($this->getFinalStatusComment());
         }
@@ -140,7 +140,6 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
                 $order->setState(
                     Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, true, $this->getFinalStatusComment()
                 );
-
             }
         } else {
             $this->addFinalStatusComment();
@@ -182,12 +181,13 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
                 Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW,
                 Mage_Sales_Model_Order::STATUS_FRAUD,
                 $this->getFraudStatusComment(
-                    Mage::helper('ops')->__('Please have a look in Ingenico ePayments backend for more information.')
+                    Mage::helper('ops')->__('Please have a look in Ingenico ePayments (Ogone) backend for more information.')
                 )
             );
         } else {
             $order->addStatusHistoryComment($this->getIntermediateStatusComment());
         }
+
         if ($this->getShouldRegisterFeedback()) {
             $payment->registerAuthorizationNotification($this->getAmount());
         }
@@ -208,7 +208,6 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
                 )
             );
         } elseif ($order->getState() === Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-
             try {
                 // if the payment was previously in payment review/has status 46
                 // the identification obviously failed and the order gets canceled
@@ -242,6 +241,7 @@ class Netresearch_OPS_Model_Response_Type_Authorize extends Netresearch_OPS_Mode
             $targetState = Mage_Sales_Model_Order::STATE_CANCELED;
             $action = Mage_Sales_Model_Order_Payment::REVIEW_ACTION_DENY;
         }
+
         $payment->setNotificationResult(true);
         $payment->registerPaymentReviewAction($action, false);
         if ($order->getState() != $targetState) {

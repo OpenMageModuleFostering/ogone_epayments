@@ -68,7 +68,7 @@ class Netresearch_OPS_Block_Frauddetection
     {
         $quote = Mage::getSingleton('checkout/type_onepage')->getQuote();
 
-        return md5(Mage::getModel('ops/config')->getPSPID($quote->getStoreId()) . Mage::helper('ops/order')->getOpsOrderId($quote));
+        return hash('md5', Mage::getModel('ops/config')->getPSPID($quote->getStoreId()) . Mage::helper('ops/order')->getOpsOrderId($quote));
     }
 
 }

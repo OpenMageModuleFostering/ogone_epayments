@@ -29,9 +29,9 @@
  */
 class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
 {
-    
+
     const MAX_RETRY_COUNT = 3;
-    
+
     /**
      * Perform a CURL call and log request end response to logfile
      *
@@ -40,24 +40,28 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      *
      * @return mixed
      */
-     public function call($params, $url)
-     {
-         try {
-             $http = new Varien_Http_Adapter_Curl();
-             $config = array('timeout' => 30);
-             $http->setConfig($config);
-             $http->write(Zend_Http_Client::POST, $url, '1.1', array(), http_build_query($params));
-             $response = $http->read();
-             $response = substr($response, strpos($response, "<?xml"), strlen($response));
-         } catch (Exception $e) {
+    public function call($params, $url)
+    {
+        try {
+            $http = new Varien_Http_Adapter_Curl();
+            $config = array(
+                'timeout' => 30,
+                'verifypeer' => 1,
+                'verifyhost' => 2,
+            );
+            $http->setConfig($config);
+            $http->write(Zend_Http_Client::POST, $url, '1.1', array(), http_build_query($params));
+            $response = $http->read();
+            $response = substr($response, strpos($response, "<?xml"), strlen($response));
+        } catch (Exception $e) {
             Mage::logException($e);
             Mage::throwException(
-                Mage::helper('ops')->__('Ingenico ePayments server is temporarily not available, please try again later.')
+                Mage::helper('ops')->__('Ingenico ePayments (Ogone) server is temporarily not available, please try again later.')
             );
-         }
+        }
 
-         return $response;
-     }
+        return $response;
+    }
 
     /**
      * Performs a POST request to the Direct Link Gateway with the given
@@ -69,62 +73,61 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      *
      * @return array
      */
-     public function performRequest($requestParams, $url, $storeId = 0)
-     {
+    public function performRequest($requestParams, $url, $storeId = 0)
+    {
         $helper = Mage::helper('ops');
         $params = $this->getEncodedParametersWithHash(
             array_merge(
                 $requestParams,
                 $this->buildAuthenticationParams($storeId)
-            ),//Merge Logic Operation Data with Authentication Data
+            ), //Merge Logic Operation Data with Authentication Data
             null,
             $storeId
         );
         $responseParams = $this->getResponseParams($params, $url);
         $helper->log(
             $helper->__(
-                "Direct Link Request/Response in Ingenico ePayments \n\nRequest: %s\nResponse: %s\nMagento-URL: %s\nAPI-URL: %s",
-                serialize($params),
-                serialize($responseParams),
+                "Direct Link Request/Response in Ingenico ePayments (Ogone) \n\nRequest: %s\nResponse: %s\nMagento-URL: %s\nAPI-URL: %s",
+                json_encode($params, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),
+                json_encode($responseParams, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),
                 Mage::helper('core/url')->getCurrentUrl(),
                 $url
             )
         );
-        
+
         $this->checkResponse($responseParams);
 
         return $responseParams;
+    }
 
-     }
-
-     public function getEncodedParametersWithHash($params, $shaCode=null, $storeId)
-     {
-         $hash = Mage::helper('ops/payment')->getSHASign($params, $shaCode, $storeId);
-         $params['SHASIGN'] = Mage::helper('ops/payment')->shaCrypt(iconv('iso-8859-1', 'utf-8', $hash));
+    public function getEncodedParametersWithHash($params, $shaCode = null, $storeId)
+    {
+        $hash = Mage::helper('ops/payment')->getSHASign($params, $shaCode, $storeId);
+        $params['SHASIGN'] = Mage::helper('ops/payment')->shaCrypt(iconv('iso-8859-1', 'utf-8', $hash));
 
         return $params;
-     }
+    }
 
-    
-     /**
-      * 
-      * wraps the request and response handling and repeats request/response 
-      * if there are errors
-      * 
-      * @param array $params - request params
-      * @param string $url - the url for the request
-      * @param int $retryCount - current request count
-      * @return array | null - null if requests were not successful, array containing Ingenico ePayments payment data otherwise
-      * 
-      */
-     protected function getResponseParams($params, $url, $retryCount = 0)
-     {
-         $responseParams = null;
-         $responseXml = null;
-         if ($retryCount < self::MAX_RETRY_COUNT) {
+    /**
+     *
+     * wraps the request and response handling and repeats request/response
+     * if there are errors
+     *
+     * @param array $params - request params
+     * @param string $url - the url for the request
+     * @param int $retryCount - current request count
+     * @return array | null - null if requests were not successful, array containing Ingenico ePayments (Ogone) payment data otherwise
+     * @throws Mage_Core_Exception
+     *
+     */
+    protected function getResponseParams($params, $url, $retryCount = 0)
+    {
+        $responseParams = null;
+        $responseXml = null;
+        if ($retryCount < self::MAX_RETRY_COUNT) {
             try {
-               $responseXml = $this->call($params, $url);
-               $responseParams = $this->getParamArrFromXmlString($responseXml);
+                $responseXml = $this->call($params, $url);
+                $responseParams = $this->getParamArrFromXmlString($responseXml);
             } catch (Exception $e) {
                 try {
                     $responseParams = $this->getParamArrFromXmlString(utf8_encode($responseXml));
@@ -135,19 +138,32 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
                     } elseif (array_key_exists('PAYID', $params)) {
                         $ref = $params['PAYID'];
                     }
+
                     Mage::helper('ops')->log(
                         'DirectLink::getResponseParams failed: ' .
                         $e->getMessage() . ' current retry count: ' . $retryCount . ' for quote ' . $ref
                     );
+                    Mage::helper('ops')->log(
+                        sprintf(
+                            "Request: %s \n Response: %s \n",
+                            json_encode($params, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+                            $responseXml
+                        )
+                    );
                     $responseParams = $this->getResponseParams($params, $url, ++$retryCount);
                 }
             }
-         } else {
-             Mage::throwException(Mage::helper('ops')->__('An error occured during the Ingenico ePayments request. Your action could not be executed.'));
-         }
-         return $responseParams;
-     }
-     
+        } else {
+            Mage::throwException(
+                Mage::helper('ops')->__(
+                    'An error occured during the Ingenico ePayments (Ogone) request. Your action could not be executed.'
+                )
+            );
+        }
+
+        return $responseParams;
+    }
+
     /**
      * Return Authentication Params for OPS Call
      *
@@ -155,14 +171,14 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      *
      * @return array
      */
-     protected function buildAuthenticationParams($storeId = 0)
-     {
-         return array(
-             'PSPID' => Mage::getModel('ops/config')->getPSPID($storeId),
-             'USERID' => Mage::getModel('ops/config')->getApiUserId($storeId),
-             'PSWD' => Mage::getModel('ops/config')->getApiPswd($storeId),
-         );
-     }
+    protected function buildAuthenticationParams($storeId = 0)
+    {
+        return array(
+            'PSPID' => Mage::getModel('ops/config')->getPSPID($storeId),
+            'USERID' => Mage::getModel('ops/config')->getApiUserId($storeId),
+            'PSWD' => Mage::getModel('ops/config')->getApiPswd($storeId),
+        );
+    }
 
     /**
      * Parses the XML-String to an array with the result data
@@ -171,48 +187,54 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      * @return mixed
      * @throws Exception
      */
-     public function getParamArrFromXmlString($xmlString)
-     {
-         try {
-             $xml = new SimpleXMLElement($xmlString);
-             foreach ($xml->attributes() as $key => $value) {
-                 $arrAttr[$key] = (string)$value;
-             }
-             foreach ($xml->children() as $child) {
-                 $arrAttr[$child->getName()] = (string) $child;
-             }
-             return $arrAttr;
-         } catch (Exception $e) {
-             Mage::log('Could not convert string to xml in ' . __FILE__ . '::' . __METHOD__ . ': ' . $xmlString);
-             Mage::logException($e);
-             throw $e;
-         }
-     }
+    public function getParamArrFromXmlString($xmlString)
+    {
+        try {
+            $xml = new SimpleXMLElement($xmlString);
+            foreach ($xml->attributes() as $key => $value) {
+                $arrAttr[$key] = (string) $value;
+            }
+
+            foreach ($xml->children() as $child) {
+                $arrAttr[$child->getName()] = (string) $child;
+            }
+
+            return $arrAttr;
+        } catch (Exception $e) {
+            Mage::log('Could not convert string to xml in ' . __FILE__ . '::' . __METHOD__ . ': ' . $xmlString);
+            Mage::logException($e);
+            throw $e;
+        }
+    }
 
     /**
      * Check if the Response from OPS reports Errors
      *
      * @param $responseParams
      */
-     public function checkResponse($responseParams)
-     {
-         if (false === is_array($responseParams)
-             || false === array_key_exists('NCERROR', $responseParams)
-             || $responseParams['NCERROR'] > 0
-         )
-         {
+    public function checkResponse($responseParams)
+    {
+        if (false === is_array($responseParams)
+            || false === array_key_exists('NCERROR', $responseParams)
+            || $responseParams['NCERROR'] > 0
+        ) {
             if (empty($responseParams['NCERRORPLUS'])) {
-                $responseParams['NCERRORPLUS'] = Mage::helper('ops')->__('Invalid payment information')." Errorcode:".$responseParams['NCERROR'];
+                $responseParams['NCERRORPLUS'] = Mage::helper('ops')->__(
+                        'Invalid payment information'
+                    ) . " Errorcode:" . $responseParams['NCERROR'];
             }
-            
+
             //avoid exception if STATUS is set with special values
             if (isset($responseParams['STATUS']) && is_numeric($responseParams['STATUS'])) {
                 return;
             }
-            
+
             Mage::throwException(
-                Mage::helper('ops')->__("An error occured during the Ingenico ePayments request. Your action could not be executed. Message: '%s.'", $responseParams['NCERRORPLUS'])
+                Mage::helper('ops')->__(
+                    "An error occured during the Ingenico ePayments (Ogone) request. Your action could not be executed. Message: '%s.'",
+                    $responseParams['NCERRORPLUS']
+                )
             );
-         }
-     }
+        }
+    }
 }

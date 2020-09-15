@@ -1,3 +1,11 @@
+/**
+ * Checkout payment method label product images
+ */
+dd[id*='method_ops'] label img {
+    height: 40px;
+    padding-bottom: 10px;
+}
+
 .ops-payment-paypage #ie_cc {
     margin-top: 20px;
 }
@@ -46,9 +54,12 @@ td .ncol {
     white-space: nowrap;
 }
 
-#payment_form_ops_alias li {
+#payment_form_ops_alias ul {
     background: #FFFFFF;
     border: 1px solid #DDDDDD;
+}
+
+#payment_form_ops_alias ul li {
     padding: 12px 10px 0;
 }
 
@@ -59,6 +70,11 @@ td .ncol {
     text-align: left;
     vertical-align: top;
     width: 400px;
+}
+
+#payment_form_ops_alias .cvc .required {
+    position: relative;
+    width: auto;
 }
 
 .readonly {
@@ -93,18 +109,13 @@ td .ncol {
     margin: 10px auto;
 }
 
-ul.ops-form-list.ops_card input[type=radio] {
-    display: none;
+ul.ops-form-list fieldset {
+    padding: 5px 0;
 }
 
-ul.ops-form-list.ops_card input[type=radio] + label {
-    display: block;
-    cursor: pointer;
-    padding: 5px 5px 27px 5px;
-    vertical-align: top;
-    width: auto;
-    border: 1px solid #636363;
-    margin: 5px;
+ul.ops-form-list.ops_card  fieldset input[type=radio] {
+    display: inline-block;
+    margin: 0 10px 0 0;
 }
 
 ul.ops-form-list.ops_card input[type=radio] + label.new_alias_label {
@@ -118,22 +129,8 @@ ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label {
     border-bottom: none;
 }
 
-ul.ops-form-list.ops_card input[type=radio]:checked + label,
-ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label + li.insert_payment_details {
+ul.ops-form-list.ops_card input[type=radio]:checked + label {
     background-color: #f4f4f4;
-    padding: 4px 4px 0px 4px;
-}
-
-li.insert_payment_details {
-    display: none;
-}
-
-ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label + li.insert_payment_details {
-    border: 1px solid #636363;
-    border-top: none;
-    padding: 4px 4px 4px 4px;
-    margin: 0 5px 5px 5px;
-    display: block;
 }
 
 ul.ops-form-list.ops_card input[type=radio] + label li.cvc {
@@ -158,7 +155,6 @@ ul.ops-form-list.ops_card input[type=radio]:checked + label li.cvc input + div.v
     height: 20px;
     float: none;
     display: inline;
-    vertical-align: middle;
 }
 
 img.ops-brandlogo {
@@ -194,16 +190,11 @@ img.ops-brandlogo {
 /* OPS Styles for payment retry page */
 .ops-payment-retry #co-payment-form {
     display: inline-block;
-    width: 65%;
+    width: 100%;
     vertical-align: top;
-    float: left;
 }
 
 .ops-payment-retry .payment-information {
-    display: inline-block;
-    width: 33%;
-    vertical-align: top;
-    float: right;
     border-left: 1px solid #aaa;
     padding-left: 25px;
 }
@@ -214,7 +205,7 @@ img.ops-brandlogo {
 }
 
 .ops-payment-retry #co-payment-form .section .step-title {
-    border: none;
+    border-bottom: none;
 }
 
 .ops-payment-retry #co-payment-form .step-title h2 {
@@ -254,6 +245,51 @@ img.ops-brandlogo {
     border-radius: 8px;
     border: 3px solid #fff;
     background-color: rgba(0, 0, 0, .3);
+}
+
+.ops-payment-retry div.wrapper div.page
+div.main-container.col2-right-layout
+div.main div.col-main div.order-items.order-details
+div.buttons-set p.back-link {
+    display:none;
+}
+
+.head-shipping-method > h5 {
+    margin-top: 15px;
+}
+
+.input-group:before,
+.input-group:after {
+    content: "";
+    display: table;
+}
+
+.input-group:after {
+    clear: both;
+}
+
+.ops-input-group .field{
+    float: none;
+}
+
+.dob-box {
+    position: relative;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.dob-box > img {
+    position: absolute;
+    top: 3px;
+    left: 0;
+}
+
+.dob-box > input {
+    width: 235px;
+}
+
+.section .ops-form-list .ops_alias_field li img {
+    max-height: 25px;
 }
 
 @media screen and (max-width: 768px) {

@@ -1,4 +1,5 @@
-Event.observe(window, 'load', function() {
+Event.observe(
+    window, 'load', function() {
 
     // check if we are dealing with OneStepCheckout
     payment.isOneStepCheckout = $$('.onestepcheckout-place-order');
@@ -7,35 +8,44 @@ Event.observe(window, 'load', function() {
 
     if(payment.isOneStepCheckout){
 
-        window.get_separate_save_methods_function = window.get_separate_save_methods_function.wrap(function (originalCall, url, update_payments) {
+        window.get_separate_save_methods_function = window.get_separate_save_methods_function.wrap(
+            function (originalCall, url, update_payments) {
 
             var aliasMethods = ['ops_cc', 'ops_dc'];
 
-            aliasMethods.each(function (method) {
-                if (typeof  $('p_method_' + method) != 'undefined') {
-                    $$('input[type="radio"][name="payment[' + method + '_data][alias]"]').each(function (element) {
-                        element.observe('click', function () {
-                            payment.toggleCCInputfields(this);
-                        })
-                    });
+            aliasMethods.each(
+                function (method) {
+                    if (typeof  $('p_method_' + method) != 'undefined') {
+                    $$('input[type="radio"][name="payment[additional_data][alias]"]').each(
+                            function (element) {
+                                element.observe(
+                                    'click', function () {
+                                    payment.toggleCCInputfields(this);
+                                })
+                            }
+                        );
+                    }
+                    var newAliasElement = $('new_alias_' + method);
+                    if (newAliasElement
+                        && $$('input[type="radio"][name="payment[' + method + '_data][alias]"]').size() == 1
+                    ) {
+                        payment.toggleCCInputfields(newAliasElement);
+                    }
                 }
-                var newAliasElement = $('new_alias_' + method);
-                if (newAliasElement
-                    && $$('input[type="radio"][name="payment[' + method + '_data][alias]"]').size() == 1
-                ) {
-                    payment.toggleCCInputfields(newAliasElement);
-                }
-            });
+            );
 
             return originalCall(url, update_payments);
 
-        });
+            }
+        );
         //set the form element
         payment.form = payment.formOneStepCheckout;
 
          //bind event handlers to buttons
-        payment.isOneStepCheckout.each(function(elem){
-            elem.observe('click', function(e){
+        payment.isOneStepCheckout.each(
+            function(elem){
+            elem.observe(
+                'click', function(e){
 
                 Event.stop(e);
                 if(!payment.holdOneStepCheckout){
@@ -51,8 +61,10 @@ Event.observe(window, 'load', function() {
                 }
                 //normally this is not called
                 payment.save();
-            });
-        });
+                }
+            );
+            }
+        );
 
 
          //add new method to restore the place order state when failure
@@ -98,4 +110,5 @@ Event.observe(window, 'load', function() {
     }
     // check if we are dealing with OneStepCheckout end
 
-});
+    }
+);

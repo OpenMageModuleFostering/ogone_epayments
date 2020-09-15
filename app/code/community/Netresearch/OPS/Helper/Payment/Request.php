@@ -9,7 +9,10 @@
  */
 class Netresearch_OPS_Helper_Payment_Request
 {
-    protected $config = null;
+    /**
+     * @var null|Netresearch_OPS_Model_Config
+     */
+    protected $config;
 
     /**
      * @param Netresearch_OPS_Model_Config $config
@@ -56,18 +59,16 @@ class Netresearch_OPS_Helper_Payment_Request
             }
         }
 
-        $shippingStreet        = str_replace("\n", ' ', $address->getStreet(-1));
-        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
-
-        $paramValues['ECOM_SHIPTO_POSTAL_CITY']             = $address->getCity();
-        $paramValues['ECOM_SHIPTO_POSTAL_POSTALCODE']       = $address->getPostcode();
-        $paramValues['ECOM_SHIPTO_POSTAL_STATE']            = $this->getIsoRegionCode($address);
-        $paramValues['ECOM_SHIPTO_POSTAL_COUNTRYCODE']      = $address->getCountry();
-        $paramValues['ECOM_SHIPTO_POSTAL_NAME_FIRST']       = $address->getFirstname();
-        $paramValues['ECOM_SHIPTO_POSTAL_NAME_LAST']        = $address->getLastname();
-        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE1']     = $splittedShippingStreet['street_name'];
-        $paramValues['ECOM_SHIPTO_POSTAL_STREET_NUMBER']    = $splittedShippingStreet['street_number'];
-        $paramValues['ECOM_SHIPTO_POSTAL_STREET_LINE2']     = $splittedShippingStreet['supplement'];
+        $paramValues['ECOM_SHIPTO_POSTAL_CITY']          = $address->getCity();
+        $paramValues['ECOM_SHIPTO_POSTAL_POSTALCODE']    = $address->getPostcode();
+        $paramValues['ECOM_SHIPTO_POSTAL_STATE']         = $this->getIsoRegionCode($address);
+        $paramValues['ECOM_SHIPTO_POSTAL_COUNTRYCODE']   = $address->getCountry();
+        $paramValues['ECOM_SHIPTO_POSTAL_NAME_FIRST']    = $address->getFirstname();
+        $paramValues['ECOM_SHIPTO_POSTAL_NAME_LAST']     = $address->getLastname();
+        $paramValues = array_merge(
+            $paramValues,
+            $this->setStreetParams($address, 'ECOM_SHIPTO')
+        );
 
         return $paramValues;
     }
@@ -85,16 +86,16 @@ class Netresearch_OPS_Helper_Payment_Request
         $paramValues = array();
 
         if (!$address instanceof Mage_Customer_Model_Address_Abstract) {
-            if (!is_null($salesObject)) {
+            if ($salesObject !== null) {
                 $address = $salesObject->getBillingAddress();
             }
+
             if (!$address) {
                 return $paramValues;
             }
         }
 
-        $billingStreet = str_replace("\n", ' ', $address->getStreet(-1));
-        $splittedBillingStreet = Mage::Helper('ops/address')->splitStreet($billingStreet);
+
 
         $paramValues['ECOM_BILLTO_POSTAL_CITY']             = $address->getCity();
         $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE']       = $address->getPostcode();
@@ -103,16 +104,17 @@ class Netresearch_OPS_Helper_Payment_Request
         $paramValues['ECOM_BILLTO_POSTAL_NAME_FIRST']       = $address->getFirstname();
         $paramValues['ECOM_BILLTO_POSTAL_NAME_LAST']        = $address->getLastname();
         $paramValues['ECOM_BILLTO_POSTAL_POSTALCODE']       = $address->getPostcode();
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE1']     = $splittedBillingStreet['street_name'];
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_NUMBER']    = $splittedBillingStreet['street_number'];
-        $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE2']     = $splittedBillingStreet['supplement'];
         $paramValues['ECOM_BILLTO_POSTAL_STREET_LINE3']     = $address->getStreet(3);
+        $paramValues = array_merge(
+            $paramValues,
+            $this->setStreetParams($address, 'ECOM_BILLTO')
+        );
 
         return $paramValues;
     }
 
     /**
-     * extraxcts the according Ingenico ePayments owner* parameter
+     * extraxcts the according Ingenico ePayments (Ogone) owner* parameter
      *
      * @param Mage_Customer_Model_Address_Abstract          $billingAddress
      *
@@ -196,6 +198,7 @@ class Netresearch_OPS_Helper_Payment_Request
         if ($this->isAlreadyIsoCode($regionCode, $countryCode)) {
             return $regionCode;
         }
+
         if (0 === strpos($regionCode, $countryCode . '-')) {
             return str_replace($countryCode . '-', '', $regionCode);
         }
@@ -239,15 +242,19 @@ class Netresearch_OPS_Helper_Payment_Request
         if (strtoupper($countryCode) === 'DE') {
             return $this->getRegionMappingForGermany();
         }
+
         if (strtoupper($countryCode) === 'AT') {
             return $this->getRegionMappingForAustria();
         }
+
         if (strtoupper($countryCode) === 'ES') {
             return $this->getRegionMappingForSpain();
         }
+
         if (strtoupper($countryCode) === 'FI') {
             return $this->getRegionsMappingForFinland();
         }
+
         if (strtoupper($countryCode) === 'LV') {
             return $this->getRegionsMappingForLatvia();
         }
@@ -494,7 +501,7 @@ class Netresearch_OPS_Helper_Payment_Request
     }
 
     /**
-     * Returns the mandatory fields for requests to Ingenico ePayments
+     * Returns the mandatory fields for requests to Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order $order
      *
@@ -519,9 +526,7 @@ class Netresearch_OPS_Helper_Payment_Request
         $formFields['EXCEPTIONURL'] = $this->getConfig()->getExceptionUrl();
         $formFields['CANCELURL']    = $this->getConfig()->getCancelUrl();
 
-        $formFields['BACKURL'] = $this->getConfig()->getPaymentRetryUrl(
-            Mage::helper('ops/payment')->validateOrderForReuse($opsOrderId, $order->getStoreId())
-        );
+        $formFields['BACKURL'] = Mage::getModel('ops/retry_page')->getRetryUrl($opsOrderId, $order->getStoreId());
 
         $formFields['FP_ACTIV'] = $this->isFingerPrintingActive($order) ? '1' : '0';
 
@@ -639,6 +644,7 @@ class Netresearch_OPS_Helper_Payment_Request
             /** @var Mage_Sales_Model_Order $salesObject */
             $order = $salesObject;
         }
+
         /** @var string $taxRate */
         $taxRate = str_replace(',', '.', (string)(float)$this->getShippingTaxRate($order)) . '%';
 
@@ -666,7 +672,7 @@ class Netresearch_OPS_Helper_Payment_Request
     }
 
     /**
-     * Returns item array for Ingenico ePayments request for the specified item
+     * Returns item array for Ingenico ePayments (Ogone) request for the specified item
      *
      * @param Mage_Sales_Model_Order_Invoice_Item|Mage_Sales_Model_Order_Item $item
      * @param bool                                                            $formatAmount
@@ -683,6 +689,7 @@ class Netresearch_OPS_Helper_Payment_Request
         } else {
             $amount = number_format($item->getBasePriceInclTax(), 2, '.', '');
         }
+
         $formFields['ITEMPRICE'] = $amount;
         $formFields['ITEMQUANT'] = (int)$item->getQtyOrdered() ?: $item->getQty();
         $formFields['ITEMVATCODE'] = str_replace(',', '.', (string)(float)$item->getTaxPercent()) . '%';
@@ -707,6 +714,7 @@ class Netresearch_OPS_Helper_Payment_Request
         } else {
             $order = $salesObject;
         }
+
         /** @var Mage_Sales_Model_Order $order */
         /* add coupon item */
         if ($salesObject->getBaseDiscountAmount() != 0.00) {
@@ -730,9 +738,34 @@ class Netresearch_OPS_Helper_Payment_Request
             $formFields['TAXINCLUDED'] = 1;
 
             return $formFields;
-
         }
 
         return false;
     }
-} 
+
+    /**
+     * @param Mage_Customer_Model_Address_Abstract $address
+     * @param string $prefix
+     * @return array
+     */
+    public function setStreetParams($address, $prefix)
+    {
+        $storeId = Mage::getSingleton('checkout/session')->getQuote()->getStoreId();
+        $splitEnabled = $this->getConfig()->getAddressSplit($storeId);
+        $street = $address->getStreet();
+        $streetName = $street[0];
+        $streetSupplement = isset($street[1]) ? $street[1] : '';
+
+        if ($splitEnabled) {
+            $splittedShippingStreet = Netresearch_OPS_Helper_Address::splitStreet($address->getStreet());
+            $streetName = $splittedShippingStreet['street_name'];
+            $streetSupplement = $splittedShippingStreet['supplement'];
+            $paramValues[$prefix . '_POSTAL_STREET_NUMBER'] = $splittedShippingStreet['street_number'];
+        }
+
+        $paramValues[$prefix . '_POSTAL_STREET_LINE1']  = $streetName;
+        $paramValues[$prefix . '_POSTAL_STREET_LINE2']  = $streetSupplement;
+
+        return $paramValues;
+    }
+}

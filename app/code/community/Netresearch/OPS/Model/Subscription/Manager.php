@@ -114,7 +114,7 @@ class Netresearch_OPS_Model_Subscription_Manager
 
 
     /**
-     * Process request from Ingenico ePayments automatic subscription payments and initial creations
+     * Process request from Ingenico ePayments (Ogone) automatic subscription payments and initial creations
      *
      *
      * @param mixed[]                            $responseParams
@@ -147,9 +147,10 @@ class Netresearch_OPS_Model_Subscription_Manager
                     $profile->setState(Mage_Sales_Model_Recurring_Profile::STATE_UNKNOWN);
                     break;
             }
+
             $profile->setReferenceId($responseParams['subscription_id']);
-            $profile->setProfileVendorInfo(serialize($responseParams));
-            $profile->setAdditionalInfo(serialize($responseParams));
+            $profile->setProfileVendorInfo(json_encode($responseParams));
+            $profile->setAdditionalInfo(json_encode($responseParams));
             $feedbackType = Mage_Sales_Model_Recurring_Profile::PAYMENT_TYPE_INITIAL;
             // do not create an order since it already got created
             $createOrder = false;
@@ -267,7 +268,7 @@ class Netresearch_OPS_Model_Subscription_Manager
 
     /**
      * Takes the responseparameters and applies the corresponding action (capture/authorize) on the order payment.
-     * Also updates the Ingenico ePayments information on the payment.
+     * Also updates the Ingenico ePayments (Ogone) information on the payment.
      *
      * @param string[]                           $responseParams
      * @param Mage_Sales_Model_Recurring_Profile $profile
@@ -281,6 +282,7 @@ class Netresearch_OPS_Model_Subscription_Manager
         foreach ($responseParams as $key => $value) {
             $payment->setTransactionAdditionalInfo($key, $value);
         }
+
         $payment->setTransactionId($responseParams['PAYID'])
                 ->setCurrencyCode($responseParams['currency'])
                 ->setIsTransactionClosed(0);
@@ -297,6 +299,7 @@ class Netresearch_OPS_Model_Subscription_Manager
             $payment->setIsTransactionPending(1);
             $payment->registerCaptureNotification($responseParams['amount'], true);
         }
+
         $order->save();
         $this->getPaymentHelper()->applyStateForOrder($order, $responseParams);
 

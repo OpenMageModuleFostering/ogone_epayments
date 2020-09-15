@@ -50,6 +50,7 @@ class Netresearch_OPS_Block_System_Config_Form_Field_Image
                 . ' alt="' . $value . '" height="22" width="22" class="small-image-preview v-middle" />'
                 . '</a> ';
         }
+
         $this->setData('class', 'input-file');
         $html .= Varien_Data_Form_Element_Abstract::getElementHtml();
         $html .= $this->_getDeleteCheckbox();

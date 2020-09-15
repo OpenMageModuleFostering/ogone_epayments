@@ -69,7 +69,6 @@ $storeId = $this->getQuote()->getStoreId();
         opsExceptionUrl = '<?php echo $this->getAliasExceptionUrl(null, true); ?>';
         opsUrl = '<?php echo $this->getAliasGatewayUrl($storeId); ?>';
         opsAlias = '';
-
         paramplus = 'RESPONSEFORMAT=JSON&isAjax=1';
 
         <?php echo $code ?> = {
@@ -77,11 +76,12 @@ $storeId = $this->getQuote()->getStoreId();
             'loader': $('<?php echo $code ?>_loader'),
             'tokenizationFrame': $('ops_iframe_<?php echo $code ?>'),
             'aliasManager': 'N',
-            'brand': function(){ return 'Direct Debits '+ $("<?php echo $code ?>_country_id").value;}
+            'brand': function(){ return 'Direct Debits '+ $("<?php echo $code ?>_country_id").value;},
+            'htpTemplateName': '',
+            'transmitPaymentMethod': true,
         };
 
         locale = '<?php echo Mage::app()->getLocale()->getLocaleCode(); ?>';
-        transmitPaymentMethod = true;
 
         Event.observe(document, 'alias:success', function (event) {
             payment.fillOpsLoader('SUCCESS_TOKEN');
@@ -138,7 +138,6 @@ $storeId = $this->getQuote()->getStoreId();
         });
 
         order.setPaymentMethod = order.setPaymentMethod.wrap(function (originalMethod, method) {
-
             payment.opsAdminSwitchMethod(method);
             originalMethod(method);
         });

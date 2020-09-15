@@ -1,12 +1,11 @@
 <?php
 /**
- * @author      Michael Lühr <michael.luehr@netresearch.de> 
+ * @author      Michael Lühr <michael.luehr@netresearch.de>
  * @category    Netresearch
  * @package     Netresearch_OPS
  * @copyright   Copyright (c) 2013 Netresearch GmbH & Co. KG (http://www.netresearch.de)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
 
 
 abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
@@ -43,6 +42,7 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
         if (null === $this->config) {
             $this->config = Mage::getModel('ops/config');
         }
+
         return $this->config;
     }
 
@@ -172,9 +172,11 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
      * @return array - the parameters for the direct link request
      */
     public function getDirectLinkRequestParams(
-        Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order, $requestParams = array())
-    {
-        $billingAddress  = $order->getBillingAddress();
+        Mage_Sales_Model_Quote $quote,
+        Mage_Sales_Model_Order $order,
+        $requestParams = array()
+) {
+        $billingAddress = $order->getBillingAddress();
         $shippingAddress = $this->getShippingAddress($order, $billingAddress);
         $requestParams = $this->getBaseRequestParams($quote, $order, $billingAddress);
         $requestParams = array_merge($requestParams, $this->getPaymentSpecificParams($quote));
@@ -195,7 +197,7 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
      * specail handling like validation and so on for admin payments
      *
      * @param Mage_Sales_Model_Quote $quote
-     * @param array                       $requestParams
+     * @param array $requestParams
      *
      * @return mixed
      */
@@ -224,6 +226,7 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
         if (null === $shippingAddress || false === $shippingAddress) {
             $shippingAddress = $billingAddress;
         }
+
         return $shippingAddress;
     }
 
@@ -239,6 +242,7 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
         foreach ($requestParams as $key => $value) {
             $requestParams[$key] = utf8_decode($value);
         }
+
         return $requestParams;
     }
 
@@ -252,6 +256,7 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
         if ($this->getCustomerHelper()->isLoggedIn()) {
             $requestParams['CUID'] = $this->getCustomerHelper()->getCustomer()->getId();
         }
+
         return $requestParams;
     }
 
@@ -281,19 +286,19 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
     {
         $merchantRef = $this->getOrderHelper()->getOpsOrderId($order, $this->canUseOrderId($quote->getPayment()));
         $requestParams = array(
-            'AMOUNT'                        => $this->getDataHelper()->getAmount($quote->getBaseGrandTotal()),
-            'CURRENCY'                      => $this->getQuoteHelper()->getQuoteCurrency($quote),
-            'OPERATION'                     => $this->getQuoteHelper()->getPaymentAction($quote),
-            'ORDERID'                       => $merchantRef,
-            'ORIG'                          => $this->getDataHelper()->getModuleVersionString(),
-            'EMAIL'                         => $order->getCustomerEmail(),
-            'REMOTE_ADDR'                   => $quote->getRemoteIp(),
-            'RTIMEOUT'                      => $this->getConfig()->getTransActionTimeout()
+            'AMOUNT' => $this->getDataHelper()->getAmount($quote->getBaseGrandTotal()),
+            'CURRENCY' => $this->getQuoteHelper()->getQuoteCurrency($quote),
+            'OPERATION' => $this->getQuoteHelper()->getPaymentAction($quote),
+            'ORDERID' => $merchantRef,
+            'SHOPPINGCARTEXTENSIONID' => $this->getDataHelper()->getModuleVersionString(),
+            'EMAIL' => $order->getCustomerEmail(),
+            'REMOTE_ADDR' => $quote->getRemoteIp(),
+            'RTIMEOUT' => $this->getConfig()->getTransActionTimeout()
         );
 
         $ownerParams = $this->getOwnerParams($quote, $billingAddress, $requestParams);
         $requestParams = array_merge($requestParams, $ownerParams);
-        $requestParams['ADDMATCH']       = $this->getOrderHelper()->checkIfAddressesAreSame($order);
+        $requestParams['ADDMATCH'] = $this->getOrderHelper()->checkIfAddressesAreSame($order);
 
         return $requestParams;
     }
@@ -325,9 +330,10 @@ abstract class Netresearch_OPS_Helper_Payment_DirectLink_Request
     {
         $methodInstance = $payment->getMethodInstance();
         return
-            $this->getConfig()->getInlineOrderReference() == Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID
+            ($this->getConfig()->getInlineOrderReference() == Netresearch_OPS_Model_Payment_Abstract::REFERENCE_ORDER_ID
+                || $this->getConfig()->getInlineOrderReference() == null)
             && $methodInstance instanceof Netresearch_OPS_Model_Payment_DirectLink;
     }
 
 
-} 
+}

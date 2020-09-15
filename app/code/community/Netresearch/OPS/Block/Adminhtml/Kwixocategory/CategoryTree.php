@@ -68,6 +68,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
         if ((int) $node->getChildrenCount() > 0) {
             $item['children'] = array();
         }
+
         $isParent = $this->_isParentSelectedCategory($node);
         if ($node->hasChildren()) {
             $item['children'] = array();
@@ -81,6 +82,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
         if ($isParent || $node->getLevel() < 2) {
             $item['expanded'] = true;
         }
+
         return $item;
     }
 
@@ -94,6 +96,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_CategoryTree
                 break;
             }
         }
+
         return $res;
     }
 

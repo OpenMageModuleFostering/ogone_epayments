@@ -28,14 +28,24 @@
  */
 class Netresearch_OPS_Block_RetryPayment extends Netresearch_OPS_Block_Placeform
 {
-
+    /**
+     * @var Mage_Sales_Model_Order|null
+     */
     protected $_order = null;
 
+    /**
+     * @return Mage_Payment_Model_Method_Abstract|Netresearch_OPS_Model_Payment_Abstract
+     * @throws Exception
+     */
     protected function _getApi()
     {
         return $this->_getOrder()->getPayment()->getMethodInstance();
     }
 
+    /**
+     * @return Mage_Sales_Model_Order|null
+     * @throws Exception
+     */
     protected function _getOrder()
     {
         if (null === $this->_order) {
@@ -76,6 +86,10 @@ class Netresearch_OPS_Block_RetryPayment extends Netresearch_OPS_Block_Placeform
         return $formAction;
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     public function getOrderId()
     {
         return $this->getRequest()->getParam('orderID');

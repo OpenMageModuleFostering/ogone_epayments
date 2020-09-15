@@ -143,8 +143,29 @@ foreach ($regions as $row) {
     $installer->getConnection()->insert($installer->getTable('directory/country_region_name'), $bind);
 }
 
-$countries = explode(',', Mage::getStoreConfig(Mage_Directory_Helper_Data::XML_PATH_STATES_REQUIRED));
-$countries[] = 'CN';
-$countries[] = 'JP';
-$countries[] = 'MX';
+$currentCountries = Mage::getStoreConfig(Mage_Directory_Helper_Data::XML_PATH_STATES_REQUIRED);
+
+if (!empty($currentCountries)) {
+    $countries   = explode(',', $currentCountries);
+} else {
+    $countries = array();
+    foreach (Mage::helper('directory')->getCountryCollection() as $country) {
+        if ($country->getRegionCollection()->getSize() > 0) {
+            $countries[] = $country->getId();
+        }
+    }
+}
+
+if(!in_array('CN', $countries)){
+    $countries[] = 'CN';
+}
+
+if(!in_array('JP', $countries)){
+    $countries[] = 'JP';
+}
+
+if(!in_array('MX', $countries)){
+    $countries[] = 'MX';
+}
+
 Mage::getConfig()->saveConfig(Mage_Directory_Helper_Data::XML_PATH_STATES_REQUIRED, implode(',', $countries));

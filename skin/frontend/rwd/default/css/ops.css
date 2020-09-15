@@ -1,3 +1,5 @@
+
+
 .ops-payment-paypage #ie_cc {
     margin-top: 20px;
 }
@@ -46,21 +48,6 @@ td .ncol {
     white-space: nowrap;
 }
 
-#payment_form_ops_alias li {
-    background: #FFFFFF;
-    border: 1px solid #DDDDDD;
-    padding: 12px 10px 0;
-}
-
-#payment_form_ops_alias label {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding-left: 8px;
-    text-align: left;
-    vertical-align: top;
-    width: 400px;
-}
-
 .readonly {
     color: #c6cbc7;
 }
@@ -93,11 +80,11 @@ td .ncol {
     margin: 10px auto;
 }
 
-ul.ops-form-list.ops_card input[type=radio] {
+ul.ops-form-list.ops_alias input[type=radio]{
     display: none;
 }
 
-ul.ops-form-list.ops_card input[type=radio] + label {
+ul.ops-form-list.ops_alias input[type=radio] + label {
     display: block;
     cursor: pointer;
     padding: 5px 5px 27px 5px;
@@ -105,6 +92,9 @@ ul.ops-form-list.ops_card input[type=radio] + label {
     width: auto;
     border: 1px solid #636363;
     margin: 5px;
+}
+ul.ops-form-list.ops_alias input[type=radio]:checked +label {
+    background: #f4f4f4;
 }
 
 ul.ops-form-list.ops_card input[type=radio] + label.new_alias_label {
@@ -116,24 +106,6 @@ ul.ops-form-list.ops_card input[type=radio] + label.new_alias_label {
 
 ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label {
     border-bottom: none;
-}
-
-ul.ops-form-list.ops_card input[type=radio]:checked + label,
-ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label + li.insert_payment_details {
-    background-color: #f4f4f4;
-    padding: 4px 4px 0px 4px;
-}
-
-li.insert_payment_details {
-    display: none;
-}
-
-ul.ops-form-list.ops_card input[type=radio]:checked + label.new_alias_label + li.insert_payment_details {
-    border: 1px solid #636363;
-    border-top: none;
-    padding: 4px 4px 4px 4px;
-    margin: 0 5px 5px 5px;
-    display: block;
 }
 
 ul.ops-form-list.ops_card input[type=radio] + label li.cvc {
@@ -154,8 +126,12 @@ ul.ops-form-list.ops_card input[type=radio]:checked + label li.cvc input + div.v
     float: right !important;
 }
 
+/**
+ * Checkout payment method label product images
+ */
 #opc-payment.section .ops-form-list li img {
-    height: 20px;
+    height: 40px;
+    margin: 5px 0 5px 5px;
     float: none;
     display: inline;
     vertical-align: middle;
@@ -190,18 +166,25 @@ img.ops-brandlogo {
 /* OPS Styles for payment retry page */
 .ops-payment-retry #co-payment-form {
     display: inline-block;
-    width: 65%;
+    width: 100%;
     vertical-align: top;
     float: left;
 }
 
 .ops-payment-retry .payment-information {
-    display: inline-block;
-    width: 33%;
-    vertical-align: top;
-    float: right;
     border-left: 1px solid #aaa;
     padding-left: 25px;
+}
+
+.ops-payment-retry div.wrapper div.page
+ div.main-container.col2-right-layout
+div.main div.col-main div.order-items.order-details
+div.buttons-set p.back-link {
+    display:none;
+}
+
+.head-shipping-method > h5 {
+    margin-top: 15px;
 }
 
 .ops-payment-retry .payment-information .block-title {
@@ -273,6 +256,10 @@ table#ops-payment-information-table,
     overflow: hidden;
 }
 
+#ops_birthdate {
+    width: 347px;
+}
+
 @media screen and (max-width: 768px) {
     .ops-payment-retry #co-payment-form {
         display: inline-block;
@@ -302,6 +289,17 @@ table#ops-payment-information-table,
     .ops-payment-retry .payment-information .shipping-address {
         display: inline-block;
         vertical-align: top;
+    }
+
+    .dob-box {
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .dob-box > img {
+        position: absolute;
+        top: 10px;
+        left: 0;
     }
 }
 
