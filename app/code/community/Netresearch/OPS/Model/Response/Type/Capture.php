@@ -87,7 +87,6 @@ class Netresearch_OPS_Model_Response_Type_Capture extends Netresearch_OPS_Model_
             if ($this->getShouldRegisterFeedback()) {
                 $payment->registerCaptureNotification($this->getAmount());
             }
-
         } elseif ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
             // payment was pending and is still pending
             $payment->setIsTransactionApproved(false);

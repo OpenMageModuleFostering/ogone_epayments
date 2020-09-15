@@ -23,21 +23,12 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
 
     protected $featureModel = null;
 
-
     /**
      * @param null $payment
      * @return string
      */
     public function getOpsCode($payment = null)
     {
-        $opsBrand = $this->getOpsBrand($payment);
-        if ('PostFinance card' == $opsBrand) {
-            return 'PostFinance Card';
-        }
-        if ('UNEUROCOM' == $this->getOpsBrand($payment)) {
-            return 'UNEUROCOM';
-        }
-
         return 'CreditCard';
     }
 
@@ -65,17 +56,14 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
      */
     public function getOrderPlaceRedirectUrl($payment = null)
     {
-        $salesObject = $this->getInfoInstance()->getOrder() ? : $this->getInfoInstance()->getQuote();
-        if ($this->hasBrandAliasInterfaceSupport($payment) || null === $salesObject->getRemoteIp()) {
-            if ('' == $this->getOpsHtmlAnswer($payment)) {
-                return false;
-            } // Prevent redirect on cc payment
-            else {
-                return $this->getConfig()->get3dSecureRedirectUrl();
-            }
+        $salesObject = $this->getInfoInstance()->getOrder() ?: $this->getInfoInstance()->getQuote();
+        if ($salesObject->getRemoteIp() !== null && $this->getOpsHtmlAnswer($payment) !== '') {
+            // if there is a 3ds redirect information, perform redirect
+            return $this->getConfig()->get3dSecureRedirectUrl();
         }
 
-        return parent::getOrderPlaceRedirectUrl();
+        // Prevent redirect on cc payment
+        return false;
     }
 
     /**
@@ -85,31 +73,14 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
      */
     public function getBrandsForAliasInterface()
     {
-        $brands = $this->getConfig()->getInlinePaymentCcTypes($this->getCode());
-
-        return $brands;
-    }
-
-    /**
-     * if cc brand supports ops alias interface
-     *
-     * @param Mage_Payment_Model_Info $payment
-     *
-     * @return bool
-     */
-    public function hasBrandAliasInterfaceSupport($payment = null)
-    {
-        return in_array(
-            $this->getOpsBrand($payment),
-            $this->getBrandsForAliasInterface()
-        );
+        return $this->getConfig()->getAllCcTypes($this->getCode());
     }
 
     /**
      * Validates alias for in quote provided addresses
      *
      * @param Mage_Sales_Model_Quote $quote
-     * @param Varien_Object          $payment
+     * @param Mage_Payment_Model_Info|Varien_Object $payment
      *
      * @throws Mage_Core_Exception
      */
@@ -145,12 +116,11 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
         return $this->requestParamsHelper;
     }
 
-
     protected function performPreDirectLinkCallActions(
-        Mage_Sales_Model_Quote $quote, Varien_Object $payment,
+        Mage_Sales_Model_Quote $quote,
+        Varien_Object $payment,
         $requestParams = array()
-    ) 
-    {
+    ) {
         Mage::helper('ops/alias')->cleanUpAdditionalInformation($payment, true);
         if (true === Mage::getModel('ops/config')->isAliasManagerEnabled($this->getCode())) {
             $this->validateAlias($quote, $payment);
@@ -171,7 +141,6 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
         return $this;
     }
 
-
     /**
      * returns allow zero amount authorization
      * only TRUE if configured payment action for the store is authorize
@@ -183,8 +152,7 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
     public function isZeroAmountAuthorizationAllowed($storeId = null)
     {
         $result = false;
-        if (
-            $this->getConfig()->getPaymentAction($storeId) == Netresearch_OPS_Model_Payment_Abstract::ACTION_AUTHORIZE
+        if ($this->getConfig()->getPaymentAction($storeId) == Netresearch_OPS_Model_Payment_Abstract::ACTION_AUTHORIZE
             && true == Mage::getStoreConfig('payment/ops_cc/zero_amount_checkout', $storeId)
         ) {
             $result = true;
@@ -192,7 +160,6 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
 
         return $result;
     }
-
 
     /**
      * method was implemented in CE 1.8 / EE 1.14
@@ -276,24 +243,24 @@ class Netresearch_OPS_Model_Payment_Cc extends Netresearch_OPS_Model_Payment_Dir
             $formFields['CREDITDEBIT'] = "C";
         }
 
-        $alias = $order->getPayment()->getAdditionalInformation('alias');
+        $alias = $order->getPayment()->getAdditionalInformation('alias') ?: '';
+        $formFields['ALIAS'] = $alias;
 
-        if ($alias) {
-            $formFields['ALIAS'] = $alias;
-            $formFields['ALIASOPERATION'] = "BYPSP";
-            $formFields['ECI'] = 9;
-            $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForExistingAlias(
-                $order->getPayment()->getMethodInstance()->getCode(),
-                $order->getStoreId()
-            );
-        } else {
-            $formFields['ALIAS'] = "";
-            $formFields['ALIASOPERATION'] = "BYPSP";
-            $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForNewAlias(
-                $order->getPayment()->getMethodInstance()->getCode(),
-                $order->getStoreId()
-            );
-
+        if ($this->getConfigData('active_alias')) {
+            if ($alias) {
+                $formFields['ALIASOPERATION'] = "BYPSP";
+                $formFields['ECI'] = 9;
+                $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForExistingAlias(
+                    $order->getPayment()->getMethodInstance()->getCode(),
+                    $order->getStoreId()
+                );
+            } else {
+                $formFields['ALIASOPERATION'] = "BYPSP";
+                $formFields['ALIASUSAGE'] = $this->getConfig()->getAliasUsageForNewAlias(
+                    $order->getPayment()->getMethodInstance()->getCode(),
+                    $order->getStoreId()
+                );
+            }
         }
 
         return $formFields;

@@ -29,6 +29,7 @@ class Netresearch_OPS_Model_File_Download
            Mage::throwException('File '.$this->_filePath.' does not exist or is not readable.');
            return '';
         }
+
         if (filesize($path) > $threshold) {
             return $this->_trimFileToThreshold($threshold);
         } else {
@@ -49,6 +50,7 @@ class Netresearch_OPS_Model_File_Download
         if (0 > fseek($this->_fileHandler, filesize($this->_filePath)-$threshold, SEEK_SET)) {
             Mage::throwException('Function fseek on file '. $this->_filePath.' failed.');
         }
+
         $content = fread($this->_fileHandler, $threshold);
         fclose($this->_fileHandler);
         $tempFileName = tempnam(sys_get_temp_dir(), 'tempFile');

@@ -48,19 +48,21 @@ class Netresearch_OPS_Adminhtml_KwixoshippingController
                     if (!array_key_exists($kwixoShippingModel->getShippingCode(), $postData)) {
                         continue;
                     }
+
                     $kwixoData = $postData[$kwixoShippingModel->getShippingCode()];
                     $kwixoShippingModel
                         ->setKwixoShippingType($kwixoData['kwixo_shipping_type'])
                         ->setKwixoShippingSpeed($kwixoData['kwixo_shipping_speed'])
                         ->setKwixoShippingDetails($kwixoData['kwixo_shipping_details']);
                 }
+
                 $collection->save();
             } else {
                 $postData = array_merge_recursive($postData, $validator->getMessages());
                 Mage::getModel('adminhtml/session')->setData('errorneousData', $postData);
             }
-
         }
+
         $this->_redirect('adminhtml/kwixoshipping/index');
     }
 

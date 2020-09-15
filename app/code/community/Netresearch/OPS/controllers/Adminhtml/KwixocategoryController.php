@@ -92,12 +92,14 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         } else {
             Mage::getSingleton('admin/session')->setIsTreeWasExpanded(false);
         }
+
         if (($categoryId = (int)$this->getRequest()->getPost('id'))) {
             $this->getRequest()->setParam('id', $categoryId);
 
             if (!$category = $this->_initCategory()) {
                 return;
             }
+
             $this->getResponse()->setBody(
                 $this->getLayout()->createBlock(
                     'ops/adminhtml_kwixocategory_categoryTree'
@@ -114,6 +116,7 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         if ($selectedCategory) {
             $this->getRequest()->setParam('id', $selectedCategory);
         }
+
         $selectedCategory = (int)$this->getRequest()->getParam('id', 0);
         $this->_initCategory(true);
 
@@ -148,6 +151,7 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         if ($prevCategoryId && !$this->getRequest()->getQuery('isAjax')) {
             $this->getRequest()->setParam('id', $prevCategoryId);
         }
+
         if ($redirect) {
             $this->_redirect('*/*/edit', $params);
 
@@ -187,6 +191,7 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
 
             return;
         }
+
         $this->_redirect('*/*/index', $params);
     }
 
@@ -198,6 +203,7 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         } catch (Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
         }
+
         $this->_redirect(
             '*/*/index/',
             array('_current' => true, "id" => $post['category_id'], "store" => $post['storeId'])
@@ -217,6 +223,7 @@ class Netresearch_OPS_Adminhtml_KwixocategoryController
         } catch (Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
         }
+
         $this->_redirect('*/*/index/', array("id" => $id, "store" => $storeId));
     }
 

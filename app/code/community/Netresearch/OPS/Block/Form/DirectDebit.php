@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Netresearch_OPS_Block_Form_DirectDebit
  *
@@ -15,9 +16,20 @@ class Netresearch_OPS_Block_Form_DirectDebit extends Netresearch_OPS_Block_Form
      */
     const TEMPLATE = 'ops/form/directDebit.phtml';
 
+    /**
+     * @var Mage_Directory_Model_Country[]
+     */
+    protected $countryDirectory;
+
     protected function _construct()
     {
         parent::_construct();
+        $this->countryDirectory = Mage::getModel('directory/country')->getCollection()->addFieldToFilter(
+            'country_id',
+            array(
+                'in' => $this->getDirectDebitCountryIds(),
+            )
+        )->getItems();
         $this->setTemplate(self::TEMPLATE);
     }
 
@@ -41,7 +53,24 @@ class Netresearch_OPS_Block_Form_DirectDebit extends Netresearch_OPS_Block_Form
             $data = $this->getQuote()->getPayment()->getData('ops_directDebit_data');
             $countryId = $data && array_key_exists('country_id', $data) ? $data['country_id'] : '';
         }
-        return $countryId;
 
+        return $countryId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelectedBillingCountryId()
+    {
+        return $this->getQuote()->getBillingAddress()->getCountryId();
+    }
+
+    public function getCountryName($countryId)
+    {
+        if (isset($this->countryDirectory[$countryId])) {
+            return $this->countryDirectory[$countryId]->getName();
+        }
+
+        return $countryId;
     }
 }

@@ -39,7 +39,7 @@ class Netresearch_OPS_Model_Source_Template
         return array(
             array(
                 'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_REDIRECT,
-                'label' => Mage::helper('ops')->__('Ingenico ePayments - Redirect mode')
+                'label' => Mage::helper('ops')->__('Ingenico ePayments (Ogone) - Redirect mode')
             ),
             array(
                 'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_MAGENTO_INTERNAL,
@@ -47,11 +47,11 @@ class Netresearch_OPS_Model_Source_Template
             ),
             array(
                 'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME,
-                'label' => Mage::helper('ops')->__('Ingenico ePayments - iFrame mode')
+                'label' => Mage::helper('ops')->__('Ingenico ePayments (Ogone) - iFrame mode')
             ),
             array(
                 'value' => Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_TEMPLATE,
-                'label' => Mage::helper('ops')->__('Ingenico ePayments - Dynamic template')
+                'label' => Mage::helper('ops')->__('Ingenico ePayments (Ogone) - Dynamic template')
             )
         );
     }

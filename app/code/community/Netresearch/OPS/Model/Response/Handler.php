@@ -41,9 +41,10 @@ class Netresearch_OPS_Model_Response_Handler
      *
      */
     public function processResponse(
-        $responseArray, Netresearch_OPS_Model_Payment_Abstract $paymentMethod, $shouldRegisterFeedback = true
-    )
-    {
+        $responseArray,
+        Netresearch_OPS_Model_Payment_Abstract $paymentMethod,
+        $shouldRegisterFeedback = true
+    ) {
         $responseArray = array_change_key_case($responseArray, CASE_LOWER);
         $this->getTypeHandler($responseArray['status'])
             ->handleResponse($responseArray, $paymentMethod, $shouldRegisterFeedback);

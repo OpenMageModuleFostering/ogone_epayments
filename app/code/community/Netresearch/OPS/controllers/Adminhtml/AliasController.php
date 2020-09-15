@@ -29,6 +29,7 @@ class Netresearch_OPS_Adminhtml_AliasController extends Mage_Adminhtml_Controlle
             );
             return $this->_redirectReferer();
         }
+
         $this->_getSession()->addError(
             Mage::helper('ops')->__('Could not remove alias %s.', $alias->getAlias())
         );

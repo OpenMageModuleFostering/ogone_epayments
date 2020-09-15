@@ -101,7 +101,9 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
      *
      * @return Netresearch_OPS_Model_Response_TypeInterface
      */
-    public function handleResponse($responseArray, Netresearch_OPS_Model_Payment_Abstract $paymentMethod,
+    public function handleResponse(
+        $responseArray,
+        Netresearch_OPS_Model_Payment_Abstract $paymentMethod,
         $shouldRegisterFeedback = true
     ) {
         $this->setData(array_change_key_case($responseArray, CASE_LOWER));
@@ -118,7 +120,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $this->_handleResponse();
         $this->updateAdditionalInformation();
 
-        if ($this->getShouldRegisterFeedback() && $this->hasAlias()) {
+        if (!$this->isDirectLink() && $this->getShouldRegisterFeedback() && $this->hasAlias()) {
             Mage::helper('ops/alias')->saveAlias($responseArray);
         }
 
@@ -143,6 +145,9 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $this->updateDefaultInformation();
         $this->setFraudDetectionParameters();
         $this->setDeviceInformationParameters();
+        if ($this->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_BankTransfer) {
+            $this->persistBankTransferData();
+        }
     }
 
     /**
@@ -160,7 +165,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         }
 
         if ($this->hasAcceptance()) {
-            $payment->setAdditionalInformation('acceptence', $this->getAcceptance());
+            $payment->setAdditionalInformation('acceptance', $this->getAcceptance());
         }
 
         if ($this->hasBrand() && $this->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Cc) {
@@ -221,11 +226,22 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
                 } else {
                     $additionalScoringData[$key] = $this->getData(strtolower($key));
                 }
-
             }
         }
 
         $payment->setAdditionalInformation('additionalScoringData', $additionalScoringData);
+    }
+
+    /**
+     * Detect whether the payment is Direct Link.
+     *
+     * Direct Link payment methods will handle ther alias creation through their own controller action.
+     *
+     * @return bool
+     */
+    protected function isDirectLink()
+    {
+        return $this->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_DirectLink;
     }
 
     /**
@@ -269,6 +285,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $this->addOrderComment($this->getRefusedStatusComment($additionalInfo));
     }
 
+
     /**
      * Add order comment about fraud status
      *
@@ -279,7 +296,6 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         $this->addOrderComment($this->getFraudStatusComment($additionalInfo));
     }
 
-
     /**
      * @param string $additionalInfo
      *
@@ -288,7 +304,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
     protected function getFinalStatusComment($additionalInfo = '')
     {
         $orderComment = Mage::helper('ops')->__(
-            'Received Ingenico ePayments feedback status update with final status %s.',
+            'Received Ingenico ePayments (Ogone) feedback status update with final status %s.',
             $this->getStatus()
         );
 
@@ -304,7 +320,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
     protected function getIntermediateStatusComment($additionalInfo = '')
     {
         $orderComment = Mage::helper('ops')->__(
-            'Received Ingenico ePayments feedback status update with intermediate status %s.',
+            'Received Ingenico ePayments (Ogone) feedback status update with intermediate status %s.',
             $this->getStatus()
         );
 
@@ -319,7 +335,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
     protected function getRefusedStatusComment($additionalInfo = '')
     {
         $orderComment = Mage::helper('ops')->__(
-            'Received Ingenico ePayments feedback status update with refused status %s.',
+            'Received Ingenico ePayments (Ogone) feedback status update with refused status %s.',
             $this->getStatus()
         );
 
@@ -334,7 +350,7 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
     protected function getFraudStatusComment($additionalInfo = '')
     {
         $orderComment = Mage::helper('ops')->__(
-            'Received Ingenico ePayments feedback status update with suspected fraud status %s.',
+            'Received Ingenico ePayments (Ogone) feedback status update with suspected fraud status %s.',
             $this->getStatus()
         );
 
@@ -369,5 +385,20 @@ abstract class Netresearch_OPS_Model_Response_Type_Abstract extends Varien_Objec
         }
 
         return $transId;
+    }
+
+    /**
+     * add banktransfer details to additional information
+     */
+    public function persistBankTransferData()
+    {
+        $payment = $this->getMethodInstance()->getInfoInstance();
+        $additionalParams = array_intersect_key(
+            $this->getData(),
+            array_flip(Netresearch_OPS_Model_Payment_BankTransfer::getTransactionKeys())
+        );
+        foreach ($additionalParams as $key => $param) {
+            $payment->setAdditionalInformation($key, $param);
+        }
     }
 }

@@ -49,6 +49,7 @@ class Netresearch_OPS_Block_System_Config_Support extends Mage_Adminhtml_Block_A
         if (is_callable('Mage::getEdition')) {
             $mageVersion = Mage::getEdition() . ' ' . $mageVersion;
         }
+
         return $mageVersion;
     }
 

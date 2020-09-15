@@ -21,16 +21,13 @@
 /** @var Netresearch_OPS_Block_Form_DirectEbanking $this */
 $code = $this->getMethodCode();
 ?>
-
-
 <ul class="form-list ops-form-list" id="payment_form_<?php echo $code ?>" style="display:none;">
 
     <?php $brands = $this->getDirectEbankingBrands(); ?>
     <?php if (count($brands) == 1): ?>
         <li><input type="hidden" name="payment[directEbanking_brand]" id="ops_directEbanking_country_id"
                    value="<?php echo $this->escapeHtml(current($brands)); ?>"></li>
-    <?php endif; ?>
-    <?php if (!empty($brands)): ?>
+    <?php elseif (!empty($brands)): ?>
         <li>
             <label class="required-entry" for="ops_directEbanking_country_id">
                 <?php echo $this->__('country'); ?>
@@ -44,8 +41,8 @@ $code = $this->getMethodCode();
                 <?php endforeach; ?>
             </select>
         </li>
-        <p><?php echo $this->getRedirectMessage(); ?></p>
     <?php endif; ?>
+    <p><?php echo $this->getRedirectMessage(); ?></p>
 </ul>
 
 

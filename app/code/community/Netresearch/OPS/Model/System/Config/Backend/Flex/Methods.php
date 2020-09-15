@@ -45,7 +45,6 @@ class Netresearch_OPS_Model_System_Config_Backend_Flex_Methods
         if (is_array($methods) && count($methods) > 1) {
             $alreadyProcessedMethods = array();
             foreach ($methods as $method) {
-
                 if (is_array($method)
                     && array_key_exists('pm', $method)
                     && array_key_exists('brand', $method)
@@ -58,10 +57,12 @@ class Netresearch_OPS_Model_System_Config_Backend_Flex_Methods
                     if (in_array($method['pm'].'_'.$method['brand'], $alreadyProcessedMethods)) {
                         Mage::throwException("PM and Brand combination must be unique");
                     }
+
                     $alreadyProcessedMethods[] = $method['pm'].'_'.$method['brand'];
                 }
             }
         }
+
         return parent::save();
     }
 }

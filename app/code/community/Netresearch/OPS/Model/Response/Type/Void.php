@@ -45,10 +45,9 @@ class Netresearch_OPS_Model_Response_Type_Void extends Netresearch_OPS_Model_Res
         /** @var Mage_Sales_Model_Order $order */
         $order = $payment->getOrder();
         if (Netresearch_OPS_Model_Status::isFinal($this->getStatus())) {
-            if ($this->getShouldRegisterFeedback()) {
-
+            if ($this->getShouldRegisterFeedback() && !$order->isCanceled()) {
                 $payment->setMessage(
-                    Mage::helper('ops')->__('Received Ingenico ePayments status %s. Order cancelled.', $this->getStatus())
+                    Mage::helper('ops')->__('Received Ingenico ePayments (Ogone) status %s. Order cancelled.', $this->getStatus())
                 );
                 $payment->registerVoidNotification($this->getAmount());
 

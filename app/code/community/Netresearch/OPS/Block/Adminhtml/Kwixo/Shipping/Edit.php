@@ -39,6 +39,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixo_Shipping_Edit
             if (!$title = Mage::getStoreConfig("carriers/$carrierCode/title")) {
                 $title = $carrierCode;
             }
+
             $values = $this->getValues($carrierCode);
             $options[] = array('code' => $carrierCode, 'label' => $title, 'values' => $values);
         }
@@ -61,6 +62,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixo_Shipping_Edit
         if (null === $this->kwxioShippingModel) {
             $this->kwixoShippingModel = Mage::getModel('ops/kwixo_shipping_setting');
         }
+
         return $this->kwixoShippingModel;
     }
 
@@ -81,6 +83,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixo_Shipping_Edit
         } else {
             $values = $this->getKwixoShippingSettingModel()->load($carrierCode, 'shipping_code')->getData();
         }
+
         return $values;
     }
 }

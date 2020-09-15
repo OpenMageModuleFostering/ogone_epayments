@@ -67,13 +67,13 @@
 
     <?php if (0 < strlen($this->getSupportMail())): ?>
         <tr>
-            <td class=label><?php echo $this->__('Need support? Contact Ingenico ePayments:'); ?></td>
+            <td class=label><?php echo $this->__('Need support? Contact Ingenico ePayments (Ogone):'); ?></td>
             <?php
             $bodyInfo = array(
                 '',
                 '===',
                 'Magento version: ' . $this->getMageVersion(),
-                'Ingenico ePayments app version: ' . $this->getExtensionVersion(),
+                'Ingenico ePayments (Ogone) app version: ' . $this->getExtensionVersion(),
                 'Shop URI: ' . Mage::getBaseUrl()
             );
             ?>

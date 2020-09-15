@@ -75,6 +75,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         if (0 < strlen(trim($shipMethodDetails))) {
             $formFields['ECOM_SHIPMETHODDETAILS'] = $shipMethodDetails;
         }
+
         if (4 == $formFields['ECOM_SHIPMETHODTYPE']
             && !array_key_exists(
                 'ECOM_SHIPMETHODDETAILS', $formFields
@@ -113,8 +114,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
 
     protected function getKwixoCategoryFromOrderItem(
         Mage_Sales_Model_Order_Item $item
-    )
-    {
+    ) {
         $product         = Mage::getModel('catalog/product')->load(
             $item->getProductId()
         );
@@ -143,8 +143,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         $formFields    = array();
         $billingAddress = $order->getBillingAddress();
 
-        $billingStreet         = str_replace("\n", ' ', $billingAddress->getStreet(-1));
-        $splittedBillingStreet = Mage::Helper('ops/address')->splitStreet($billingStreet);
+        $splittedBillingStreet = Netresearch_OPS_Helper_Address::splitStreet($billingAddress->getStreet());
 
         $formFields['ECOM_BILLTO_POSTAL_NAME_FIRST']    = $billingAddress->getFirstname();
         $formFields['ECOM_BILLTO_POSTAL_NAME_LAST']     = $billingAddress->getLastname();
@@ -172,8 +171,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
             $shippingAddress = $order->getBillingAddress();
         }
 
-        $shippingStreet         = str_replace("\n", ' ', $shippingAddress->getStreet(-1));
-        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
+        $splittedShippingStreet = Netresearch_OPS_Helper_Address::splitStreet($shippingAddress->getStreet());
         $shippingMethodType     = (int)$this->getShippingMethodType($this->getCode(), $order->getStoreId());
 
         if (in_array($shippingMethodType, $this->getShippingMethodTypeValues())) {
@@ -241,14 +239,15 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
                     $item->getBasePriceInclTax(), 2, '.', ''
                 );
                 $formFields['ITEMQUANT' . $itemCounter]
-                                                          = (int)$item->getQtyOrdered(
-                                                          );
+                                                        = (int)$item->getQtyOrdered(
+                                                        );
                 $formFields['ITEMVAT' . $itemCounter]     = str_replace(
                     ',', '.', (string)(float)$item->getBaseTaxAmount()
                 );
                 $formFields['TAXINCLUDED' . $itemCounter] = 1;
                 $itemCounter++;
             }
+
             $shippingPrice        = $order->getBaseShippingAmount();
             $shippingPriceInclTax = $order->getBaseShippingInclTax();
             $subtotal += $shippingPriceInclTax;
@@ -323,13 +322,15 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      * @return int
      */
     public function getShippingMethodType(
-        $code, $storeId = null, $isVirtual = false
-    )
-    {
+        $code,
+        $storeId = null,
+        $isVirtual = false
+    ) {
         // use download type for orders containing virtual products only
         if ($isVirtual) {
             return Netresearch_OPS_Model_Source_Kwixo_ShipMethodType::DOWNLOAD;
         }
+
         $shippingMethodType = $this->getKwixoShippingModel()
             ->getKwixoShippingType();
         if (null === $shippingMethodType) {
@@ -402,7 +403,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
 
     /**
      * get question for fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      *
      * @return string
@@ -416,7 +417,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
 
     /**
      * get an array of fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order $order         Current order
      *
@@ -435,6 +436,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
         if ($order instanceof Mage_Sales_Model_Order) {
             $storeId = $order->getStoreId();
         }
+
         $shippingMethodType = (int)$this->getShippingMethodType(
             $this->getCode(), $storeId
         );
@@ -471,9 +473,10 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      * @return array - the populated array
      */
     protected function populateFromArray(
-        array $formFields, $dataArray = null, $order
-    )
-    {
+        array $formFields,
+        $dataArray = null,
+        $order
+    ) {
         // copy some already known values, but only the ones from the questioned
         // form fields
         if (is_array($dataArray)) {
@@ -515,8 +518,7 @@ class Netresearch_OPS_Model_Payment_Kwixo_Abstract
      */
     public function setKwixoShippingModel(
         Netresearch_OPS_Model_Kwixo_Shipping_Setting $kwixoShippingModel
-    )
-    {
+    ) {
         $this->kwixoShippingModel = $kwixoShippingModel;
     }
 

@@ -165,7 +165,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
     }
 
     /**
-     * Maps the Magento recurring profile units to the Ingenico ePayments ones
+     * Maps the Magento recurring profile units to the Ingenico ePayments (Ogone) ones
      *
      * @param string $unit
      *
@@ -230,7 +230,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
              ->setData('BRAND', $paymentInfo->getAdditionalInformation('CC_BRAND'))
              ->setData('CURRENCY', $this->getQuoteHelper()->getQuoteCurrency($paymentInfo->getQuote()))
              ->setData('OPERATION', Netresearch_OPS_Model_Payment_Abstract::OPS_AUTHORIZE_CAPTURE_ACTION)
-             ->setData('ORIG', $this->getDataHelper()->getModuleVersionString())
+             ->setData('SHOPPINGCARTEXTENSIONID', $this->getDataHelper()->getModuleVersionString())
              ->setData('REMOTE_ADDR', $paymentInfo->getQuote()->getRemoteIp());
 
 
@@ -286,10 +286,10 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
              ->setData('SUB_AMOUNT', $this->getDataHelper()->getAmount($subscriptionAmount))
             // amount is always 0 for subscription transactions
              ->setData('AMOUNT', 0)
-             ->setData(
-                 'SUB_PERIOD_MOMENT',
-                 $this->getSubscriptionHelper()->getBillingDayForPeriodUnit($periodUnit, $profile->getStoreId())
-             );
+            ->setData(
+                'SUB_PERIOD_MOMENT',
+                $this->getSubscriptionHelper()->getBillingDayForPeriodUnit($periodUnit, $profile->getStoreId())
+            );
 
         // add OWNER* and ECOM_BILLTO_* and ECOM_SHIPTO_* parameters
         $this->collectAddressParameters($profile);
@@ -328,6 +328,7 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
 
             $endDate->add(new DateInterval('P' . $dateDiff . strtoupper($periodUnit)));
         }
+
         return $endDate;
     }
 
@@ -357,10 +358,10 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      *
      * @return mixed[] - utf8_encoded request parameters
      */
-    public function collectAllParameters(Mage_Payment_Model_Info $paymentInfo,
+    public function collectAllParameters(
+        Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile
-    ) 
-    {
+    ) {
         $this->collectProfileParameters($profile)
              ->collectPaymentParameters($paymentInfo);
 
@@ -375,10 +376,10 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      *
      * @return mixed[] - utf8_encoded request parameters
      */
-    public function collectAllParametersForTrial(Mage_Payment_Model_Info $paymentInfo,
+    public function collectAllParametersForTrial(
+        Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile
-    ) 
-    {
+    ) {
         $this->collectProfileParameters($profile, true)
              ->collectPaymentParameters($paymentInfo, true);
 
@@ -394,11 +395,11 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
      *
      * @return string[] - utf8 encoded request parameters
      */
-    public function collectAllParametersForInitialFee(Mage_Payment_Model_Info $paymentInfo,
+    public function collectAllParametersForInitialFee(
+        Mage_Payment_Model_Info $paymentInfo,
         Mage_Payment_Model_Recurring_Profile $profile,
         Mage_Sales_Model_Order $order
-    ) 
-    {
+    ) {
         /** @var $profile Mage_Sales_Model_Recurring_Profile */
         $this->collectPaymentParameters($paymentInfo)->collectAddressParameters($profile);
 
@@ -444,7 +445,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
                 $profile->getTrialPeriodUnit(), $profile->getTrialPeriodFrequency()
             );
             $maxCycles = $profile->getTrialPeriodMaxCycles();
-
         } else {
             $subscriptionAmount
                 = $profile->getBillingAmount() + $profile->getTaxAmount() + $profile->getShippingAmount();
@@ -453,7 +453,6 @@ class Netresearch_OPS_Model_Payment_Recurring_Cc_ParameterBag extends Varien_Obj
                 $profile->getPeriodUnit(), $profile->getPeriodFrequency()
             );
             $maxCycles = $profile->getPeriodMaxCycles();
-
         }
 
         return array($subscriptionAmount, $periodUnit, $periodFrequency, $maxCycles);

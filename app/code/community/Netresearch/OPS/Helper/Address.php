@@ -7,72 +7,76 @@
  * @author    Sebastian Ertner <sebastian.ertner@netresearch.de>
  * @license   OSL 3.0
  */
-class Netresearch_OPS_Helper_Address extends Mage_Core_Helper_Abstract
+
+abstract class Netresearch_OPS_Helper_Address
 {
 
-    const OPTION_A_ADDITION_1   = 'A_Addition_to_address_1';
-    const OPTION_A_STREET_NAME  = 'A_Street_name_1';
+    const OPTION_A_ADDITION_1 = 'A_Addition_to_address_1';
+    const OPTION_A_STREET_NAME = 'A_Street_name_1';
     const OPTION_A_HOUSE_NUMBER = 'A_House_number_1';
-    const OPTION_A_ADDITION_2   = 'A_Addition_to_address_2';
-    const OPTION_B_ADDITION_1   = 'B_Addition_to_address_1';
-    const OPTION_B_STREET_NAME  = 'B_Street_name';
+    const OPTION_A_ADDITION_2 = 'A_Addition_to_address_2';
+    const OPTION_B_ADDITION_1 = 'B_Addition_to_address_1';
+    const OPTION_B_STREET_NAME = 'B_Street_name';
     const OPTION_B_HOUSE_NUMBER = 'B_House_number';
-    const OPTION_B_ADDITION_2   = 'B_Addition_to_address_2';
+    const OPTION_B_ADDITION_2 = 'B_Addition_to_address_2';
 
+    const STREET_NAME = 'street_name';
+    const STREET_NUMBER = 'street_number';
+    const SUPPLEMENT = 'supplement';
 
     /**
      * split street into street name, number and additional street information
      *
-     * @param string $street
+     * @param string[] $streetArray
      *
      * @return array
      */
-    public function splitStreet($street)
+    public static function splitStreet($streetArray)
     {
+        $fullAddress = implode(", ", $streetArray);
+
         $result = array(
-            'street_name'   => $street,
-            'street_number' => '',
-            'supplement'    => ''
+            self::STREET_NAME => array_shift($streetArray),
+            self::STREET_NUMBER => '',
+            self::SUPPLEMENT => array(array_shift($streetArray))
         );
 
-        if (preg_match($this->getStreetSplitter(), $street, $matches)) {
-
+        if (preg_match(self::getStreetSplitter(), $fullAddress, $matches)) {
             // Pattern A
             if (isset($matches[self::OPTION_A_STREET_NAME]) && !empty($matches[self::OPTION_A_STREET_NAME])) {
-
-                $result['street_name'] = trim($matches[self::OPTION_A_STREET_NAME]);
+                $result[self::STREET_NAME] = trim($matches[self::OPTION_A_STREET_NAME]);
 
                 if (isset($matches[self::OPTION_A_HOUSE_NUMBER]) && !empty($matches[self::OPTION_A_HOUSE_NUMBER])) {
-                    $result['street_number'] = trim($matches[self::OPTION_A_HOUSE_NUMBER]);
+                    $result[self::STREET_NUMBER] = trim($matches[self::OPTION_A_HOUSE_NUMBER]);
                 }
 
-                if (isset($matches[self::OPTION_A_ADDITION_1]) && isset($matches[self::OPTION_A_ADDITION_2])) {
-                    $result['supplement'] = trim($matches[self::OPTION_A_ADDITION_1] . ' '
-                        . $matches[self::OPTION_A_ADDITION_2]
-                    );
+                if (isset($matches[self::OPTION_A_ADDITION_1])) {
+                    $result[self::SUPPLEMENT][] = trim($matches[self::OPTION_A_ADDITION_1]);
                 }
 
-                return $result ;
+                if (isset($matches[self::OPTION_A_ADDITION_2])) {
+                    $result[self::SUPPLEMENT][] = trim($matches[self::OPTION_A_ADDITION_2]);
+                }
 
-            // Pattern B
+                // Pattern B
             } elseif (isset($matches[self::OPTION_B_STREET_NAME]) && !empty($matches[self::OPTION_B_STREET_NAME])) {
-
-                $result['street_name'] = trim($matches[self::OPTION_B_STREET_NAME]);
+                $result[self::STREET_NAME] = trim($matches[self::OPTION_B_STREET_NAME]);
 
                 if (isset($matches[self::OPTION_B_HOUSE_NUMBER]) && !empty($matches[self::OPTION_B_HOUSE_NUMBER])) {
-                    $result['street_number'] = trim($matches[self::OPTION_B_HOUSE_NUMBER]);
+                    $result[self::STREET_NUMBER] = trim($matches[self::OPTION_B_HOUSE_NUMBER]);
                 }
 
-                if (isset($matches[self::OPTION_B_ADDITION_1]) && isset($matches[self::OPTION_B_ADDITION_2])) {
-                    $result['supplement'] = trim($matches[self::OPTION_B_ADDITION_1] . ' '
-                        . $matches[self::OPTION_B_ADDITION_2]
-                    );
+                if (isset($matches[self::OPTION_B_ADDITION_1])) {
+                    $result[self::SUPPLEMENT][] = trim($matches[self::OPTION_B_ADDITION_1]);
                 }
 
-
-                return $result;
+                if (isset($matches[self::OPTION_B_ADDITION_2])) {
+                    $result[self::SUPPLEMENT][] = trim($matches[self::OPTION_B_ADDITION_2]);
+                }
             }
         }
+
+        $result[self::SUPPLEMENT] = implode(' ', array_filter(array_unique($result[self::SUPPLEMENT])));
 
         return $result;
     }
@@ -84,7 +88,7 @@ class Netresearch_OPS_Helper_Address extends Mage_Core_Helper_Abstract
      *
      * @return string
      */
-    protected function getStreetSplitter()
+    private static function getStreetSplitter()
     {
         return "/\\A\\s*
  (?:

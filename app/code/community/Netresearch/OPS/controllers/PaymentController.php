@@ -31,11 +31,52 @@
 class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstract
 {
     /**
+     * @var string[]
+     */
+    protected $_actionsToValidate = array('accept', 'exception', 'decline', 'cancel');
+
+    /**
+     * @return Mage_Core_Controller_Front_Action
+     * @throws Exception
+     */
+    public function preDispatch()
+    {
+        parent::preDispatch();
+        $this->_validateRequest();
+
+        return $this;
+    }
+
+    /**
+     * Validate ops data and session.
+     *
+     * @throws Exception
+     */
+    protected function _validateRequest()
+    {
+        $orderId = $this->getRequest()->getParam('orderID');
+        $actionName = $this->getRequest()->getActionName();
+        if (!$orderId || !in_array($actionName, $this->_actionsToValidate)) {
+            return;
+        }
+
+        if (!$this->_validateOPSData()) {
+            Mage::throwException("Hash invalid");
+        }
+
+        $order = $this->_getOrder();
+        if ($order->getIncrementId() != $this->_getCheckout()->getLastRealOrderId()) {
+            Mage::throwException("Session invalid");
+        }
+    }
+
+    /**
      * Load place from layout to make POST on ops
+     *
+     * @return Mage_Core_Controller_Varien_Action|null
      */
     public function placeformAction()
     {
-
         $lastIncrementId = $this->_getCheckout()->getLastRealOrderId();
 
         if ($lastIncrementId) {
@@ -45,10 +86,6 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
             return $this->_redirect('checkout/cart');
         }
 
-        $quote = $this->_getCheckout()->getQuote();
-        if ($quote) {
-            $quote->setIsActive(false)->save();
-        }
         $this->_getCheckout()->setOPSQuoteId($this->_getCheckout()->getQuoteId());
         $this->_getCheckout()->setOPSLastSuccessQuoteId($this->_getCheckout()->getLastSuccessQuoteId());
         $this->_getCheckout()->clear();
@@ -67,7 +104,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
     }
 
     /**
-     * Display our pay page, need to ops payment with external pay page mode     *
+     * Display our pay page, need to ops payment with external pay page mode
      */
     public function paypageAction()
     {
@@ -89,6 +126,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
             if ($this->getQuote()) {
                 $this->getQuote()->setIsActive(false)->save();
             }
+
             $this->_getCheckout()->setLastSuccessQuoteId($order->getQuoteId());
             $this->_getCheckout()->setLastQuoteId($order->getQuoteId());
             $this->_getCheckout()->setLastOrderId($order->getId());
@@ -99,6 +137,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
             $this->getPaymentHelper()->refillCart($this->_getOrder());
             $redirect = 'checkout/cart';
         }
+
         if ($redirect === '') {
             $redirect = 'checkout/onepage/success';
         }
@@ -122,7 +161,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
 
         $msg = 'Your order has been registered, but your payment is still marked as pending.';
         $msg .= ' Please have patience until the final status is known.';
-        $this->_getCheckout()->addError(Mage::helper('ops/data')->__($msg));
+        $this->_getCheckout()->addWarning(Mage::helper('ops/data')->__($msg));
 
         $this->redirectOpsRequest('checkout/onepage/success');
     }
@@ -164,6 +203,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
         } catch (Exception $e) {
             Mage::logException($e);
         }
+
         if (false == $this->_getOrder()->getId()) {
             $this->_order = null;
             $this->_getOrder($this->_getCheckout()->getLastQuoteId());
@@ -196,16 +236,6 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
         $this->redirectOpsRequest($redirect);
     }
 
-    /*
-     * Check the validation of the request from OPS
-     */
-    protected function checkRequestValidity()
-    {
-        if (!$this->_validateOPSData()) {
-            Mage::throwException("Hash is not valid");
-        }
-    }
-
     public function registerDirectDebitPaymentAction()
     {
         $params = $this->getRequest()->getParams();
@@ -218,6 +248,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
 
             return;
         }
+
         $payment = $this->_getCheckout()->getQuote()->getPayment();
         $helper = Mage::helper('ops/directDebit');
         $payment = $helper->setDirectDebitDataToPayment($payment, $params);
@@ -251,25 +282,19 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
      */
     public function retryAction()
     {
-
         $order = $this->_getOrder();
         /** @var Mage_Sales_Model_Order_Payment $payment */
         $payment = $order->getPayment();
         $message = false;
+        /** @var Netresearch_OPS_Model_Retry_Page $retryPage */
+        $retryPage = Mage::getModel('ops/retry_page')->setStore($order->getStoreId());
+        $orderId = $this->getRequest()->getParam('orderID');
+        $shaSign = $this->getRequest()->getParam('SHASIGN');
 
-        // only validate the parameters we added to the BACKURL ourselves
-        $params = array(
-            'SHASIGN' => $this->getRequest()->getParam('SHASIGN'),
-            'orderID' => $this->getRequest()->getParam('orderID')
-        );
-
-        if ($this->_validateOPSData($params) === false) {
+        if ($retryPage->validateShaSign($orderId, $shaSign) === false) {
             $message = Mage::helper('ops')->__('Hash not valid');
-
         } else {
-
             if ($this->canRetryPayment($payment)) {
-
                 // Add Quote to Session, for the payment methods
                 /** @var Mage_Sales_Model_Quote $quote */
                 $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
@@ -280,15 +305,18 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
                 $quote->setIsActive(1);
                 $quote->save();
 
+                // add order  to registry (needed for order info on retry page)
+                Mage::register('current_order', $order);
+
                 $this->loadLayout();
                 $this->renderLayout();
-
             } else {
                 $message = Mage::helper('ops')->__(
                     'Not possible to reenter the payment details for order %s', $order->getIncrementId()
                 );
             }
         }
+
         if ($message) {
             Mage::getSingleton('core/session')->addNotice($message);
             $this->redirectOpsRequest('/');
@@ -329,7 +357,7 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
 
             $redirectUrl = $payment->getMethodInstance()->getOrderPlaceRedirectUrl();
 
-            // Place order or rather in this case, send the inline payment method to Ingenico ePayments
+            // Place order or rather in this case, send the inline payment method to Ingenico ePayments (Ogone)
             if (empty($redirectUrl)) {
                 $checkoutSession->setRedirectUrl($redirectUrl);
                 $order->place();
@@ -397,12 +425,17 @@ class Netresearch_OPS_PaymentController extends Netresearch_OPS_Controller_Abstr
      */
     protected function canRetryPayment($payment)
     {
+        $result = true;
         $additionalInformation = $payment->getAdditionalInformation();
         if (is_array($additionalInformation) && array_key_exists('status', $additionalInformation)) {
             $status = $additionalInformation['status'];
-            return Netresearch_OPS_Model_Status::canResendPaymentInfo($status);
+            $result = Netresearch_OPS_Model_Status::canResendPaymentInfo($status);
         }
 
-        return true;
+        if($payment->getOrder()->getState() == Mage_Sales_Model_Order::STATE_CANCELED){
+            $result = false;
+        }
+
+        return $result;
     }
 }

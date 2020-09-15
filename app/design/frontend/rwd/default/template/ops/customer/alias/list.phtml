@@ -46,7 +46,7 @@
             <?php $deleteUrl = $this->getAliasDeleteUrl($alias->getId()); ?>
             <tr>
                 <td data-ops-title="<?php echo Mage::helper('ops')->__('Payment method') ?>">
-                    <?php echo $this->getMethodName($alias->getPaymentMethod()); ?>
+                    <?php echo $this->escapeHtml($this->getMethodName($alias->getPaymentMethod())); ?>
                 </td>
                 <td data-ops-title="<?php echo Mage::helper('ops')->__('Credit Card Type') ?>">
                     <?php echo $this->escapeHtml($alias->getBrand()); ?>
@@ -55,7 +55,7 @@
                     <?php echo $this->escapeHtml($alias->getPseudoAccountOrCCNo()); ?>
                 </td>
                 <td data-ops-title="<?php echo Mage::helper('ops')->__('Expiration Date') ?>">
-                    <?php echo $this->escapeHtml($alias->getExpirationDate()); ?>
+                    <?php echo $this->escapeHtml($alias->getExpirationDate() ?: 'none'); ?>
                 </td>
                 <td data-ops-title="<?php echo Mage::helper('ops')->__('Card Holder') ?>">
                     <?php echo $this->escapeHtml($alias->getCardHolder()); ?>

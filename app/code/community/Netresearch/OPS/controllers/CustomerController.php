@@ -41,10 +41,12 @@ class Netresearch_OPS_CustomerController extends Mage_Core_Controller_Front_Acti
         if ($block = $this->getLayout()->getBlock('ops_customer_aliases')) {
             $block->setRefererUrl($this->_getRefererUrl());
         }
+
         $headBlock = $this->getLayout()->getBlock('head');
         if ($headBlock) {
             $headBlock->setTitle(Mage::helper('ops')->__('My payment information'));
         }
+
         $this->renderLayout();
     }
 
@@ -60,6 +62,7 @@ class Netresearch_OPS_CustomerController extends Mage_Core_Controller_Front_Acti
             );
             return $this->_redirectReferer();
         }
+
         Mage::getSingleton('customer/session')->addError(
             Mage::helper('ops')->__('Could not remove payment information %s.', $alias->getPseudoAccountOrCcNo())
         );

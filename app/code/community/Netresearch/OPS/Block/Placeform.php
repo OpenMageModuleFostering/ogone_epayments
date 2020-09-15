@@ -80,6 +80,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         } else {
             return null;
         }
+
         return $order;
     }
 
@@ -95,6 +96,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         if ($methodInstance instanceof Netresearch_OPS_Model_Payment_Kwixo_Abstract) {
             $isKwixoPayment= true;
         }
+
         return $isKwixoPayment;
     }
     /**
@@ -108,6 +110,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
             && null != $this->_getOrder()->getId()) {
             $this->formFields = $this->_getApi()->getFormFields($this->_getOrder(), $this->getRequest()->getParams());
         }
+
         return $this->formFields;
     }
 
@@ -144,6 +147,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         if (null === $this->_getOrder()) {
             return null;
         }
+
         if (null === $this->hasMissingParams) {
             $this->hasMissingParams = $this->_getApi()
                 ->hasFormMissingParams(
@@ -152,6 +156,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
                     $this->getFormData()
                 );
         }
+
         return $this->hasMissingParams;
     }
 
@@ -163,6 +168,7 @@ class Netresearch_OPS_Block_Placeform extends Mage_Core_Block_Template
         if (null === $this->question && $this->_getOrder() && null != $this->_getOrder()->getId()) {
             $this->question = $this->_getApi()->getQuestion();
         }
+
         return $this->question;
     }
 

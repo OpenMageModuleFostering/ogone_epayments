@@ -35,7 +35,6 @@ class Netresearch_OPS_Model_Payment_DirectEbanking
         if (is_object($data) && $data instanceof Varien_Object) {
             $brand = $data['directEbanking_brand'];
         } elseif (is_array($data) && isset($data['directEbanking_brand'])) {
-
             $brand = $data['directEbanking_brand'];
         }
 
@@ -61,6 +60,7 @@ class Netresearch_OPS_Model_Payment_DirectEbanking
         if ($value === 'Sofort Uberweisung') {
             return 'DirectEbanking';
         }
+
         return $value;
     }
 }

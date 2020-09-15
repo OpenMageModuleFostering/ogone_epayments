@@ -25,7 +25,7 @@
  */
 
 /**
- * open invoice payment via Ingenico ePayments
+ * open invoice payment via Ingenico ePayments (Ogone)
  */
 class Netresearch_OPS_Model_Payment_OpenInvoice_Abstract extends Netresearch_OPS_Model_Payment_Abstract
 {
@@ -44,8 +44,8 @@ class Netresearch_OPS_Model_Payment_OpenInvoice_Abstract extends Netresearch_OPS
     {
         $formFields     = parent::getMethodDependendFormFields($order, $requestParams);
         $billingAddress = $order->getBillingAddress();
-        $birthday       = new DateTime($order->getCustomerDob());
-        $gender         = $order->getCustomerGender() == 1 ? 'M' : 'F';
+        $birthday       = new DateTime($order->getPayment()->getAdditionalInformation('birthdate'));
+        $gender         = $order->getPayment()->getAdditionalInformation('gender') == 1 ? 'M' : 'F';
         $street         = str_replace("\n", ' ', $billingAddress->getStreet(-1));
         $regexp         = '/^([^0-9]*)([0-9].*)$/';
 

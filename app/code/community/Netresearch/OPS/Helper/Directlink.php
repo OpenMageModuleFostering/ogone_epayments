@@ -21,9 +21,15 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
      *
      * @return Netresearch_OPS_Helper_Directlink $this
      */
-    public function directLinkTransact($order,$transactionID, $subPayID,
-        $arrInformation = array(), $typename, $comment, $closed = 0)
-    {
+    public function directLinkTransact(
+        $order,
+        $transactionID,
+        $subPayID,
+        $arrInformation = array(),
+        $typename,
+        $comment,
+        $closed = 0
+) {
         $payment = $order->getPayment();
         $payment->setTransactionId($transactionID."/".$subPayID);
         $payment->setParentTransactionId($transactionID);
@@ -187,64 +193,6 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
         return number_format($amount, 2);
     }
 
-    /**
-     * determine if the current OPS request is valid
-     *
-     * @param array                  $transactions     Iteratable of Mage_Sales_Model_Order_Payment_Transaction
-     * @param Mage_Sales_Model_Order $order
-     * @param array                  $opsRequestParams
-     *
-     * @return boolean
-     */
-    public function isValidOpsRequest(
-        $openTransaction,
-        Mage_Sales_Model_Order $order,
-        $opsRequestParams
-    )
-    {
-        if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_DELETE_TRANSACTION_TYPE) {
-            return false;
-        }
-
-        $requestedAmount = null;
-        if (array_key_exists('amount', $opsRequestParams)) {
-            $requestedAmount = $this->formatAmount($opsRequestParams['amount']);
-        }
-
-        /* find expected amount */
-        $expectedAmount = null;
-        if (null !== $openTransaction) {
-            $transactionInfo = unserialize($openTransaction->getAdditionalInformation('arrInfo'));
-            if (array_key_exists('amount', $transactionInfo)) {
-                if (null === $expectedAmount || $transactionInfo['amount'] == $requestedAmount) {
-                    $expectedAmount = $this->formatAmount($transactionInfo['amount']);
-                }
-            }
-        }
-
-        if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_REFUND_TRANSACTION_TYPE
-            || $this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_VOID_TRANSACTION_TYPE
-        ) {
-            if (null === $requestedAmount || 0 == count($openTransaction) || $requestedAmount != $expectedAmount) {
-                return false;
-            }
-        }
-
-        if ($this->getTypeForStatus($opsRequestParams['STATUS']) == Netresearch_OPS_Model_Payment_Abstract::OPS_CAPTURE_TRANSACTION_TYPE) {
-            if (null === $requestedAmount) {
-                Mage::helper('ops')->log('Please configure Ingenico ePayments to submit amount');
-                return false;
-            }
-            $grandTotal = $this->formatAmount(Mage::helper('ops/payment')->getBaseGrandTotalFromSalesObject($order));
-            if ($grandTotal != $requestedAmount) {
-                if (null === $openTransaction || $expectedAmount != $requestedAmount) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public function performDirectLinkRequest($quote, $params, $storeId = null)
     {
         $url = Mage::getModel('ops/config')->getDirectLinkGatewayOrderPath($storeId);
@@ -254,7 +202,7 @@ class Netresearch_OPS_Helper_Directlink extends Mage_Core_Helper_Abstract
          */
         if (null != $response['STATUS'] && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])) {
             Mage::getSingleton('checkout/type_onepage')->getCheckout()->setGotoSection('payment');
-            Mage::throwException(Mage::helper('ops/data')->__('Ingenico ePayments Payment failed'));
+            Mage::throwException(Mage::helper('ops/data')->__('Ingenico ePayments (Ogone) Payment failed'));
         }
 
         return $response;

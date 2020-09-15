@@ -60,6 +60,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (is_array($data)) {
             return hash($this->getCryptMethod(), implode("", $data));
         }
+
         if (is_string($data)) {
             return hash($this->getCryptMethod(), $data);
         } else {
@@ -102,7 +103,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         $helper = Mage::helper('ops');
         $helper->log(
             $helper->__(
-                "Checking hashes\nHashed String by Magento: %s\nHashed String by Ingenico ePayments: %s",
+                "Checking hashes\nHashed String by Magento: %s\nHashed String by Ingenico ePayments (Ogone): %s",
                 $actual,
                 $hashFromOPS
             )
@@ -133,6 +134,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             if ($paramSet['value'] == '' || $paramSet['key'] == 'SHASIGN' || is_array($paramSet['value'])) {
                 continue;
             }
+
             $plainHashString .= strtoupper($paramSet['key']) . "=" . $paramSet['value'] . $SHAkey;
         endforeach;
 
@@ -180,6 +182,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (null === $shaCode) {
             $shaCode = Mage::getModel('ops/config')->getShaOutCode($storeId);
         }
+
         $formFields = array_change_key_case($formFields, CASE_UPPER);
         uksort($formFields, 'strnatcasecmp');
         $plainHashString = '';
@@ -187,6 +190,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             if (null === $formVal || '' === $formVal || $formKey == 'SHASIGN') {
                 continue;
             }
+
             $plainHashString .= strtoupper($formKey) . '=' . $formVal . $shaCode;
         }
 
@@ -197,20 +201,23 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
      * @param int $opsOrderId
      * @param int $storeId
      *
+     * @deprecated
+     * @see Netresearch_OPS_Model_Retry_Page::getRetryUrl()
      * @return array
      */
     public function validateOrderForReuse($opsOrderId, $storeId)
     {
-
+        $shasign = hash(
+            'sha256',
+            $this->getSHAInSet(
+                array('orderId' => $opsOrderId),
+                $this->getConfig()->getShaOutCode($storeId)
+            )
+        );
         return array(
             'orderID' => $opsOrderId,
             'SHASIGN' => strtoupper(
-                $this->shaCrypt(
-                    $this->getSHAInSet(
-                        array('orderId' => $opsOrderId),
-                        $this->getConfig()->getShaOutCode($storeId)
-                    )
-                )
+                $shasign
             ),
         );
     }
@@ -385,7 +392,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
 
         /* In authorize mode we still have no authorization transaction for CC and DirectDebit payments,
          * so capture or cancel won't work. So we need to create a new authorization transaction for them
-         * when a payment was accepted by Ingenico ePayments
+         * when a payment was accepted by Ingenico ePayments (Ogone)
          *
          * In exception-case we create the authorization-transaction too
          * because some exception-cases can turn into accepted
@@ -404,10 +411,11 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             ) {
                 $payment->addTransaction("authorization", null, true, $this->__("Process outgoing transaction"));
             }
+
             $payment->setLastTransId($params['PAYID']);
         }
 
-        /* Ingenico ePayments sends parameter HTML_ANSWER to trigger 3D secure redirection */
+        /* Ingenico ePayments (Ogone) sends parameter HTML_ANSWER to trigger 3D secure redirection */
         if (isset($params['HTML_ANSWER']) && ('ops_cc' == $code)) {
             $payment->setAdditionalInformation('HTML_ANSWER', $params['HTML_ANSWER']);
             $payment->setIsTransactionPending(true);
@@ -418,18 +426,21 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (array_key_exists('ACCEPTANCE', $params) && 0 < strlen(trim($params['ACCEPTANCE']))) {
             $payment->setAdditionalInformation('acceptance', $params['ACCEPTANCE']);
         }
+
         if (array_key_exists('BRAND', $params) && ('ops_cc' == $code) && 0 < strlen(trim($params['BRAND']))) {
             $payment->setAdditionalInformation('CC_BRAND', $params['BRAND']);
         }
+
         if (false === $isInline || array_key_exists('HTML_ANSWER', $params)) {
             $payment->setIsTransactionClosed(true);
         }
+
         $payment->setDataChanges(true);
         $payment->save();
     }
 
     /**
-     * add fraud detection of Ingenico ePayments to additional payment data
+     * add fraud detection of Ingenico ePayments (Ogone) to additional payment data
      *
      * @param Mage_Sales_Model_Order_Payment $payment
      * @param array                          $params
@@ -440,9 +451,11 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (array_key_exists('SCORING', $params)) {
             $payment->setAdditionalInformation('scoring', $params['SCORING']);
         }
+
         if (array_key_exists('SCO_CATEGORY', $params)) {
             $payment->setAdditionalInformation('scoringCategory', $params['SCO_CATEGORY']);
         }
+
         $additionalScoringData = array();
         foreach ($this->getConfig()->getAdditionalScoringKeys() as $key) {
             if (array_key_exists($key, $params)) {
@@ -453,6 +466,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
                 }
             }
         }
+
         $payment->setAdditionalInformation('additionalScoringData', $additionalScoringData);
     }
 
@@ -472,13 +486,13 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         switch ($ops_status) {
             case Netresearch_OPS_Model_Status::PAYMENT_UNCERTAIN :
                 $exceptionMessage = Mage::helper('ops')->__(
-                    'A technical problem arose during payment process, giving unpredictable result. Ingenico ePayments status: %s.',
+                    'A technical problem arose during payment process, giving unpredictable result. Ingenico ePayments (Ogone) status: %s.',
                     Mage::helper('ops')->getStatusText($ops_status)
                 );
                 break;
             default:
                 $exceptionMessage = Mage::helper('ops')->__(
-                    'An unknown exception was thrown in the payment process. Ingenico ePayments status: %s.',
+                    'An unknown exception was thrown in the payment process. Ingenico ePayments (Ogone) status: %s.',
                     Mage::helper('ops')->getStatusText($ops_status)
                 );
         }
@@ -518,7 +532,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
                 Mage_Sales_Model_Order::STATE_PROCESSING,
                 Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
                 Mage::helper('ops')->__(
-                    'Waiting for payment. Ingenico ePayments status: %s.', Mage::helper('ops')->getStatusText($status)
+                    'Waiting for payment. Ingenico ePayments (Ogone) status: %s.', Mage::helper('ops')->getStatusText($status)
                 )
             );
 
@@ -533,7 +547,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
                 Mage_Sales_Model_Order::STATE_PROCESSING,
                 Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
                 Mage::helper('ops')->__(
-                    'Authorization uncertain. Ingenico ePayments status: %s.', Mage::helper('ops')->getStatusText($status)
+                    'Authorization uncertain. Ingenico ePayments (Ogone) status: %s.', Mage::helper('ops')->getStatusText($status)
                 )
             );
         } else {
@@ -542,11 +556,11 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
                 && 0 < strlen(trim($order->getPayment()->getAdditionalInformation('HTML_ANSWER')))
                 && $order->getPayment()->getAdditionalInformation('status') == Netresearch_OPS_Model_Status::AUTHORIZED
             ) {
-
                 $order->getPayment()->setIsTransactionApproved(true)->registerPaymentReviewAction(
                     Mage_Sales_Model_Order_Payment::REVIEW_ACTION_UPDATE, true
                 )->save();
             }
+
             if ($this->isRedirectPaymentMethod($order) === true
                 && $order->getEmailSent() != 1
             ) {
@@ -554,18 +568,18 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             }
 
             if (!$this->isPaypalSpecialStatus($order->getPayment()->getMethodInstance(), $status)) {
-
                 $payId = $params['PAYID'];
                 $order->setState(
                     Mage_Sales_Model_Order::STATE_PROCESSING,
                     Mage_Sales_Model_Order::STATE_PROCESSING,
                     Mage::helper('ops')->__(
-                        'Processed by Ingenico ePayments. Payment ID: %s. Ingenico ePayments status: %s.', $payId,
+                        'Processed by Ingenico ePayments (Ogone). Payment ID: %s. Ingenico ePayments (Ogone) status: %s.', $payId,
                         Mage::helper('ops')->getStatusText($status)
                     )
                 );
             }
         }
+
         $order->save();
     }
 
@@ -595,6 +609,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (!$transactionId) {
             return false;
         }
+
         $transaction = Mage::getModel('sales/order_payment_transaction')
             ->getCollection()
             ->addAttributeToFilter('txn_id', $transactionId)
@@ -602,6 +617,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
         if (null === $transaction->getId()) {
             return false;
         }
+
         $transaction->getOrderPaymentObject();
 
         return $transaction;
@@ -623,6 +639,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             //cart is not empty, so refilling it is not required
             return;
         }
+
         foreach ($order->getItemsCollection() as $item) {
             try {
                 $cart->addOrderItem($item);
@@ -630,6 +647,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
                 Mage::logException($e);
             }
         }
+
         $cart->save();
 
         // add coupon code
@@ -690,7 +708,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
     {
         if ($order instanceof Mage_Sales_Model_Order) {
             $message = Mage::helper('ops')->__(
-                'Unknown Ingenico ePayments state for this order. Please check Ingenico ePayments backend for this order.'
+                'Unknown Ingenico ePayments (Ogone) state for this order. Please check Ingenico ePayments (Ogone) backend for this order.'
             );
             if ($order->getState() == Mage_Sales_Model_Order::STATE_NEW) {
                 $order->setState(
@@ -701,6 +719,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             } else {
                 $order->addStatusHistoryComment($message);
             }
+
             $order->save();
         }
     }
@@ -865,17 +884,9 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
      */
     public function isInlinePayment(Mage_Payment_Model_Info $payment)
     {
-        $result = false;
         $methodInstance = $payment->getMethodInstance();
-        if ($methodInstance instanceof Netresearch_OPS_Model_Payment_DirectDebit
-            || ($methodInstance instanceof Netresearch_OPS_Model_Payment_Cc
-                && ($methodInstance->hasBrandAliasInterfaceSupport($payment)
-                    || Mage::helper('ops/data')->isAdminSession()))
-        ) {
-            $result = true;
-        }
 
-        return $result;
+        return $methodInstance instanceof Netresearch_OPS_Model_Payment_DirectLink;
     }
 
     /**
@@ -907,6 +918,7 @@ class Netresearch_OPS_Helper_Payment extends Mage_Core_Helper_Abstract
             $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
             $invoice->setState(Mage_Sales_Model_Order_Invoice::STATE_PAID);
         }
+
         $order->getInvoiceCollection()->save();
 
         return $this;

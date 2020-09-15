@@ -22,8 +22,10 @@ foreach ($ccTypes as $ccType) {
         if (in_array(strToLower($value), $obsoleteCCTypes)) {
             continue;
         }
+
         $newCcTypes[] = $value;
     }
+
     $ccType->setValue(implode(',', $newCcTypes));
     $ccType->save();
 }
@@ -39,8 +41,10 @@ foreach ($ccTypes as $ccType) {
         if (in_array(strToLower($value), $obsoleteCCTypes)) {
             continue;
         }
+
         $newCcTypes[] = $value;
     }
+
     $ccType->setValue(implode(',', $newCcTypes));
     $ccType->save();
 }
@@ -56,8 +60,10 @@ foreach ($ccTypes as $ccType) {
         if (in_array(strToLower($value), $obsoleteCCTypes)) {
             continue;
         }
+
         $newCcTypes[] = $value;
     }
+
     $ccType->setValue(implode(',', $newCcTypes));
     $ccType->save();
 }
@@ -120,6 +126,7 @@ if (0 === $belfiusSortOrder->count()) {
     "
     );
 }
+
 /*
  *
  */

@@ -53,6 +53,7 @@ class Netresearch_OPS_Model_Source_DirectDebit_Countries
                     )
                 );
             }
+
             foreach ($this->options as $offset=>$option) {
                 if (!in_array($option['value'], $this->countries)) {
                     unset($this->options[$offset]);

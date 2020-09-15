@@ -53,6 +53,7 @@ if (0 === $aliasActive->count()) {
     "
     );
 }
+
 $hintForGuestsActive = Mage::getModel('core/config_data')->getCollection()
     ->addFieldToFilter('path', 'payment/ops_cc/show_alias_manager_info_for_guests')
     ->load();

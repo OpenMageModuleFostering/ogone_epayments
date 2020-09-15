@@ -33,7 +33,7 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
 
     protected $config = null;
 
-    protected $_aliasDataForCustomer = array();
+    protected $aliasDataForCustomer = array();
 
     /**
      * Frontend Payment Template
@@ -240,7 +240,7 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
      * @return array | null - array the alias data or null if the customer
      * is not logged in
      */
-    protected function getStoredAliasForCustomer()
+    public function getStoredAliasForCustomer()
     {
         if (Mage::helper('customer/data')->isLoggedIn()
             && Mage::getModel('ops/config')->isAliasManagerEnabled($this->getMethodCode())
@@ -256,11 +256,11 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
 
 
             foreach ($aliases as $key => $alias) {
-                $this->_aliasDataForCustomer[$key] = $alias;
+                $this->aliasDataForCustomer[$key] = $alias;
             }
         }
 
-        return $this->_aliasDataForCustomer;
+        return $this->aliasDataForCustomer;
     }
 
     /**
@@ -347,10 +347,10 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
         $returnValue = null;
         $aliasData   = array();
 
-        if (empty($this->_aliasDataForCustomer)) {
+        if (empty($this->aliasDataForCustomer)) {
             $aliasData = $this->getStoredAliasForCustomer();
         } else {
-            $aliasData = $this->_aliasDataForCustomer;
+            $aliasData = $this->aliasDataForCustomer;
         }
 
         if (array_key_exists($aliasId, $aliasData) && $aliasData[$aliasId]->hasData($key)) {
@@ -360,4 +360,42 @@ class Netresearch_OPS_Block_Form extends Mage_Payment_Block_Form_Cc
         return $returnValue;
     }
 
+    /**
+     * @param $methodCode
+     * @param $storeId
+     * @return mixed|string
+     */
+    public function getHtpTemplateName($methodCode, $storeId = null)
+    {
+        return $this->getConfig()->getHtpTemplateName($methodCode, $storeId);
+    }
+
+    /**
+     * get customer birthdate and gender
+     *
+     * @return array
+     */
+    public function getCustomerData()
+    {
+        $data = array();
+        $quote = $this->getQuote();
+        $birthDate = $quote->getCustomerDob();
+        $gender = $quote->getCustomerGender();
+
+        $data['birthdate'] = isset($birthDate) ? $birthDate : '';
+        $data['gender'] = isset($gender) ? $gender : '';
+
+        return $data;
+    }
+
+    public function getGenderOptions()
+    {
+        $genders = Mage::getSingleton('eav/config')
+            ->getAttribute('customer', 'gender')
+            ->getSource()
+            ->getAllOptions();
+
+        return $genders;
+
+    }
 }

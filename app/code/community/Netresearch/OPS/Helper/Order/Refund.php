@@ -108,6 +108,7 @@ class Netresearch_OPS_Helper_Order_Refund extends Netresearch_OPS_Helper_Order_A
             $arrInfo           = $params['creditmemo'];
             $arrInfo['amount'] = $amount;
         }
+
         $arrInfo['type']      = $this->determineType($payment, $amount);
         $arrInfo['operation'] = $this->determineOperationCode($payment, $amount);
 

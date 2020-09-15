@@ -47,6 +47,7 @@ class Netresearch_OPS_Block_Adminhtml_Kwixocategory_Edit
         if ($categoryId <= 0) {
             return Mage::helper('ops/data')->__('Categories configuration');
         }
+
         $category = Mage::getModel('catalog/category')->load($categoryId);
         return Mage::helper('ops/data')->__("Categorie's %s configuration", $category->getName());
     }

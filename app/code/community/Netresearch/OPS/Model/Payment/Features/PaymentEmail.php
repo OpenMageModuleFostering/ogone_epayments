@@ -20,7 +20,7 @@
  */
 
 /**
- * Implements functionality to send Ingenico ePayments specific mails
+ * Implements functionality to send Ingenico ePayments (Ogone) specific mails
  *
  * @category Payment method
  * @package  Netresearch OPS
@@ -101,10 +101,7 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
     {
         $opsOrderId = Mage::helper('ops/order')->getOpsOrderId($order);
 
-        $url = Mage::getModel('ops/config')->getPaymentRetryUrl(
-            Mage::helper('ops/payment')->validateOrderForReuse($opsOrderId, $order->getStoreId()),
-            $order->getStoreId()
-        );
+        $url = Mage::getModel('ops/retry_page')->getRetryUrl($opsOrderId, $order->getStoreId());
 
         return $url;
     }
@@ -189,6 +186,7 @@ class Netresearch_OPS_Model_Payment_Features_PaymentEmail
         if (null === $emailTemplate->getTemplateSubject()) {
             $emailTemplate = $emailTemplate->loadDefault($template);
         }
+
         $emailTemplate->setSenderName($senderName)
                       ->setSenderEmail($senderMail);
 

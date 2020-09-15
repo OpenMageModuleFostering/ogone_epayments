@@ -16,7 +16,7 @@ class Netresearch_OPS_Adminhtml_OpsstatusController extends Mage_Adminhtml_Contr
     }
 
     /**
-     * performs the status update call to Ingenico ePayments
+     * performs the status update call to Ingenico ePayments (Ogone)
      */
     public function updateAction()
     {
@@ -25,6 +25,7 @@ class Netresearch_OPS_Adminhtml_OpsstatusController extends Mage_Adminhtml_Contr
             $order = Mage::getModel('sales/order')->load($orderId);
             Mage::getModel('ops/status_update')->updateStatusFor($order);
         }
+
         $this->_redirect('adminhtml/sales_order/view/', array("order_id" => $orderId));
     }
 

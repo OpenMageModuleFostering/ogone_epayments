@@ -18,7 +18,7 @@ class Netresearch_OPS_Model_System_Config_Template extends Mage_Core_Model_Confi
     {
         $paypageUrl = $this->getConfig()->getPayPageTemplate();
         $paypageInfo = Mage::helper('ops')->__(
-            'With this setting the customer will be redirected to the Ingenico ePayments paypage with the look and feel of your shop. ' .
+            'With this setting the customer will be redirected to the Ingenico ePayments (Ogone) paypage with the look and feel of your shop. ' .
             '</br> The template used can be seen here: </br>'
         );
         $paypageInfo .= "<a href=\"" . $paypageUrl . "\">" . $paypageUrl . "</a>";
@@ -32,15 +32,15 @@ class Netresearch_OPS_Model_System_Config_Template extends Mage_Core_Model_Confi
                 );
                 Translator.add(
                 '" . Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_TEMPLATE . "',
-                '" . Mage::helper('ops')->__('With this setting the customer will be redirected to the Ingenico ePayments paypage. The look and feel of that page will be defined by a dynamically loaded template file whose origin you can define below.') . "'
+                '" . Mage::helper('ops')->__('With this setting the customer will be redirected to the Ingenico ePayments (Ogone) paypage. The look and feel of that page will be defined by a dynamically loaded template file whose origin you can define below.') . "'
                 );
                 Translator.add(
                 '" . Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME . "',
-                '" . Mage::helper('ops')->__('With this setting the customer will enter the payment details on a page in your shop that hosts the Ingenico ePayments paypage in an iFrame. You can style the paypage through the parameters below.') . "'
+                '" . Mage::helper('ops')->__('With this setting the customer will enter the payment details on a page in your shop that hosts the Ingenico ePayments (Ogone) paypage in an iFrame. You can style the paypage through the parameters below.') . "'
                 );
                 Translator.add(
                 '" . Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_REDIRECT . "',
-                '" . Mage::helper('ops')->__('With this setting the customer will get redirected to Ingenico ePayments to enter his payment details. You can style the page through the parameters below.') . "'
+                '" . Mage::helper('ops')->__('With this setting the customer will get redirected to Ingenico ePayments (Ogone) to enter his payment details. You can style the page through the parameters below.') . "'
                 );
                 selectElement = $('payment_services_ops_template');
 

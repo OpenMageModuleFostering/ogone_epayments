@@ -68,7 +68,6 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
             } else {
                 $this->addIntermediateStatusComment();
             }
-
         } else {
             if ($this->getShouldRegisterFeedback()) {
                 $payment->setParentTransactionId($this->getPayid());
@@ -76,6 +75,7 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
                 $payment->setIsTransactionClosed(Netresearch_OPS_Model_Status::isFinal($this->getStatus()));
                 $payment->registerRefundNotification($this->getAmount());
             }
+
             if (Netresearch_OPS_Model_Status::isFinal($this->getStatus())) {
                 $this->addFinalStatusComment();
             } else {
@@ -153,6 +153,7 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
                 $item->getOrderItem()->getBaseAmountRefunded() - $item->getBaseRowTotal()
             );
         }
+
         $order->setTotalRefunded($order->getTotalRefunded() - $creditMemo->getBaseGrandTotal());
         $order->setBaseTotalRefunded($order->getBaseTotalRefunded() - $creditMemo->getBaseGrandTotal());
 
@@ -161,10 +162,11 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
         if ($order->canShip() || $order->canInvoice()) {
             $state = Mage_Sales_Model_Order::STATE_PROCESSING;
         }
+
         $order->setState(
             $state,
             true,
-            $this->getRefusedStatusComment(Mage::helper('ops')->__('Refund refused by Ingenico ePayments.'))
+            $this->getRefusedStatusComment(Mage::helper('ops')->__('Refund refused by Ingenico ePayments (Ogone).'))
         );
 
         return $order;
@@ -187,6 +189,7 @@ class Netresearch_OPS_Model_Response_Type_Refund extends Netresearch_OPS_Model_R
         if ($creditMemo->getInvoice()) {
             $transactionSave->addObject($creditMemo->getInvoice());
         }
+
         $transactionSave->save();
     }
 

@@ -51,10 +51,12 @@ class Netresearch_Ops_Model_System_Config_Backend_Intersolve_Brands
                     if (in_array($brand['brand'], $alreadyProcessedBrands)) {
                         Mage::throwException("Brands must be unique");
                     }
+
                     $alreadyProcessedBrands[] = $brand['brand'];
                 }
             }
         }
+
         return parent::save();
     }
 }

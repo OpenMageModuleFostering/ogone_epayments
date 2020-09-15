@@ -24,6 +24,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
                 $result = $this->validateRow($code, $row) && $result;
             }
         }
+
         return $result;
     }
 
@@ -55,6 +56,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         ) {
             return true;
         }
+
         $this->messages[$code]['kwixo_shipping_type_error']
             = 'invalid shipping type provided';
 
@@ -71,6 +73,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         ) {
             return true;
         }
+
         $this->messages[$code]['kwixo_shipping_speed_error']
             = 'invalid shipping speed provided';
 
@@ -87,6 +90,7 @@ class Netresearch_OPS_Model_Validator_Kwixo_Shipping_Setting
         ) {
             return true;
         }
+
         $this->messages[$code]['kwixo_shipping_details_error']
             = 'invalid shipping details provided';
 

@@ -54,8 +54,7 @@ class Netresearch_OPS_Model_Alias extends Mage_Core_Model_Abstract
         $billingAddressHash = null,
         $shippingAddressHash = null,
         $storeId = null
-    )
-    {
+    ) {
         $collection = $this->getCollection()
             ->addFieldToFilter('customer_id', $customerId);
         if (null != $billingAddressHash  && null != $shippingAddressHash) {
@@ -64,6 +63,7 @@ class Netresearch_OPS_Model_Alias extends Mage_Core_Model_Abstract
                 ->addFieldToFilter('shipping_address_hash', $shippingAddressHash)
                 ->addFieldToFilter('store_id', array('eq' => $storeId, 'null' => 'null'));
         }
+
         return $collection->load();
     }
 }

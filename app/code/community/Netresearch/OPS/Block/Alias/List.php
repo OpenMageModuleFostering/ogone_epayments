@@ -25,10 +25,9 @@ class Netresearch_OPS_Block_Alias_List
         $customer = Mage::helper('customer')->getCustomer();
         if (0 < $customer->getId()) {
             $aliasesCollection = Mage::helper('ops/alias')->getAliasesForCustomer($customer->getId());
-            foreach ($aliasesCollection as $alias) {
-                $aliases[] = $alias;
-            }
+            $aliases = $aliasesCollection->getItems();
         }
+
         return $aliases;
     }
 
@@ -40,13 +39,7 @@ class Netresearch_OPS_Block_Alias_List
      */
     public function getMethodName($methodCode)
     {
-        $title = '';
-        $instance = Mage::helper('payment')->getMethodInstance($methodCode);
-        if ($instance) {
-            $title = $instance->getTitle();
-        }
-
-        return $title;
+        return Mage::getStoreConfig('payment/'.$methodCode.'/title');
     }
 
     /**

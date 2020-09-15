@@ -65,6 +65,7 @@ class Netresearch_OPS_Model_Status_Update
         if (null == $this->messageContainer) {
             $this->messageContainer = Mage::getSingleton('adminhtml/session');
         }
+
         return $this->messageContainer;
     }
 
@@ -84,6 +85,7 @@ class Netresearch_OPS_Model_Status_Update
         if (null === $this->opsConfig) {
             $this->opsConfig = Mage::getModel('ops/config');
         }
+
         return $this->opsConfig;
     }
 
@@ -158,6 +160,7 @@ class Netresearch_OPS_Model_Status_Update
         if (null === $this->directLinkApi) {
             $this->directLinkApi = Mage::getModel('ops/api_directlink');
         }
+
         return $this->directLinkApi;
     }
 
@@ -182,6 +185,7 @@ class Netresearch_OPS_Model_Status_Update
         if (false === ($order->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract)) {
             return $this;
         }
+
         $this->setOrder($order);
         $this->buildParams($order->getPayment());
 
@@ -191,6 +195,7 @@ class Netresearch_OPS_Model_Status_Update
         } catch (Mage_Core_Exception $e) {
             $this->getMessageContainer()->addError($e->getMessage());
         }
+
         return $this;
     }
 
@@ -199,15 +204,16 @@ class Netresearch_OPS_Model_Status_Update
         // use PAYID if possible
         if (0 < strlen(trim($payment->getAdditionalInformation('paymentId')))) {
             $this->requestParams['PAYID'] = $payment->getAdditionalInformation('paymentId');
-
         } else {
             $useOrderId = true;
             if ($this->canNotUseOrderId($payment)
             ) {
                 $useOrderId = false;
             }
+
             $this->requestParams['ORDERID'] = $this->getOrderHelper()->getOpsOrderId($this->getOrder(), $useOrderId);
         }
+
         $this->addPayIdSub($payment);
 
 
@@ -224,6 +230,7 @@ class Netresearch_OPS_Model_Status_Update
             $this->getMessageContainer()->addError($this->getDataHelper()->__($e->getMessage()));
             return $this;
         }
+
         $this->opsResponse = array_change_key_case($this->opsResponse, CASE_UPPER);
         // in further processing the amount is sometimes in upper and sometimes in lower case :(
         if (array_key_exists('AMOUNT', $this->opsResponse)) {
@@ -239,7 +246,7 @@ class Netresearch_OPS_Model_Status_Update
         if (!array_key_exists('STATUS', $this->getOpsResponse())
             || $this->opsResponse['STATUS'] == $this->getOrder()->getPayment()->getAdditionalInformation('status')
         ) {
-            $this->getMessageContainer()->addNotice($this->getDataHelper()->__('No update available from Ingenico ePayments.'));
+            $this->getMessageContainer()->addNotice($this->getDataHelper()->__('No update available from Ingenico ePayments (Ogone).'));
            return $this;
         }
 
@@ -254,7 +261,7 @@ class Netresearch_OPS_Model_Status_Update
         }
 
         $this->getPaymentHelper()->saveOpsStatusToPayment($this->getOrder()->getPayment(), $this->getOpsResponse());
-        $this->getMessageContainer()->addSuccess($this->getDataHelper()->__('Ingenico ePayments status successfully updated'));
+        $this->getMessageContainer()->addSuccess($this->getDataHelper()->__('Ingenico ePayments (Ogone) status successfully updated'));
 
         return $this;
     }
@@ -298,6 +305,7 @@ class Netresearch_OPS_Model_Status_Update
         if ($lastTransaction && count($lastTransactionParts)>1) {
             $this->requestParams['PAYIDSUB'] = $lastTransactionParts[1];
         }
+
         return $this;
     }
 
@@ -305,10 +313,7 @@ class Netresearch_OPS_Model_Status_Update
     {
         $methodInstance = $payment->getMethodInstance();
 
-        return ($methodInstance instanceof Netresearch_OPS_Model_Payment_Kwixo_Abstract)
-        || ($methodInstance instanceof Netresearch_OPS_Model_Payment_DirectDebit)
-        || ($methodInstance instanceof Netresearch_OPS_Model_Payment_Cc
-            && $methodInstance->hasBrandAliasInterfaceSupport($payment));
+        return $methodInstance instanceof Netresearch_OPS_Model_Payment_Kwixo_Abstract;
     }
 
 } 

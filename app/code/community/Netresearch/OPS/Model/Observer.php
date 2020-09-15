@@ -74,7 +74,7 @@ class Netresearch_OPS_Model_Observer
                     $quote->getPayment()
                 )
             ) {
-                $this->confirmDdPayment($order, $quote );
+                $this->confirmDdPayment($order, $quote);
             } elseif ($quote->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract) {
                 $requestParams = $quote->getPayment()->getMethodInstance()->getFormFields($order, array(), false);
                 $this->invokeRequestParamValidation($requestParams);
@@ -136,8 +136,9 @@ class Netresearch_OPS_Model_Observer
          * allow null as valid state for creating the order with status 'pending'
          */
         if (null != $response['STATUS'] && Mage::helper('ops/payment')->isPaymentFailed($response['STATUS'])) {
-            Mage::throwException($this->getHelper()->__('Ingenico ePayments Payment failed'));
+            Mage::throwException($this->getHelper()->__('Ingenico ePayments (Ogone) Payment failed'));
         }
+
         $quote->getPayment()->setAdditionalInformation('ops_response', $response)->save();
 
     }
@@ -158,7 +159,7 @@ class Netresearch_OPS_Model_Observer
     }
 
     /**
-     * Replace order cancel comfirm message of Magento by a custom message from Ingenico ePayments
+     * Replace order cancel comfirm message of Magento by a custom message from Ingenico ePayments (Ogone)
      *
      * @event adminhtml_block_html_before
      *
@@ -176,14 +177,14 @@ class Netresearch_OPS_Model_Observer
             return $this;
         }
 
-        //If payment method is one of the Ingenico ePayments-ones and order can be cancelled manually
+        //If payment method is one of the Ingenico ePayments (Ogone)-ones and order can be cancelled manually
         if ($block->getOrder()->getPayment()->getMethodInstance() instanceof Netresearch_OPS_Model_Payment_Abstract
             && true === $block->getOrder()->getPayment()->getMethodInstance()->canCancelManually($block->getOrder())
         ) {
             //Build message and update cancel button
             $message = Mage::helper('ops')->__(
                 "Are you sure you want to cancel this order? Warning:" .
-                " Please check the payment status in the back-office of Ingenico ePayments before." .
+                " Please check the payment status in the back-office of Ingenico ePayments (Ogone) before." .
                 " By cancelling this order you won\\'t be able to update the status in Magento anymore."
             );
             $block->updateButton(
@@ -198,7 +199,7 @@ class Netresearch_OPS_Model_Observer
 
     /**
      *
-     * appends a checkbox for closing the transaction if it's a Ingenico ePayments payment
+     * appends a checkbox for closing the transaction if it's a Ingenico ePayments (Ogone) payment
      *
      * @event core_block_abstract_to_html_after
      *
@@ -211,7 +212,7 @@ class Netresearch_OPS_Model_Observer
         $html = '';
         /*
          * show the checkbox only if the credit memo create page is displayed and
-         * the refund can be done online and the payment is done via Ingenico ePayments
+         * the refund can be done online and the payment is done via Ingenico ePayments (Ogone)
          */
         if ($observer->getBlock() instanceof Mage_Adminhtml_Block_Sales_Order_Creditmemo_Totals
             && $observer->getBlock()->getParentBlock()
@@ -228,10 +229,10 @@ class Netresearch_OPS_Model_Observer
             $layout = $block->getLayout();
             $html = $transport->getHtml();
             $checkBoxHtml = $layout->createBlock(
-                'ops/adminhtml_sales_order_creditmemo_totals_checkbox',
+                'ops/adminhtml_sales_creditmemo_totals_checkbox',
                 'ops_refund_checkbox'
             )
-                ->setTemplate('ops/sales/order/creditmemo/totals/checkbox.phtml')
+                ->setTemplate('ops/sales/creditmemo/totals/checkbox.phtml')
                 ->renderView();
             $html = $html . $checkBoxHtml;
             $transport->setHtml($html);
@@ -244,8 +245,8 @@ class Netresearch_OPS_Model_Observer
      *
      * fetch the creation of credit memo event and display warning message when
      * - credit memo could be done online
-     * - payment is a Ingenico ePayments payment
-     * - Ingenico ePayments transaction is closed
+     * - payment is a Ingenico ePayments (Ogone) payment
+     * - Ingenico ePayments (Ogone) transaction is closed
      *
      * @event core_block_abstract_to_html_after
      *
@@ -258,8 +259,8 @@ class Netresearch_OPS_Model_Observer
         $html = '';
         /**
          * - credit memo could be done online
-         * - payment is a Ingenico ePayments payment
-         * - Ingenico ePayments transaction is closed
+         * - payment is a Ingenico ePayments (Ogone) payment
+         * - Ingenico ePayments (Ogone) transaction is closed
          */
         if ($observer->getBlock() instanceof Mage_Adminhtml_Block_Sales_Order_Creditmemo_Create
             && $observer->getBlock()->getCreditmemo()->getOrder()->getPayment()
@@ -274,7 +275,7 @@ class Netresearch_OPS_Model_Observer
             $layout = $block->getLayout();
             $html = $transport->getHtml();
             $warningHtml = $layout->createBlock(
-                'ops/adminhtml_sales_order_creditmemo_closedTransaction_warning',
+                'ops/adminhtml_sales_creditmemo_closedTransaction_warning',
                 'ops_closed-transaction-warning'
             )->renderView();
             $html = $warningHtml . $html;
@@ -317,7 +318,7 @@ class Netresearch_OPS_Model_Observer
     }
 
     /**
-     * appends the status update button to the order's button in case it's an Ingenico ePayments payment
+     * appends the status update button to the order's button in case it's an Ingenico ePayments (Ogone) payment
      *
      * @event core_block_abstract_prepare_layout_before
      *
@@ -333,7 +334,6 @@ class Netresearch_OPS_Model_Observer
             if ($paymentMethod instanceof Netresearch_OPS_Model_Payment_Abstract
                 && Mage::getSingleton('admin/session')->isAllowed('sales/order/actions/invoice')
             ) {
-
                 $block->addButton(
                     'ops_refresh', array(
                         'label'   => Mage::helper('ops/data')->__('Refresh payment status'),
@@ -403,7 +403,7 @@ class Netresearch_OPS_Model_Observer
         if (false == $validator->isValid($requestParams)) {
             $this->getOnepage()->getCheckout()->setGotoSection('payment');
             Mage::throwException(
-                $this->getHelper()->__('The data you have provided can not be processed by Ingenico ePayments')
+                $this->getHelper()->__('The data you have provided can not be processed by Ingenico ePayments (Ogone)')
             );
         }
 
@@ -433,6 +433,7 @@ class Netresearch_OPS_Model_Observer
             if ($quote->getShippingAddress()) {
                 $shippingParams = $paramHelper->extractShipToParameters($quote->getShippingAddress(), $quote);
             }
+
             $params = array_merge($ownerParams, $shippingParams, $billingParams);
             $validator = Mage::getModel('ops/validator_parameter_factory')->getValidatorFor(
                 Netresearch_OPS_Model_Validator_Parameter_Factory::TYPE_REQUEST_PARAMS_VALIDATION
@@ -464,7 +465,7 @@ class Netresearch_OPS_Model_Observer
     }
 
     /**
-     * resets the order status back to pending payment in case of directlink payments in Ingenico ePayments authorize status
+     * resets the order status back to pending payment in case of directlink payments in Ingenico ePayments (Ogone) authorize status
      *
      * @event sales_order_payment_place_end
      *
@@ -482,14 +483,14 @@ class Netresearch_OPS_Model_Observer
         ) {
             $payment->getOrder()->setState(
                 Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, true,
-                $this->getHelper()->__('Payment has been authorized by Ingenico ePayments, but not yet captured.')
+                $this->getHelper()->__('Payment has been authorized by Ingenico ePayments (Ogone), but not yet captured.')
             );
         }
     }
 
 
     /**
-     * appends the resend payment info button to the order's button in case it's an Ingenico ePayments payment
+     * appends the resend payment info button to the order's button in case it's an Ingenico ePayments (Ogone) payment
      * and the payment status is an authorize status
      *
      * @event core_block_abstract_prepare_layout_before
@@ -527,7 +528,7 @@ class Netresearch_OPS_Model_Observer
 
     /**
      * Adjusts the confirmation message text of the recurring profiles cancel and suspend button to inform the merchant
-     * that no call to Ingenico ePayments will happen
+     * that no call to Ingenico ePayments (Ogone) will happen
      *
      * @event        adminhtml_block_html_before
      *
@@ -544,7 +545,7 @@ class Netresearch_OPS_Model_Observer
                 $cancelMessage = Mage::helper('ops')
                     ->__(
                         'Are you sure you want to perform this action?' .
-                        ' Canceling the subscription here will not actually cancel the subscription on Ingenico ePayments side.' .
+                        ' Canceling the subscription here will not actually cancel the subscription on Ingenico ePayments (Ogone) side.' .
                         ' To stop charging the customer you will have to deactivate the subscription there.'
                     );
                 $cancelUrl = $block->getUrl(
@@ -561,7 +562,7 @@ class Netresearch_OPS_Model_Observer
                 $suspendMessage = Mage::helper('ops')
                     ->__(
                         'Are you sure you want to perform this action?' .
-                        'Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments side.' .
+                        'Suspending the subscription here will not actually cancel the subscription on Ingenico ePayments (Ogone) side.' .
                         'To stop charging the customer you will have to deactivate the subscription there.'
                     );
                 $suspendUrl = $block->getUrl(
@@ -632,8 +633,6 @@ class Netresearch_OPS_Model_Observer
             $message = '<div class="notice-msg" style="padding-left: 26px;"><p style="padding: 7px;">' . $message
                 . '</p></div>';
             $observer->getTransport()->setHtml($html . $message);
-
-
         }
 
         return $this;
@@ -663,7 +662,6 @@ class Netresearch_OPS_Model_Observer
         ) {
             $message = $this->getHelper()->__('Order has been authorized, but not captured/paid yet.');
             $order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, true, $message);
-
         }
 
         return $this;
@@ -697,7 +695,10 @@ class Netresearch_OPS_Model_Observer
 
         try {
             Mage::helper('ops/data')->sendTransactionalEmail($order);
-            Mage::helper('ops/data')->sendTransactionalEmail($order->getPayment()->getCreatedInvoice());
+            $createdInvoice = $order->getPayment()->getCreatedInvoice();
+            if ($createdInvoice) {
+                Mage::helper('ops/data')->sendTransactionalEmail($createdInvoice);
+            }
         } catch (Exception $e) {
             Mage::logException($e);
         }
@@ -721,5 +722,19 @@ class Netresearch_OPS_Model_Observer
         /** @var Netresearch_OPS_Model_Payment_Features_PaymentEmail $sendEmailModel */
         $sendEmailModel = Mage::getModel('ops/payment_features_paymentEmail');
         $sendEmailModel->resendPaymentInfo($order);
+    }
+
+    /**
+     * add flag aliasChange to quote
+     *
+     * event: checkout_controller_onepage_save_shipping_method
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function resetAliasSuccessOnChange(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $observer->getQuote();
+        $quote->setData('resetAlias', true);
     }
 }

@@ -18,7 +18,6 @@ class Netresearch_OPS_Model_System_Config_Mode extends Mage_Core_Model_Config_Da
                 $default = $xmlConfig->getNode('default/'.$path);
                 $newValue = preg_replace('/\/ncol\/\w+/', '/ncol/'.$this->getValue(), $default);
                 Mage::getConfig()->saveConfig($path, $newValue, $this->getScope(), $this->getScopeId());
-
             }
         }
 

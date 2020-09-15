@@ -122,6 +122,7 @@ class Netresearch_OPS_Model_Source_Kwixo_ProductCategories
         foreach ($this->toOptionArray() as $option) {
             $kwixoValues[] = $option['value'];
         }
+
         return $kwixoValues;
     }
 }

@@ -37,7 +37,7 @@
             <show_in_store>1</show_in_store>
             <groups>
                 <ops_support translate="label">
-                    <label>Ingenico ePayments Information</label>
+                    <label>Ingenico ePayments (Ogone) Information</label>
                     <frontend_type>text</frontend_type>
                     <frontend_model>ops/system_config_support</frontend_model>
                     <sort_order>0</sort_order>
@@ -46,7 +46,7 @@
                     <show_in_store>1</show_in_store>
                 </ops_support>
                 <ops translate="label comment" module="ops">
-                    <label>Ingenico ePayments Account</label>
+                    <label>Ingenico ePayments (Ogone) Account</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>1</sort_order>
                     <show_in_default>1</show_in_default>
@@ -89,12 +89,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments backend in section <em>Technical information</em> on tab <em>Global security parameters</em>.]]></tooltip>
+                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments (Ogone) backend in section <em>Technical information</em> on tab <em>Global security parameters</em>.]]></tooltip>
                         </secret_key_type>
                         <secret_key_in translate="label comment tooltip">
                             <label>SHA-IN Pass phrase</label>
-                            <comment><![CDATA[Only alphanumeric characters, not longer than 20 characters. Refer to Ingenico ePayments's backend in section <em>Technical Information</em> on tab <em>Data and origin verification</em>.]]></comment>
-                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments backend in section <em>Technical information</em> on tab <em>Data and origin verification</em>.]]></tooltip>
+                            <comment><![CDATA[Only alphanumeric characters, not longer than 20 characters. Refer to Ingenico ePayments (Ogone)'s backend in section <em>Technical Information</em> on tab <em>Data and origin verification</em>.]]></comment>
+                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments (Ogone) backend in section <em>Technical information</em> on tab <em>Data and origin verification</em>.]]></tooltip>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <frontend_type>obscure</frontend_type>
                             <sort_order>50</sort_order>
@@ -104,8 +104,8 @@
                         </secret_key_in>
                         <secret_key_out translate="label comment tooltip">
                             <label>SHA-OUT Pass phrase</label>
-                            <comment><![CDATA[Only alphanumeric characters, not longer than 20 characters. Refer to Ingenico ePayments's backend in section <em>Technical Information</em> on tab <em>Transaction feedback</em>.]]></comment>
-                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments backend in section <em>Technical information</em> on tab <em>Transaction feedback</em>.]]></tooltip>
+                            <comment><![CDATA[Only alphanumeric characters, not longer than 20 characters. Refer to Ingenico ePayments (Ogone)'s backend in section <em>Technical Information</em> on tab <em>Transaction feedback</em>.]]></comment>
+                            <tooltip><![CDATA[This must be identical to the value in the Ingenico ePayments (Ogone) backend in section <em>Technical information</em> on tab <em>Transaction feedback</em>.]]></tooltip>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <frontend_type>obscure</frontend_type>
                             <sort_order>60</sort_order>
@@ -115,7 +115,7 @@
                         </secret_key_out>
                         <mode translate="label comment tooltip">
                             <label>Mode</label>
-                            <tooltip><![CDATA[Depending on the selection the extension will communicate with the Ingenico ePayments test or production service. Choose custom, if you have to use special urls for the gateway.]]></tooltip>
+                            <tooltip><![CDATA[Depending on the selection the extension will communicate with the Ingenico ePayments (Ogone) test or production service. Choose custom, if you have to use special urls for the gateway.]]></tooltip>
                             <sort_order>69</sort_order>
                             <frontend_type>select</frontend_type>
                             <source_model>ops/source_mode</source_model>
@@ -177,7 +177,7 @@
                         </directlink_maintenance_api>
                         <api_userid translate="label tooltip">
                             <label>API User</label>
-                            <tooltip><![CDATA[Special user for API must be created in the Ingenico ePayments backend in section <em>Users</em>.]]></tooltip>
+                            <tooltip><![CDATA[Special user for API must be created in the Ingenico ePayments (Ogone) backend in section <em>Users</em>.]]></tooltip>
                             <frontend_type>text</frontend_type>
                             <sort_order>85</sort_order>
                             <show_in_default>1</show_in_default>
@@ -186,7 +186,7 @@
                         </api_userid>
                         <api_pswd translate="label tooltip">
                             <label>API Password</label>
-                            <tooltip><![CDATA[Password which has been set in the Ingenico ePayments backend for above API user.]]></tooltip>
+                            <tooltip><![CDATA[Password which has been set in the Ingenico ePayments (Ogone) backend for above API user.]]></tooltip>
                             <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                             <frontend_type>obscure</frontend_type>
                             <sort_order>88</sort_order>
@@ -196,7 +196,7 @@
                         </api_pswd>
                         <payment_action translate="label comment tooltip">
                             <label>Payment Action</label>
-                            <tooltip><![CDATA[This setting will override the configuration in the Ingenico ePayments backend in section <em>Technical information</em> on tab <em>Global transaction parameters</em>.]]></tooltip>
+                            <tooltip><![CDATA[This setting will override the configuration in the Ingenico ePayments (Ogone) backend in section <em>Technical information</em> on tab <em>Global transaction parameters</em>.]]></tooltip>
                             <frontend_type>select</frontend_type>
                             <source_model>ops/source_paymentAction</source_model>
                             <sort_order>90</sort_order>
@@ -225,11 +225,11 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip><![CDATA[For an easier PCI compliance we recommend redirect mode, iFrame mode or dynamic template with the template hosted on Ingenico ePayments servers. This does NOT affect the Hosted Tokenization iFrame (HTP).]]></tooltip>
+                            <tooltip><![CDATA[For an easier PCI compliance we recommend redirect mode, iFrame mode or dynamic template with the template hosted on Ingenico ePayments (Ogone) servers. This does NOT affect the Hosted Tokenization iFrame (HTP).]]></tooltip>
                         </template>
                         <template_identifier translate="label comment">
                             <label>Template Identifier/Url</label>
-                            <tooltip>Enter the TemplateRootId you received from Ingenico ePayments or the url to an external template.</tooltip>
+                            <tooltip>Enter the TemplateRootId you received from Ingenico ePayments (Ogone) or the url to an external template.</tooltip>
                             <frontend_type>text</frontend_type>
                             <sort_order>102</sort_order>
                             <show_in_default>1</show_in_default>
@@ -239,7 +239,7 @@
                             <validate>required-entry</validate>
                         </template_identifier>
                         <html_title translate="label comment">
-                            <label>Title of the Ingenico ePayments Template</label>
+                            <label>Title of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
@@ -249,7 +249,7 @@
                             <validate>required-entry</validate>
                         </html_title>
                         <bgcolor translate="label comment">
-                            <label>Background Color of Ingenico ePayments Template</label>
+                            <label>Background Color of Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: white]]></comment>
                             <sort_order>130</sort_order>
@@ -260,7 +260,7 @@
                             <validate>required-entry</validate>
                         </bgcolor>
                         <txtcolor translate="label comment">
-                            <label>Text Color of the Ingenico ePayments Template</label>
+                            <label>Text Color of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: black]]></comment>
                             <sort_order>140</sort_order>
@@ -271,7 +271,7 @@
                             <validate>required-entry</validate>
                         </txtcolor>
                         <tblbgcolor translate="label comment">
-                            <label>Table Background Color of the Ingenico ePayments Template</label>
+                            <label>Table Background Color of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: white]]></comment>
                             <sort_order>150</sort_order>
@@ -282,7 +282,7 @@
                             <validate>required-entry</validate>
                         </tblbgcolor>
                         <tbltxtcolor translate="label comment">
-                            <label>Table Text Color of the Ingenico ePayments Template</label>
+                            <label>Table Text Color of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: black]]></comment>
                             <sort_order>160</sort_order>
@@ -315,7 +315,7 @@
                             <validate>required-entry</validate>
                         </showhomebutton>
                         <buttonbgcolor translate="label">
-                            <label>Button Background Color of the Ingenico ePayments Template</label>
+                            <label>Button Background Color of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>170</sort_order>
                             <show_in_default>1</show_in_default>
@@ -325,7 +325,7 @@
                             <validate>required-entry</validate>
                         </buttonbgcolor>
                         <buttontxtcolor translate="label comment">
-                            <label>Button Text Color of the Ingenico ePayments Template</label>
+                            <label>Button Text Color of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: white]]></comment>
                             <sort_order>180</sort_order>
@@ -336,7 +336,7 @@
                             <validate>required-entry</validate>
                         </buttontxtcolor>
                         <fonttype translate="label comment">
-                            <label>Font Family of the Ingenico ePayments Template</label>
+                            <label>Font Family of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment><![CDATA[e.g: Verdana]]></comment>
                             <sort_order>190</sort_order>
@@ -347,7 +347,7 @@
                             <validate>required-entry</validate>
                         </fonttype>
                         <logo translate="label comment">
-                            <label>Logo of the Ingenico ePayments Template</label>
+                            <label>Logo of the Ingenico ePayments (Ogone) Template</label>
                             <frontend_type>text</frontend_type>
                             <comment>URL/filename of the logo. The URL must be absolute and stored on a secure server.</comment>
                             <sort_order>200</sort_order>
@@ -357,7 +357,7 @@
                             <depends><template separator=",">ops,ops_iframe</template></depends>
                             <validate>required-entry</validate>
                         </logo>
-                        <pmlist translate="label comment">
+                        <pmlist translate="label tooltip comment">
                             <label>Layout of Payment Methods</label>
                             <tooltip><![CDATA[Layout on the external payment page (for redirect payment methods).]]></tooltip>
                             <frontend_type>select</frontend_type>
@@ -369,26 +369,55 @@
                             <depends><template separator=",">ops,ops_iframe</template></depends>
                             <validate>required-entry</validate>
                         </pmlist>
-                        <redirectOrderReference translate="label comment">
-                            <label>Order reference in case of redirect payments</label>
-                            <comment>See chapter 'Configuration', section 'Magento - Backend' in the documentation. Please note that the option 'orderId' is not used for the Kwixo payment methods.</comment>
+                        <paymentReminder translate="label tooltip comment">
+                            <label>Automatic Payment Reminder</label>
+                            <tooltip><![CDATA[This requires working Magento Cronjobs.]]></tooltip>
+                            <comment><![CDATA[Send reminder email to the customer if order is unpaid (status 0, 1, 2).]]></comment>
                             <frontend_type>select</frontend_type>
-                            <source_model>ops/source_orderReference</source_model>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>215</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </paymentReminder>
+                        <paymentReminderDays translate="label comment">
+                            <label>Reminder Days</label>
+                            <comment><![CDATA[Number of days before payment reminder email is sent to the customer. Minimum: 1 day.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>216</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends>
+                                <paymentReminder>1</paymentReminder>
+                            </depends>
+                            <validate>validate-number validate-greater-than-zero</validate>
+                        </paymentReminderDays>
+                        <paymentCancellation translate="label comment tooltip">
+                            <label>Automatic Payment Cancellation</label>
+                            <tooltip><![CDATA[This requires working Magento Cronjobs.]]></tooltip>
+                            <comment><![CDATA[Cancel unpaid (stale) orders automatically (status 0, 1, 2).]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>220</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </redirectOrderReference>
-                        <inlineOrderReference translate="label comment">
-                            <label>Order reference in case of inline payments</label>
-                            <comment>See chapter 'Configuration', section 'Magento - Backend' in the documentation.</comment>
-                            <frontend_type>select</frontend_type>
-                            <source_model>ops/source_orderReference</source_model>
+                            <show_in_store>0</show_in_store>
+                        </paymentCancellation>
+                        <paymentCancellationDays translate="label comment tooltip">
+                            <label>Cancellation Days</label>
+                            <tooltip><![CDATA[If Automatic Payment Reminder is enabled too, it's configuration will be taken into account to prevent reminder emails and cancellations from happening at the same time.]]></tooltip>
+                            <comment><![CDATA[Number of days before unpaid (stale) orders are cancelled. Minimum: 1 day.]]></comment>
+                            <frontend_type>text</frontend_type>
                             <sort_order>221</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </inlineOrderReference>
+                            <show_in_store>0</show_in_store>
+                            <depends>
+                                <paymentCancellation>1</paymentCancellation>
+                            </depends>
+                            <validate>validate-number validate-greater-than-zero</validate>
+                        </paymentCancellationDays>
                         <showQuoteIdInOrderGrid translate="label comment">
                             <label>Show Quote ID in the order grid</label>
                             <frontend_type>select</frontend_type>
@@ -427,12 +456,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip>The email template to use. Choose 'Default Template from Locale' to use Ingenico ePayments extensions default template.</tooltip>
+                            <tooltip>The email template to use. Choose 'Default Template from Locale' to use Ingenico ePayments (Ogone) extensions default template.</tooltip>
                         </resendPaymentInfo_template>
                         <device_fingerprinting translate="label tooltip comment">
                             <label>Enable device fingerprinting</label>
                             <comment>When enabling this, you still need to request the explicit consent of the customer in the checkout to transmit this data.</comment>
-                            <tooltip>This functionality will transmit specific customer data as hash to Ingenico ePayments to identify the device from which the transaction was sent can be identified with the highest probability.</tooltip>
+                            <tooltip>This functionality will transmit specific customer data as hash to Ingenico ePayments (Ogone) to identify the device from which the transaction was sent can be identified with the highest probability.</tooltip>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>280</sort_order>
@@ -452,8 +481,8 @@
                         </ops_rtimeout>
                         <creditdebit_split translate="label tooltip comment">
                             <label>Credit/Debit card Split</label>
-                            <tooltip><![CDATA[If activated an extra parameter is transmitted to Ingenico ePayments for the Creditcard/Debitcard payment methods.]]></tooltip>
-                            <comment><![CDATA[See also <a title='Split credit/debit cards' target='_blank' href='https://payment-services.ingenico.com/int/en/ogone/support/guides/integration%20guides/split-credit-debit-cards'>Ingenico ePayments documentation</a>.]]></comment>
+                            <tooltip><![CDATA[If activated an extra parameter is transmitted to Ingenico ePayments (Ogone) for the Creditcard/Debitcard payment methods.]]></tooltip>
+                            <comment><![CDATA[See also <a title='Split credit/debit cards' target='_blank' href='https://payment-services.ingenico.com/int/en/ogone/support/guides/integration%20guides/split-credit-debit-cards'>Ingenico ePayments (Ogone) documentation</a>.]]></comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>300</sort_order>
@@ -461,6 +490,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </creditdebit_split>
+                        <address_split translate="label tooltip">
+                            <label>Automatic Address House Number Detection</label>
+                            <tooltip>When activated, the billing address house number will be automatically parsed and separated from the address. Only disable this setting if you have issues with the house number detection.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>305</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </address_split>
                         <billing_day_month translate="label tooltip">
                             <label>Billing day for monthly subscriptions</label>
                             <frontend_type>text</frontend_type>
@@ -503,13 +542,95 @@
                         </suspendSubscription_template>
                     </fields>
                 </ops>
+                <ops_error_settings translate="label">
+                    <label>Ingenico ePayments (Ogone) Error Settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>2</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <errorDefault translate="label">
+                            <label>Default Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </errorDefault>
+                        <error50001123 translate="label">
+                            <label>Code 50001123 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error50001123>
+                        <error50001216 translate="label">
+                            <label>Code 50001216 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error50001216>
+                        <error50001300 translate="label">
+                            <label>Code 50001300 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error50001300>
+                        <error50001054 translate="label">
+                            <label>Code 50001054 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error50001054>
+                        <error5555554 translate="label">
+                            <label>Code 5555554 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error5555554>
+                        <error55555555 translate="label">
+                            <label>Code 55555555 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error55555555>
+                        <error55555556 translate="label">
+                            <label>Code 55555556 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error55555556>
+                        <error50001301 translate="label">
+                            <label>Code 50001301 Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </error50001301>
+                    </fields>
+                </ops_error_settings>
             </groups>
         </payment_services>
         <payment>
             <frontend_model>ops/system_config_paymentForm</frontend_model>
             <groups>
                 <ops_directDebit translate="label">
-                    <label>Ingenico ePayments DirectDebit</label>
+                    <label>Ingenico ePayments (Ogone) DirectDebit</label>
                     <sort_order>40</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -607,15 +728,23 @@
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>110</sort_order>
-                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments side.</comment>
+                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </active_alias>
+                        <htp_template_name translate="label comment">
+                            <label>HTP Template Name</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>135</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </htp_template_name>
                     </fields>
                 </ops_directDebit>
                 <ops_postFinanceEFinance translate="label">
-                    <label>Ingenico ePayments PostFinanceEFinance</label>
+                    <label>Ingenico ePayments (Ogone) PostFinanceEFinance</label>
                     <sort_order>50</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -691,7 +820,7 @@
                     </fields>
                 </ops_postFinanceEFinance>
                 <ops_eDankort translate="label">
-                    <label>Ingenico ePayments EDankort</label>
+                    <label>Ingenico ePayments (Ogone) EDankort</label>
                     <sort_order>60</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -767,7 +896,7 @@
                     </fields>
                 </ops_eDankort>
                 <ops_kbcOnline translate="label">
-                    <label>Ingenico ePayments KbcOnline</label>
+                    <label>Ingenico ePayments (Ogone) KbcOnline</label>
                     <sort_order>70</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -843,7 +972,7 @@
                     </fields>
                 </ops_kbcOnline>
                 <ops_iDeal translate="label">
-                    <label>Ingenico ePayments iDEAL</label>
+                    <label>Ingenico ePayments (Ogone) iDEAL</label>
                     <sort_order>80</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -919,7 +1048,7 @@
                     </fields>
                 </ops_iDeal>
                 <ops_belfiusDirectNet translate="label">
-                    <label>Ingenico ePayments Belfius Direct Net</label>
+                    <label>Ingenico ePayments (Ogone) Belfius Direct Net</label>
                     <sort_order>90</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -995,7 +1124,7 @@
                     </fields>
                 </ops_belfiusDirectNet>
                 <ops_bankTransfer translate="label">
-                    <label>Ingenico ePayments BankTransfer</label>
+                    <label>Ingenico ePayments (Ogone) BankTransfer</label>
                     <sort_order>100</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1082,7 +1211,7 @@
                     </fields>
                 </ops_bankTransfer>
                 <ops_openInvoiceDe translate="label">
-                    <label>Ingenico ePayments Open Invoice DE</label>
+                    <label>Ingenico ePayments (Ogone) Open Invoice DE</label>
                     <sort_order>110</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1194,7 +1323,7 @@
                     </fields>
                 </ops_openInvoiceDe>
                 <ops_openInvoiceAt translate="label">
-                    <label>Ingenico ePayments Open Invoice AT</label>
+                    <label>Ingenico ePayments (Ogone) Open Invoice AT</label>
                     <sort_order>120</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1306,7 +1435,7 @@
                     </fields>
                 </ops_openInvoiceAt>
                 <ops_openInvoiceNl translate="label">
-                    <label>Ingenico ePayments Open Invoice NL</label>
+                    <label>Ingenico ePayments (Ogone) Open Invoice NL</label>
                     <sort_order>130</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1408,7 +1537,7 @@
                     </fields>
                 </ops_openInvoiceNl>
                 <ops_cbcOnline translate="label">
-                    <label>Ingenico ePayments CbcOnline</label>
+                    <label>Ingenico ePayments (Ogone) CbcOnline</label>
                     <sort_order>140</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1484,7 +1613,7 @@
                     </fields>
                 </ops_cbcOnline>
                 <ops_giroPay translate="label">
-                    <label>Ingenico ePayments GiroPay</label>
+                    <label>Ingenico ePayments (Ogone) GiroPay</label>
                     <sort_order>150</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1560,7 +1689,7 @@
                     </fields>
                 </ops_giroPay>
                 <ops_Masterpass translate="label">
-                    <label>Ingenico ePayments Masterpass</label>
+                    <label>Ingenico ePayments (Ogone) Masterpass</label>
                     <sort_order>160</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1636,7 +1765,7 @@
                     </fields>
                 </ops_Masterpass>
                 <ops_interSolve translate="label">
-                    <label>Ingenico ePayments InterSolve</label>
+                    <label>Ingenico ePayments (Ogone) InterSolve</label>
                     <sort_order>170</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1717,12 +1846,12 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Add one or more brands. In field "BRAND" you will have to enter the value you got from Ingenico ePayments.</comment>
+                            <comment>Add one or more brands. In field 'BRAND' you will have to enter the value you got from Ingenico ePayments (Ogone).</comment>
                         </brands>
                     </fields>
                 </ops_interSolve>
                 <ops_cashU translate="label">
-                    <label>Ingenico ePayments CashU</label>
+                    <label>Ingenico ePayments (Ogone) CashU</label>
                     <sort_order>180</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1798,7 +1927,7 @@
                     </fields>
                 </ops_cashU>
                 <ops_paypal translate="label">
-                    <label>Ingenico ePayments Paypal</label>
+                    <label>Ingenico ePayments (Ogone) Paypal</label>
                     <sort_order>200</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1874,7 +2003,7 @@
                     </fields>
                 </ops_paypal>
                 <ops_eps translate="label">
-                    <label>Ingenico ePayments Eps</label>
+                    <label>Ingenico ePayments (Ogone) Eps</label>
                     <sort_order>210</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -1950,7 +2079,7 @@
                     </fields>
                 </ops_eps>
                 <ops_pingPing translate="label">
-                    <label>Ingenico ePayments PingPing</label>
+                    <label>Ingenico ePayments (Ogone) PingPing</label>
                     <sort_order>220</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2026,7 +2155,7 @@
                     </fields>
                 </ops_pingPing>
                 <ops_fortisPayButton translate="label">
-                    <label>Ingenico ePayments FortisPayButton</label>
+                    <label>Ingenico ePayments (Ogone) FortisPayButton</label>
                     <sort_order>230</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2102,7 +2231,7 @@
                     </fields>
                 </ops_fortisPayButton>
                 <ops_directEbanking translate="label">
-                    <label>Ingenico ePaymentsSofortÜberweisung</label>
+                    <label>Ingenico ePayments (Ogone)SofortÜberweisung</label>
                     <sort_order>240</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2188,8 +2317,9 @@
                         </position>
                     </fields>
                 </ops_directEbanking>
+
                 <ops_cc translate="label">
-                    <label>Ingenico ePayments Cc</label>
+                    <label>Ingenico ePayments (Ogone) Cc (Direct Link)</label>
                     <sort_order>250</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2230,27 +2360,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </types>
-                        <redirect_all translate="label comment">
-                            <label>Enable redirect payment for all card types</label>
-                            <comment><![CDATA[If set to <em>Yes</em>, customers will be redirected to the external Ingenico ePayments payment page.]]></comment>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>40</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </redirect_all>
-                        <inline_types translate="label tooltip">
-                            <label>Enable inline payment (Direct Link) for these card types</label>
-                            <tooltip><![CDATA[For the selected card types, the customer can enter the credit card details directly in the checkout.]]></tooltip>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>ops/source_cc_aliasInterfaceEnabledTypes</source_model>
-                            <sort_order>41</sort_order>
-                            <depends><redirect_all>0</redirect_all></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </inline_types>
                         <enabled_3dsecure translate="label tooltip">
                             <label>Enable 3D secure</label>
                             <tooltip><![CDATA[If the customer's credit card supports 3D Secure, he will be redirected to an external page to enter his password.]]></tooltip>
@@ -2297,7 +2406,111 @@
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>110</sort_order>
-                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments side.</comment>
+                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments (Ogone) side.</comment>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active_alias>
+                        <zero_amount_checkout>
+                            <label>Allow zero amount authorization</label>
+                            <comment>Only if payment action is authorize.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </zero_amount_checkout>
+                        <htp_template_name translate="label comment">
+                            <label>HTP Template Name</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>135</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </htp_template_name>
+                    </fields>
+                </ops_cc>
+
+                <ops_cc_redirect translate="label">
+                    <label>Other Ingenico ePayments (Ogone) Cc brands</label>
+                    <sort_order>252</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                        </title>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <types translate="label">
+                            <label>Enabled Card Types</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>ops/source_cc_redirectTypes</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </types>
+                        <enabled_3dsecure translate="label tooltip">
+                            <label>Enable 3D secure</label>
+                            <tooltip><![CDATA[If the customer's credit card supports 3D Secure, he will be redirected to an external page to enter his password.]]></tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </enabled_3dsecure>
+                        <image translate="label comment">
+                            <label>Payment Logo</label>
+                            <sort_order>80</sort_order>
+                            <frontend_type>paymentLogo</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_image</backend_model>
+                            <upload_dir config="system/filesystem/media" scope_info="1">ops/paymentLogo</upload_dir>
+                            <base_url type="media" scope_info="1">ops/paymentLogo</base_url>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Allowed file types: jpeg, gif, png.</comment>
+                        </image>
+                        <position translate="label">
+                            <label>Payment Logo Visibility</label>
+                            <sort_order>90</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>ops/system_config_backend_paymentLogo</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </position>
+                        <active_alias translate="label comment">
+                            <label>Enabled Alias Manager</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>110</sort_order>
+                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -2305,20 +2518,24 @@
                         <alias_usage_for_new_alias translate="label comment">
                             <label>Aliasusage New</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>110</sort_order>
-                            <comment>Here you can enter the desired text which will be displayed on Ingenico ePayments side.</comment>
+                            <sort_order>111</sort_order>
+                            <comment>Here you can enter the desired text which will be displayed on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                            <depends><active_alias>1</active_alias></depends>
                         </alias_usage_for_new_alias>
                         <alias_usage_for_existing_alias translate="label comment">
                             <label>Aliasusage existing Alias</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>111</sort_order>
-                            <comment>Here you can enter the desired text which is used for existing alias, the text will be displayed on Ingenico ePayments side.</comment>
+                            <sort_order>112</sort_order>
+                            <comment>Here you can enter the desired text which is used for existing alias, the text will be displayed on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                            <depends><active_alias>1</active_alias></depends>
                         </alias_usage_for_existing_alias>
                         <zero_amount_checkout>
                             <label>Allow zero amount authorization</label>
@@ -2331,9 +2548,10 @@
                             <show_in_store>1</show_in_store>
                         </zero_amount_checkout>
                     </fields>
-                </ops_cc>
+                </ops_cc_redirect>
+
                 <ops_dc translate="label">
-                    <label>Ingenico ePayments Dc</label>
+                    <label>Ingenico ePayments (Ogone) Dc (Direct Link)</label>
                     <sort_order>260</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2374,27 +2592,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </types>
-                        <redirect_all translate="label comment">
-                            <label>Enable redirect payment for all card types</label>
-                            <comment><![CDATA[If set to <em>Yes</em>, customers will be redirected to the external Ingenico ePayments payment page.]]></comment>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>40</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </redirect_all>
-                        <inline_types translate="label tooltip">
-                            <label>Enable inline payment (Direct Link) for these card types</label>
-                            <tooltip><![CDATA[For the selected card types, the customer can enter the credit card details directly in the checkout.]]></tooltip>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>ops/source_debitCard_aliasInterfaceEnabledTypes</source_model>
-                            <sort_order>41</sort_order>
-                            <depends><redirect_all>0</redirect_all></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </inline_types>
                         <enabled_3dsecure translate="label tooltip">
                             <label>Enable 3D secure</label>
                             <tooltip><![CDATA[If the customer's credit card supports 3D Secure, he will be redirected to an external page to enter his password.]]></tooltip>
@@ -2426,21 +2623,126 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </position>
-                        <backend_enabled translate="label tooltip">
-                            <label>Enable for backend</label>
-                            <tooltip><![CDATA[This sets if this payment method should also be available for orders from the Magento backend.]]></tooltip>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>100</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </backend_enabled>
-                        <active_alias translate="label">
+                        <active_alias translate="label comment">
                             <label>Enabled Alias Manager</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>110</sort_order>
+                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments (Ogone) side.</comment>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active_alias>
+                        <show_alias_manager_info_for_guests translate="label">
+                            <label>Show Alias Manager information for guests</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active_alias>1</active_alias></depends>
+                        </show_alias_manager_info_for_guests>
+                        <zero_amount_checkout>
+                            <label>Allow zero amount authorization</label>
+                            <comment>Only if payment action is authorize.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </zero_amount_checkout>
+                        <htp_template_name translate="label comment">
+                            <label>HTP Template Name</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>135</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </htp_template_name>
+                    </fields>
+                </ops_dc>
+
+                <ops_dc_redirect translate="label">
+                    <label>Other Ingenico ePayments (Ogone) Dc brands</label>
+                    <sort_order>260</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                        </title>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <types translate="label">
+                            <label>Enabled Card Types</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>ops/source_debitCard_types</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </types>
+                        <enabled_3dsecure translate="label tooltip">
+                            <label>Enable 3D secure</label>
+                            <tooltip><![CDATA[If the customer's credit card supports 3D Secure, he will be redirected to an external page to enter his password.]]></tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </enabled_3dsecure>
+                        <image translate="label comment">
+                            <label>Payment Logo</label>
+                            <sort_order>80</sort_order>
+                            <frontend_type>paymentLogo</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_image</backend_model>
+                            <upload_dir config="system/filesystem/media" scope_info="1">ops/paymentLogo</upload_dir>
+                            <base_url type="media" scope_info="1">ops/paymentLogo</base_url>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Allowed file types: jpeg, gif, png.</comment>
+                        </image>
+                        <position translate="label">
+                            <label>Payment Logo Visibility</label>
+                            <sort_order>90</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>ops/system_config_backend_paymentLogo</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </position>
+                        <active_alias translate="label comment">
+                            <label>Enabled Alias Manager</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>110</sort_order>
+                            <comment>If this option is enabled, the customer's alias data will be saved in the shop. The data can then be used again later if the buyer has stored them permanently on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -2449,19 +2751,23 @@
                             <label>Aliasusage New</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>111</sort_order>
-                            <comment>Here you can enter the desired text which will be displayed on Ingenico ePayments side.</comment>
+                            <comment>Here you can enter the desired text which will be displayed on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                            <depends><active_alias>1</active_alias></depends>
                         </alias_usage_for_new_alias>
                         <alias_usage_for_existing_alias translate="label comment">
                             <label>Aliasusage existing Alias</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>112</sort_order>
-                            <comment>Here you can enter the desired text which is used for existing alias, the text will be displayed on Ingenico ePayments side.</comment>
+                            <comment>Here you can enter the desired text which is used for existing alias, the text will be displayed on Ingenico ePayments (Ogone) side.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                            <depends><active_alias>1</active_alias></depends>
                         </alias_usage_for_existing_alias>
                         <show_alias_manager_info_for_guests translate="label">
                             <label>Show Alias Manager information for guests</label>
@@ -2484,9 +2790,66 @@
                             <show_in_store>1</show_in_store>
                         </zero_amount_checkout>
                     </fields>
-                </ops_dc>
+                </ops_dc_redirect>
+
+                <ops_alias translate="label">
+                    <label>Ingenico ePayments (Ogone) Alias</label>
+                    <sort_order>265</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                        </title>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <image translate="label comment">
+                            <label>Payment Logo</label>
+                            <comment>Allowed file types: jpg, jpeg, gif, png</comment>
+                            <frontend_type>paymentLogo</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_image</backend_model>
+                            <upload_dir config="system/filesystem/media" scope_info="1">ops/paymentLogo</upload_dir>
+                            <base_url type="media" scope_info="1">ops/paymentLogo</base_url>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </image>
+                        <position translate="label">
+                            <label>Payment Logo Visibility</label>
+                            <sort_order>40</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>ops/system_config_backend_paymentLogo</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </position>
+                    </fields>
+                </ops_alias>
                 <ops_ingHomePay translate="label">
-                    <label>Ingenico ePayments IngHomePay</label>
+                    <label>Ingenico ePayments (Ogone) IngHomePay</label>
                     <sort_order>270</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2562,7 +2925,7 @@
                     </fields>
                 </ops_ingHomePay>
                 <ops_paysafecard translate="label">
-                    <label>Ingenico ePayments Paysafecard</label>
+                    <label>Ingenico ePayments (Ogone) Paysafecard</label>
                     <sort_order>280</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2638,7 +3001,7 @@
                     </fields>
                 </ops_paysafecard>
                 <ops_kwixoCredit translate="label">
-                    <label>Ingenico ePayments KwixoCredit</label>
+                    <label>Ingenico ePayments (Ogone) KwixoCredit</label>
                     <sort_order>290</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2776,7 +3139,7 @@
                     </fields>
                 </ops_kwixoCredit>
                 <ops_kwixoApresReception translate="label">
-                    <label>Ingenico ePayments KwixoApresReception</label>
+                    <label>Ingenico ePayments (Ogone) KwixoApresReception</label>
                     <sort_order>300</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -2911,7 +3274,7 @@
                     </fields>
                 </ops_kwixoApresReception>
                 <ops_kwixoComptant translate="label">
-                    <label>Ingenico ePayments KwixoComptant</label>
+                    <label>Ingenico ePayments (Ogone) KwixoComptant</label>
                     <sort_order>310</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3047,7 +3410,7 @@
                     </fields>
                 </ops_kwixoComptant>
                 <ops_opsid translate="label">
-                    <label>Existing Ingenico ePayments Transaction</label>
+                    <label>Existing Ingenico ePayments (Ogone) Transaction</label>
                     <sort_order>320</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
@@ -3124,7 +3487,7 @@
                     </fields>
                 </ops_opsid>
                 <ops_flex translate="label comment">
-                    <label>Ingenico ePayments Flex payment method</label>
+                    <label>Ingenico ePayments (Ogone) Flex payment method</label>
                     <sort_order>330</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3166,7 +3529,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip><![CDATA[A generic option, that lets the customer choose the exact method on Ingenico ePayments side.]]></tooltip>
+                            <tooltip><![CDATA[A generic option, that lets the customer choose the exact method on Ingenico ePayments (Ogone) side.]]></tooltip>
                             <depends><active>1</active></depends>
                         </default>
                         <default_title translate="label comment">
@@ -3188,7 +3551,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Add one or more methods. In field 'PM' you will have to enter the PM value you got from Ingenico ePayments, same goes for the field 'BRAND'.</comment>
+                            <comment>Add one or more methods. In field 'PM' you will have to enter the PM value you got from Ingenico ePayments (Ogone), same goes for the field 'BRAND'.</comment>
                             <depends><active>1</active></depends>
                         </methods>
                         <allowspecific translate="label">
@@ -3235,7 +3598,7 @@
                     </fields>
                 </ops_flex>
                 <ops_chinaUnionPay translate="label">
-                    <label>Ingenico ePayments ChinaUnionPay</label>
+                    <label>Ingenico ePayments (Ogone) ChinaUnionPay</label>
                     <sort_order>340</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3312,7 +3675,7 @@
                     </fields>
                 </ops_chinaUnionPay>
                 <ops_recurring_cc translate="label">
-                    <label>Ingenico ePayments Subscription Manager via Cc</label>
+                    <label>Ingenico ePayments (Ogone) Subscription Manager via Cc</label>
                     <sort_order>350</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3323,8 +3686,8 @@
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <frontend_model>ops/system_config_form_field_recurringActive</frontend_model>
-                            <comment><![CDATA[<p id='ops_recurring_cc_active_comment' style='colo:red; display:none;'>To use this functionality you have to have the Subscription manager function enabled in the Ingenico ePayments backend.</p>]]></comment>
-                            <tooltip><![CDATA[This payment method is used to handle subscriptions via Ingenico ePayments through Magentos recurring profiles. It is only available for orders containing only nominal items.]]></tooltip>
+                            <comment><![CDATA[<p id='ops_recurring_cc_active_comment' style='colo:red; display:none;'>To use this functionality you have to have the Subscription manager function enabled in the Ingenico ePayments (Ogone) backend.</p>]]></comment>
+                            <tooltip><![CDATA[This payment method is used to handle subscriptions via Ingenico ePayments (Ogone) through Magentos recurring profiles. It is only available for orders containing only nominal items.]]></tooltip>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -3375,7 +3738,7 @@
                     </fields>
                 </ops_recurring_cc>
                 <ops_BCMC translate="label">
-                    <label>Ingenico ePayments BCMC</label>
+                    <label>Ingenico ePayments (Ogone) BCMC</label>
                     <sort_order>360</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3450,7 +3813,7 @@
                     </fields>
                 </ops_BCMC>
                 <ops_payPerMail translate="label comment">
-                    <label>Ingenico ePayments PayPerMail</label>
+                    <label>Ingenico ePayments (Ogone) PayPerMail</label>
                     <sort_order>370</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -3517,7 +3880,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <tooltip>The email template to use. Choose 'Default Template from Locale' to use Ingenico ePayments extensions default template.</tooltip>
+                            <tooltip>The email template to use. Choose 'Default Template from Locale' to use Ingenico ePayments (Ogone) extensions default template.</tooltip>
                         </payPerMail_template>
                     </fields>
                 </ops_payPerMail>

@@ -37,9 +37,11 @@ class Netresearch_OPS_Model_Payment_IDeal
         if ($data instanceof Varien_Object) {
             $data = $data->getData();
         }
+
         if (array_key_exists('iDeal_issuer_id', $data)) {
             $this->getInfoInstance()->setAdditionalInformation('iDeal_issuer_id', $data['iDeal_issuer_id']);
         }
+
         parent::assignData($data);
 
         return $this;

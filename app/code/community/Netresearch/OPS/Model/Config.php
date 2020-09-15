@@ -33,12 +33,13 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     const OPS_CONTROLLER_ROUTE_API = 'ops/api/';
     const OPS_CONTROLLER_ROUTE_PAYMENT = 'ops/payment/';
     const OPS_CONTROLLER_ROUTE_ALIAS = 'ops/alias/';
+    const OPS_ERROR_PATH = 'payment_services/ops_error_settings/error';
 
     /**
      * Return ops payment config information
      *
      * @param string $path
-     * @param int    $storeId
+     * @param int $storeId
      *
      * @return Simple_Xml
      */
@@ -176,7 +177,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     /**
      * Return url which ops system will use as accept for alias generation
      *
-     * @param int  $storeId
+     * @param int $storeId
      * @param bool $admin
      *
      * @return string
@@ -185,7 +186,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         $params = array(
             '_secure' => $this->isCurrentlySecure(),
-            '_nosid'  => true
+            '_nosid' => true,
         );
         if (null != $storeId) {
             $params['_store'] = $storeId;
@@ -229,7 +230,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     /**
      * Return url which ops system will use as exception url for alias generation
      *
-     * @param int  $storeId
+     * @param int $storeId
      * @param bool $admin
      *
      * @return string
@@ -238,11 +239,12 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         $params = array(
             '_secure' => $this->isCurrentlySecure(),
-            '_nosid'  => true
+            '_nosid' => true,
         );
-        if (null !=$storeId) {
+        if (null != $storeId) {
             $params['_store'] = $storeId;
         }
+
         if ($admin) {
             $params['_nosecret'] = true;
 
@@ -320,11 +322,12 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         $params = array(
             '_secure' => $this->isCurrentlySecure(),
-            '_nosid'  => true,
+            '_nosid' => true,
         );
         if (null != $storeId) {
             $params['_store'] = $storeId;
         }
+
         if ($admin) {
             $params['_nosecret'] = true;
 
@@ -332,7 +335,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
         } else {
             return Mage::getModel('core/url')->getUrl(self::OPS_CONTROLLER_ROUTE_ALIAS . 'generatehash', $params);
         }
-
     }
 
     /**
@@ -369,28 +371,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     public function getAcceptedCcTypes($code)
     {
         return Mage::getStoreConfig('payment/' . $code . '/types');
-    }
-
-    /**
-     * Returns the cc types for which inline payments are activated
-     *
-     * @param string $code
-     *
-     * @return string[]
-     */
-    public function getInlinePaymentCcTypes($code)
-    {
-        $redirectAll = (bool)(int)Mage::getStoreConfig('payment/' . $code . '/redirect_all');
-        if ($redirectAll) {
-            return array();
-        }
-
-        $inlineTypes = Mage::getStoreConfig('payment/' . $code . '/inline_types');
-        if (false == is_array($inlineTypes)) {
-            $inlineTypes = explode(',', $inlineTypes);
-        }
-
-        return $inlineTypes;
     }
 
     /**
@@ -455,11 +435,12 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     public function getCcSaveAliasUrl($storeId = null, $admin = false)
     {
         $params = array(
-            '_secure' => $this->isCurrentlySecure()
+            '_secure' => $this->isCurrentlySecure(),
         );
         if (false === is_null($storeId)) {
             $params['_store'] = $storeId;
         }
+
         if ($admin) {
             return Mage::getModel('adminhtml/url')->getUrl('ops/admin/saveAlias', $params);
         } else {
@@ -468,7 +449,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     }
 
     /**
-     * get deeplink to transaction view at Ingenico ePayments
+     * get deeplink to transaction view at Ingenico ePayments (Ogone)
      *
      * @param Mage_Sales_Model_Order_Payment $payment
      *
@@ -488,8 +469,9 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         $result = array();
         $brands = Mage::getStoreConfig('payment/ops_interSolve/brands', $storeId);
-        if (null !=$brands) {
-            $result = unserialize($brands);
+        if (null != $brands) {
+            $result = Mage::helper('core/unserializeArray')
+                          ->unserialize($brands);
         }
 
         return $result;
@@ -504,8 +486,9 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         $result = array();
         $methods = Mage::getStoreConfig('payment/ops_flex/methods', $storeId);
-        if (null !=$methods) {
-            $result = unserialize($methods);
+        if (null != $methods) {
+            $result = Mage::helper('core/unserializeArray')
+                          ->unserialize($methods);
         }
 
         return $result;
@@ -519,6 +502,14 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
         return explode(',', Mage::getStoreConfig('payment/ops_cc/availableTypes'));
     }
 
+    /**
+     * @param $methodCode
+     * @return array
+     */
+    public function getCardTypes($methodCode)
+    {
+        return explode(',', Mage::getStoreConfig("payment/{$methodCode}/availableTypes"));
+    }
 
     /**
      * @return array
@@ -548,7 +539,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
             'VC',
             'CARDNO',
             'ED',
-            'CN'
+            'CN',
         );
     }
 
@@ -557,7 +548,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function getSendInvoice()
     {
-        return (bool)(int)Mage::getStoreConfig('payment_services/ops/send_invoice');
+        return (bool) (int) Mage::getStoreConfig('payment_services/ops/send_invoice');
     }
 
     /**
@@ -569,7 +560,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function isEnabledForBackend($code, $storeId = 0)
     {
-        return (bool)(int)Mage::getStoreConfig('payment/' . $code . '/backend_enabled', $storeId);
+        return (bool) (int) Mage::getStoreConfig('payment/' . $code . '/backend_enabled', $storeId);
     }
 
     /**
@@ -577,7 +568,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function isAliasInfoBlockEnabled()
     {
-        return (bool)(int)Mage::getStoreConfig('payment/ops_cc/show_alias_manager_info_for_guests');
+        return (bool) (int) Mage::getStoreConfig('payment/ops_cc/show_alias_manager_info_for_guests');
     }
 
     /**
@@ -590,7 +581,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function isAliasManagerEnabled($code, $storeId = null)
     {
-        return (bool)Mage::getStoreConfig('payment/' . $code . '/active_alias', $storeId);
+        return (bool) Mage::getStoreConfig('payment/' . $code . '/active_alias', $storeId);
     }
 
     /**
@@ -618,7 +609,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         return Mage::getStoreConfig('payment/' . $code . '/alias_usage_for_existing_alias', $storeId);
     }
-
 
     /**
      * getter for usage of order reference
@@ -689,7 +679,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
         return self::OPS_CONTROLLER_ROUTE_PAYMENT . 'exception';
     }
 
-
     /**
      * @param $operation
      * @return mixed
@@ -698,7 +687,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     {
         return Mage::getStoreConfig('payment/additional_params_required/' . $operation);
     }
-
 
     /**
      * returns the url for the maintenance api calls
@@ -723,7 +711,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     }
 
     /**
-     * whether extra parameters needs to be passed to Ingenico ePayments or not
+     * whether extra parameters needs to be passed to Ingenico ePayments (Ogone) or not
      *
      * @param null $storeId
      *
@@ -731,7 +719,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function canSubmitExtraParameter($storeId = null)
     {
-        return (bool)$this->getConfigData('submitExtraParameters', $storeId);
+        return (bool) $this->getConfigData('submitExtraParameters', $storeId);
     }
 
     public function getParameterLengths()
@@ -745,7 +733,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     public function getFrontendFieldMapping()
     {
         return $this->getConfigData('frontendFieldMapping');
-
     }
 
     /**
@@ -800,7 +787,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      * Returns the default url for the given gateway, depending on the mode, that is set for the the given store
      *
      * @param string $path
-     * @param int    $storeId
+     * @param int $storeId
      *
      * @return string
      */
@@ -853,7 +840,6 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
         return $this->getConfigData('resendPaymentInfo_template', $storeId);
     }
 
-
     /**
      * @param null $storeId
      * @return Simple_Xml
@@ -875,6 +861,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      * @param $params
      * @param null $storeId
      * @return mixed
+     * @deprecated @see Netresearch_OPS_Model_Retry_Page::getRetryUrl
      */
     public function getPaymentRetryUrl($params, $storeId = null)
     {
@@ -895,7 +882,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function getDeviceFingerPrinting($storeId = null)
     {
-        return (bool)$this->getConfigData('device_fingerprinting', $storeId);
+        return (bool) $this->getConfigData('device_fingerprinting', $storeId);
     }
 
     /**
@@ -904,7 +891,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function getTransActionTimeout($storeId = null)
     {
-        return (int)$this->getConfigData('ops_rtimeout', $storeId);
+        return (int) $this->getConfigData('ops_rtimeout', $storeId);
     }
 
     /**
@@ -915,7 +902,7 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
      */
     public function getCreditDebitSplit($storeId = null)
     {
-        return (bool)$this->getConfigData('creditdebit_split', $storeId);
+        return (bool) $this->getConfigData('creditdebit_split', $storeId);
     }
 
     /**
@@ -970,7 +957,78 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
         return $this->getConfigData('suspendSubscription_identity', $storeId);
     }
 
+    /**
+     * @param string $methodCode
+     * @param int|null $storeId
+     * @return mixed
+     */
+    public function getHtpTemplateName($methodCode, $storeId = null)
+    {
+        return Mage::getStoreConfig("payment/{$methodCode}/htp_template_name", $storeId);
+    }
 
+    /**
+     * @param string $storeId
+     * @return mixed
+     */
+    public function isPaymentCancellationEnabled($storeId = null)
+    {
+        return (bool) $this->getConfigData('paymentCancellation', $storeId);
+    }
 
+    /**
+     * @param string $storeId
+     * @return bool
+     */
+    public function isPaymentReminderEnabled($storeId = null)
+    {
+        return (bool) $this->getConfigData('paymentCancellation', $storeId);
+    }
+
+    /**
+     * @param string $storeId
+     * @return bool
+     */
+    public function getPaymentReminderDays($storeId = null)
+    {
+        return $this->getConfigData('paymentReminderDays', $storeId);
+    }
+
+    /**
+     * @param string $storeId
+     * @return bool
+     */
+    public function getPaymentCancellationDays($storeId = null)
+    {
+        return $this->getConfigData('paymentCancellationDays', $storeId);
+    }
+
+    /**
+     * @param string $errorCode
+     * @param string|null $storeId
+     * @return bool
+     */
+    public function getErrorMessage($errorCode, $storeId = null)
+    {
+        return Mage::getStoreConfig(self::OPS_ERROR_PATH . $errorCode, $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return bool
+     */
+    public function getAddressSplit($storeId = null)
+    {
+        return (bool) $this->getConfigData('address_split', $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function isAliasEnabled($storeId = null)
+    {
+        return Mage::getStoreConfig('payment/ops_alias/active', $storeId) === '1';
+    }
 }
 

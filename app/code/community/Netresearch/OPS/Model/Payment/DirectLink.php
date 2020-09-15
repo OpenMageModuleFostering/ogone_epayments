@@ -144,7 +144,7 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
     }
 
     /**
-     * Saves the payment model and runs the request to Ingenico ePaymentss webservice
+     * Saves the payment model and runs the request to Ingenico ePayments (Ogone)s webservice
      *
      * @param Mage_Sales_Model_Order $order
      * @param Mage_Sales_Model_Quote $quote
@@ -153,10 +153,11 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
      * @throws Mage_Core_Exception
      */
 
-    protected function confirmPayment(Mage_Sales_Model_Order $order, Mage_Sales_Model_Quote $quote,
+    protected function confirmPayment(
+        Mage_Sales_Model_Order $order,
+        Mage_Sales_Model_Quote $quote,
         Varien_Object $payment
-    ) 
-    {
+    ) { 
         $this->handleAdminPayment($quote);
         $requestParams = $this->getRequestParamsHelper()->getDirectLinkRequestParams($quote, $order, $payment);
         $this->invokeRequestParamValidation($requestParams);
@@ -165,10 +166,10 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
             $quote, $requestParams, $quote->getStoreId()
         );
         if ($response) {
+            /** @var Netresearch_OPS_Model_Response_Handler $handler */
             $handler = Mage::getModel('ops/response_handler');
             $handler->processResponse($response, $this, false);
             $this->performPostDirectLinkCallAction($quote, $order);
-
         } else {
             $this->getPaymentHelper()->handleUnknownStatus($order);
         }
@@ -190,7 +191,7 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
 
 
     /**
-     * Perform necessary preparation before request to Ingenico ePayments is sent
+     * Perform necessary preparation before request to Ingenico ePayments (Ogone) is sent
      *
      * @param Mage_Sales_Model_Quote $quote
      * @param Varien_Object          $payment
@@ -198,7 +199,9 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
      *
      * @return Netresearch_OPS_Model_Payment_DirectLink
      */
-    abstract protected function performPreDirectLinkCallActions(Mage_Sales_Model_Quote $quote, Varien_Object $payment,
+    abstract protected function performPreDirectLinkCallActions(
+        Mage_Sales_Model_Quote $quote,
+        Varien_Object $payment,
         $requestParams = array()
     );
 
@@ -210,7 +213,8 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
      *
      * @return Netresearch_OPS_Model_Payment_DirectLink
      */
-    abstract protected function performPostDirectLinkCallAction(Mage_Sales_Model_Quote $quote,
+    abstract protected function performPostDirectLinkCallAction(
+        Mage_Sales_Model_Quote $quote,
         Mage_Sales_Model_Order $order
     );
 
@@ -238,7 +242,7 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
             $quote = $this->getQuoteHelper()->getQuote();
             $this->confirmPayment($order, $quote, $payment);
         } /**
-         * invoice request authorize mode if the payment was placed on Ingenico ePayments side
+         * invoice request authorize mode if the payment was placed on Ingenico ePayments (Ogone) side
          */
         elseif (0 < strlen(trim($payment->getAdditionalInformation('paymentId')))) {
             parent::capture($payment, $amount);
@@ -255,20 +259,9 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
      */
     protected function isInlinePayment($payment)
     {
-        $result = false;
-
         $methodInstance = $payment->getMethodInstance();
-        if ((
-                $methodInstance instanceof Netresearch_OPS_Model_Payment_Cc
-                && $methodInstance->hasBrandAliasInterfaceSupport($payment)
-                || $this->getDataHelper()->isAdminSession()
-            )
-            || $methodInstance instanceof Netresearch_OPS_Model_Payment_DirectDebit
-        ) {
-            $result = true;
-        }
 
-        return $result;
+        return $methodInstance instanceof Netresearch_OPS_Model_Payment_DirectLink;
     }
 
 
@@ -298,7 +291,7 @@ abstract class Netresearch_OPS_Model_Payment_DirectLink extends Netresearch_OPS_
         if (false == $validator->isValid($requestParams)) {
             $this->getOnepage()->getCheckout()->setGotoSection('payment');
             Mage::throwException(
-                $this->getHelper()->__('The data you have provided can not be processed by Ingenico ePayments')
+                $this->getHelper()->__('The data you have provided can not be processed by Ingenico ePayments (Ogone)')
             );
         }
 

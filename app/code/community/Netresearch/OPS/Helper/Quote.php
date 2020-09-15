@@ -54,7 +54,6 @@ class Netresearch_OPS_Helper_Quote extends Mage_Core_Helper_Abstract
                 );
                 $payment->save();
             }
-
         }
 
 
@@ -103,6 +102,7 @@ class Netresearch_OPS_Helper_Quote extends Mage_Core_Helper_Abstract
 
             return Netresearch_OPS_Model_Payment_Abstract::OPS_AUTHORIZE_ACTION;
         }
+
         // no RES for Direct Debits NL, so we'll do the final sale
         if ('Direct Debits NL' == $order->getPayment()
                 ->getAdditionalInformation('PM')

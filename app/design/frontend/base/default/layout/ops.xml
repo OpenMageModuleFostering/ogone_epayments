@@ -29,10 +29,16 @@
             <action method="addJs">
                 <script>netresearch/ops/tokenization.js</script>
             </action>
+            <action method="addJs">
+                <script>netresearch/ops/mpi-parameters.js</script>
+            </action>
             <action method="addCss">
                 <stylesheet>css/ops.css</stylesheet>
             </action>
-
+            <action method="addItem"><type>js_css</type><name>calendar/calendar-blue.css</name><params/></action>
+            <action method="addItem"><type>js</type><name>calendar/calendar.js</name></action>
+            <action method="addItem"><type>js</type><name>calendar/calendar-setup.js</name></action>
+            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
             <block type="ops/checkout_deviceFingerprinting"
                    name="ops_deviceFingerprinting" as="ops.devicefingerprinting" />
         </reference>
@@ -48,12 +54,21 @@
             <action method="addJs">
                 <script>netresearch/ops/tokenization.js</script>
             </action>
+            <action method="addItem"><type>js_css</type><name>calendar/calendar-blue.css</name><params/></action>
+            <action method="addItem"><type>js</type><name>calendar/calendar.js</name></action>
+            <action method="addItem"><type>js</type><name>calendar/calendar-setup.js</name></action>
+            <action method="addJs">
+                <script>netresearch/ops/reload.js</script>
+            </action>
             <action method="addCss">
                 <stylesheet>css/ops.css</stylesheet>
             </action>
-
+            <action method="addCss">
+                <stylesheet>css/ops-osc.css</stylesheet>
+            </action>
             <block type="ops/checkout_deviceFingerprinting"
                    name="ops_deviceFingerprinting" as="ops.devicefingerprinting" />
+            <block type="core/html_calendar" name="html_calendar" as="html_calendar" template="page/js/calendar.phtml"/>
         </reference>
     </onestepcheckout_index_index>
     <checkout_onepage_paymentmethod>
@@ -93,6 +108,8 @@
     </ops_payment_paypage>
 
     <ops_payment_placeform>
+        <remove name="right"/>
+        <remove name="left"/>
         <reference name="root">
             <action method="setTemplate">
                 <template>page/1column.phtml</template>
@@ -111,7 +128,7 @@
     <ops_payment_retry>
         <reference name="root">
             <action method="setTemplate">
-                <template>page/1column.phtml</template>
+                <template>page/2columns-right.phtml</template>
             </action>
         </reference>
         <reference name="head">
@@ -132,15 +149,38 @@
                 <script>varien/accordion.js</script>
             </action>
         </reference>
-        <remove name="right"/>
+        <remove name="right.reports.product.viewed"/>
+        <remove name="sale.reorder.sidebar"/>
+        <remove name ="right.permanent.callout"/>
         <remove name="left"/>
+
+        <reference name="right">
+            <block type="ops/retryPayment" name="ops_paymentinformation" template="ops/retry/paymentinformation.phtml" />
+        </reference>
+
         <reference name="content">
-            <block type="ops/retryPayment" name="ops_retryPayment" template="ops/retryPayment.phtml">
+
+                <block type="sales/order_view" name="sales.order.view">
+                    <block type="sales/order_items" name="order_items" template="sales/order/items.phtml">
+                        <action method="addItemRender"><type>default</type><block>sales/order_item_renderer_default</block><template>sales/order/items/renderer/default.phtml</template></action>
+                        <action method="addItemRender"><type>grouped</type><block>sales/order_item_renderer_grouped</block><template>sales/order/items/renderer/default.phtml</template></action>
+                        <block type="sales/order_totals" name="order_totals" template="sales/order/totals.phtml">
+                            <action method="setLabelProperties"><value>colspan="4" class="a-right"</value></action>
+                            <action method="setValueProperties"><value>class="last a-right"</value></action>
+                            <block type="tax/sales_order_tax" name="tax" template="tax/order/tax.phtml" />
+                        </block>
+                    </block>
+                </block>
+
+            <block type="ops/retryPayment" name="ops_retryPayment" template="ops/retry/retryPayment.phtml">
                 <block type="ops/retryPayment_methods" name="ops_retryPayment_methods" template="checkout/onepage/payment/methods.phtml">
                     <block type="core/template" name="checkout.onepage.payment.methods.scripts" as="scripts" />
                     <block type="core/template" name="checkout.onepage.payment.methods.additional" as="additional" />
                 </block>
             </block>
+
+
+
         </reference>
     </ops_payment_retry>
 

@@ -11,30 +11,17 @@
 class Netresearch_OPS_Block_Form_Cc extends Netresearch_OPS_Block_Form
 {
 
-    protected $_aliasDataForCustomer = array();
+    protected $aliasDataForCustomer = array();
 
     /**
      * CC Payment Template
      */
-    const FRONTEND_TEMPLATE = 'ops/form/cc.phtml';
-
-    protected function _construct()
-    {
-        parent::_construct();
-        $this->setTemplate(self::FRONTEND_TEMPLATE);
-    }
-
+    const FRONTEND_TEMPLATE_CC = 'ops/form/cc.phtml';
 
     /**
-     * gets all Alias CC brands
-     *
-     * @return array
+     *  CC Redirect Payment Template
      */
-    public function getAliasBrands()
-    {
-        return Mage::getModel('ops/source_cc_aliasInterfaceEnabledTypes')
-            ->getAliasInterfaceCompatibleTypes();
-    }
+    const FRONTEND_TEMPLATE_CC_REDIRECT = 'ops/form/ccRedirect.phtml';
 
     /**
      * @return string
@@ -67,84 +54,31 @@ class Netresearch_OPS_Block_Form_Cc extends Netresearch_OPS_Block_Form
         return Mage::getModel('ops/config')->isAliasManagerEnabled($this->getMethodCode());
     }
 
-
     /**
-     * retrieves the alias data for the logged in customer
+     * Check if there are any actual aliases that will be displayed in checkout.
      *
-     * @return array | null - array the alias data or null if the customer
-     * is not logged in
+     * @return bool
      */
-    protected function getStoredAliasForCustomer()
+    public function isAliasAvailable()
     {
-        if (Mage::helper('customer/data')->isLoggedIn()
-            && Mage::getModel('ops/config')->isAliasManagerEnabled($this->getMethodCode())
-        ) {
-            $quote = $this->getQuote();
-            $aliases = Mage::helper('ops/alias')->getAliasesForAddresses(
-                $quote->getCustomer()->getId(), $quote->getBillingAddress(),
-                $quote->getShippingAddress(), $quote->getStoreId()
-            )
-                ->addFieldToFilter('state', Netresearch_OPS_Model_Alias_State::ACTIVE)
-                ->addFieldToFilter('payment_method', $this->getMethodCode())
-                ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC);
-
-
-            foreach ($aliases as $key => $alias) {
-                $this->_aliasDataForCustomer[$key] = $alias;
-            }
+        if (!$this->isAliasPMEnabled() || !Mage::helper('customer/data')->isLoggedIn()) {
+            return false;
         }
 
-        return $this->_aliasDataForCustomer;
-    }
+        $quote = $this->getQuote();
+        /** @var Netresearch_OPS_Helper_Alias $aliasManager */
+        $aliasManager = Mage::helper('ops/alias');
+        $aliasCount = $aliasManager->getAliasesForAddresses(
+            $quote->getCustomer()->getId(),
+            $quote->getBillingAddress(),
+            $quote->getShippingAddress(),
+            $quote->getStoreId()
+        )
+                                   ->addFieldToFilter('state', Netresearch_OPS_Model_Alias_State::ACTIVE)
+                                   ->addFieldToFilter('payment_method', $this->getMethod()->getCode())
+                                   ->count();
 
-
-
-
-    /**
-     * @param $aliasId
-     * @param $key
-     * @return null|string
-     */
-    public function getExpirationDatePart($aliasId, $key)
-    {
-        $returnValue = null;
-        $expirationDate = $this->getStoredAliasDataForCustomer($aliasId, 'expiration_date');
-        // set expiration date to actual date if no stored Alias is used
-        if ($expirationDate === null) {
-            $expirationDate = date('my');
-        }
-
-        if (0 < strlen(trim($expirationDate))
-        ) {
-            $expirationDateValues = str_split($expirationDate, 2);
-
-            if ($key == 'month') {
-                $returnValue = $expirationDateValues[0];
-            }
-            if ($key == 'year') {
-                $returnValue = $expirationDateValues[1];
-            }
-
-            if ($key == 'complete') {
-                $returnValue = implode('/', $expirationDateValues);
-            }
-        }
-
-        return $returnValue;
-
-    }
-
-
-    /**
-     * the brand of the stored card data
-     *
-     * @param $aliasId
-     *
-     * @return null|string - string if stored card data were found, null otherwise
-     */
-    public function getStoredAliasBrand($aliasId)
-    {
-        return $this->getStoredAliasDataForCustomer($aliasId, 'brand');
+        return $aliasCount > 0;
     }
 
     /**
@@ -156,7 +90,7 @@ class Netresearch_OPS_Block_Form_Cc extends Netresearch_OPS_Block_Form
     public function isAliasInfoBlockEnabled()
     {
         return ($this->isAliasPMEnabled()
-            && Mage::getModel('ops/config')->isAliasInfoBlockEnabled());
+                && Mage::getModel('ops/config')->isAliasInfoBlockEnabled());
     }
 
     /**
@@ -169,10 +103,54 @@ class Netresearch_OPS_Block_Form_Cc extends Netresearch_OPS_Block_Form
 
     public function checkIfBrandHasAliasInterfaceSupport($alias)
     {
-        $brand         = $this->getStoredAliasBrand($alias);
+        $brand = $this->getStoredAliasBrand($alias);
         $allowedBrands = $this->getMethod()->getBrandsForAliasInterface();
 
         return in_array($brand, $allowedBrands);
     }
 
+    /**
+     * Get template based on method code i.e. ops_cc or ops_cc_redirect.
+     *
+     * @return string
+     */
+    public function getTemplate()
+    {
+        if ($this->getMethodCode() === Netresearch_OPS_Model_Payment_CcRedirect::CODE
+            || $this->getMethodCode() === Netresearch_OPS_Model_Payment_DebitcardRedirect::CODE
+        ) {
+            return self::FRONTEND_TEMPLATE_CC_REDIRECT;
+        }
+
+        return self::FRONTEND_TEMPLATE_CC;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAliasEnabled()
+    {
+        $storeId = $this->getQuote()->getStore()->getId();
+
+        return $this->getConfig()->isAliasEnabled($storeId);
+    }
+
+    /**
+     * @return bool
+     */
+    public function resetAliasSuccess()
+    {
+        return $this->getQuote()->getData('resetAlias') ? true : false;
+    }
+
+    /**
+     * @return string
+     * @throws Zend_Controller_Request_Exception
+     */
+    public function getAcceptHeader()
+    {
+        $acceptHeader = $this->getRequest()->getHeader('Accept') ?: '*/*';
+
+        return str_replace('text/javascript, ', '', $acceptHeader);
+    }
 }

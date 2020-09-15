@@ -45,6 +45,7 @@ class Netresearch_OPS_Model_Source_DebitCard_AliasInterfaceEnabledTypes
                 'label' => Mage::helper('ops')->__($type)
             );
         }
+
         return $options;
     }
 

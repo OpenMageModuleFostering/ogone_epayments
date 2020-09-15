@@ -37,11 +37,6 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
             return false;
         }
 
-        /* not available if there is no gender or no birthday */
-        if (null === $quote->getCustomerGender() || is_null($quote->getCustomerDob())) {
-            return false;
-        }
-
         return parent::isAvailable($quote);
     }
 
@@ -56,15 +51,15 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
     {
         $billingAddress  = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
-        $billingStreet   = str_replace("\n", ' ', $billingAddress->getStreet(-1));
 
-        $splittedBillingStreet = Mage::helper('ops/address')->splitStreet($billingStreet);
+        $splittedBillingStreet = Netresearch_OPS_Helper_Address::splitStreet($billingAddress->getStreet());
         $formFields = parent::getMethodDependendFormFields($order, $requestParams);
 
+        $gender = $order->getPayment()->getAdditionalInformation('gender');
         $gender = Mage::getSingleton('eav/config')
             ->getAttribute('customer', 'gender')
             ->getSource()
-            ->getOptionText($order->getCustomerGender());
+            ->getOptionText($order->getPayment()->getAdditionalInformation($gender));
 
         $formFields['CIVILITY']                         = $gender == 'Male' ? 'M' : 'V';
         $formFields['ECOM_CONSUMER_GENDER']             = $gender == 'Male' ? 'M' : 'V';
@@ -75,9 +70,8 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
         $formFields['OWNERCTY']                         = $billingAddress->getCountry();
         $formFields['OWNERTELNO']                       = $billingAddress->getTelephone();
 
-        $shippingStreet = str_replace("\n", ' ', $shippingAddress->getStreet(-1));
 
-        $splittedShippingStreet = Mage::Helper('ops/address')->splitStreet($shippingStreet);
+        $splittedShippingStreet = Netresearch_OPS_Helper_Address::splitStreet($shippingAddress->getStreet());
 
         $formFields['ECOM_SHIPTO_POSTAL_NAME_PREFIX']   = $shippingAddress->getPrefix();
         $formFields['ECOM_SHIPTO_POSTAL_NAME_FIRST']    = $shippingAddress->getFirstname();
@@ -95,12 +89,15 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
             if (array_key_exists('OWNERADDRESS', $requestParams)) {
                 $formFields['OWNERADDRESS'] = $requestParams['OWNERADDRESS'];
             }
+
             if (array_key_exists('ECOM_BILLTO_POSTAL_STREET_NUMBER', $requestParams)) {
                 $formFields['ECOM_BILLTO_POSTAL_STREET_NUMBER'] = $requestParams['ECOM_BILLTO_POSTAL_STREET_NUMBER'];
             }
+
             if (array_key_exists('ECOM_SHIPTO_POSTAL_STREET_LINE1', $requestParams)) {
                 $formFields['ECOM_SHIPTO_POSTAL_STREET_LINE1'] = $requestParams['ECOM_SHIPTO_POSTAL_STREET_LINE1'];
             }
+
             if (array_key_exists('ECOM_SHIPTO_POSTAL_STREET_NUMBER', $requestParams)) {
                 $formFields['ECOM_SHIPTO_POSTAL_STREET_NUMBER'] = $requestParams['ECOM_SHIPTO_POSTAL_STREET_NUMBER'];
             }
@@ -111,7 +108,7 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
 
     /**
      * get question for fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      * @return string
      */
@@ -122,8 +119,7 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
 
     /**
      * get an array of fields with disputable value
-     * users are asked to correct the values before redirect to Ingenico ePayments
-     *
+     * users are asked to correct the values before redirect to Ingenico ePayments (Ogone)
      *
      * @return array
      */
@@ -136,5 +132,4 @@ class Netresearch_OPS_Model_Payment_OpenInvoiceNl
             'ECOM_SHIPTO_POSTAL_STREET_NUMBER',
         );
     }
-
 }

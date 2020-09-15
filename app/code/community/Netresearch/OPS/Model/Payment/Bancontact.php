@@ -83,6 +83,7 @@ class Netresearch_OPS_Model_Payment_Bancontact
         if ($this->_mobileDetectHelper === null) {
             $this->_mobileDetectHelper = Mage::helper('ops/mobileDetect');
         }
+
         return $this->_mobileDetectHelper;
     }
 

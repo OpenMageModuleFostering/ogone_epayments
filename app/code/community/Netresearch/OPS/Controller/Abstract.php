@@ -43,13 +43,13 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
      *
      * @return Mage_Sales_Model_Order
      */
-
     protected function _getOrder($opsOrderId = null)
     {
         if (empty($this->_order)) {
             if (null === $opsOrderId) {
                 $opsOrderId = $this->getRequest()->getParam('orderID');
             }
+
             $this->_order = Mage::helper('ops/order')->getOrder($opsOrderId);
         }
 
@@ -116,31 +116,33 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
                 $this->_getCheckout()->addError($this->__('Subscription is not valid'));
                 $helper->log(
                     $helper->__(
-                        "Incoming Ingenico ePayments Feedback\n\nRequest Path: %s\nParams: %s\n\nSubscription not valid\n",
+                        "Incoming Ingenico ePayments (Ogone) Feedback\n\nRequest Path: %s\nParams: %s\n\nSubscription not valid\n",
                         $this->getRequest()->getPathInfo(),
-                        serialize($this->getRequest()->getParams())
+                        json_encode($this->getRequest()->getParams(), JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT)
                     )
                 );
                 return false;
             }
+
             $storeId = $profile->getStoreId();
         } else {
             $order = $this->_getOrder();
             if (!$order->getId()) {
                 $helper->log(
                     $helper->__(
-                        "Incoming Ingenico ePayments Feedback\n\nRequest Path: %s\nParams: %s\n\nOrder not valid\n",
+                        "Incoming Ingenico ePayments (Ogone) Feedback\n\nRequest Path: %s\nParams: %s\n\nOrder not valid\n",
                         $this->getRequest()->getPathInfo(),
-                        serialize($this->getRequest()->getParams())
+                        json_encode($this->getRequest()->getParams(), JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT)
                     )
                 );
                 $this->_getCheckout()->addError($this->__('Order is not valid'));
                 return false;
             }
+
             $storeId = $order->getStoreId();
         }
 
-        //remove custom responseparams, because they are not hashed by Ingenico ePayments
+        //remove custom responseparams, because they are not hashed by Ingenico ePayments (Ogone)
         if ($this->getConfig()->getConfigData('template') == Netresearch_OPS_Model_Payment_Abstract::TEMPLATE_OPS_IFRAME
             && array_key_exists('IFRAME', $params)
         ) {
@@ -152,9 +154,9 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
 
         $helper->log(
             $helper->__(
-                "Incoming Ingenico ePayments Feedback\n\nRequest Path: %s\nParams: %s\n",
+                "Incoming Ingenico ePayments (Ogone) Feedback\n\nRequest Path: %s\nParams: %s\n",
                 $this->getRequest()->getPathInfo(),
-                serialize($this->getRequest()->getParams())
+                json_encode($this->getRequest()->getParams(), JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT)
             )
         );
         
@@ -171,6 +173,7 @@ class Netresearch_OPS_Controller_Abstract extends Mage_Core_Controller_Front_Act
         if (array_key_exists('RESPONSEFORMAT', $params) && $params['RESPONSEFORMAT'] == 'JSON') {
             return true;
         }
+
         return false;
     }
 

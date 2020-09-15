@@ -38,9 +38,11 @@ class Netresearch_OPS_Model_Payment_InterSolve
         } elseif (is_array($data) && isset($data['intersolve_brand'])) {
             $brand = $data['intersolve_brand'];
         }
+
         if (strlen(trim($brand)) === 0) {
             $brand = 'InterSolve';
         }
+
         $payment = $this->getInfoInstance();
         $payment->setAdditionalInformation('BRAND', $brand);
 

@@ -49,7 +49,8 @@ class Netresearch_OPS_Block_Form_Flex extends Netresearch_OPS_Block_Form
     {
         $methods = $this->getMethod()->getConfigData('methods');
         if (!is_array($methods)) {
-            $methods = unserialize($methods);
+            $methods = Mage::helper('core/unserializeArray')
+                           ->unserialize($methods);
         }
 
         return $methods;

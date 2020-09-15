@@ -45,7 +45,9 @@ interface Netresearch_OPS_Model_Response_TypeInterface
      *
      * @return Netresearch_OPS_Model_Response_TypeInterface
      */
-    public function handleResponse($responseArray, Netresearch_OPS_Model_Payment_Abstract $paymentMethod,
+    public function handleResponse(
+        $responseArray,
+        Netresearch_OPS_Model_Payment_Abstract $paymentMethod,
         $shouldRegisterFeedback
     );
 }

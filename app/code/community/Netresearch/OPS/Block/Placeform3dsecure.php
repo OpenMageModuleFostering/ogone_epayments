@@ -37,6 +37,7 @@ class Netresearch_OPS_Block_Placeform3dsecure extends Netresearch_OPS_Block_Plac
         if (null != $this->_getOrder()) {
             return base64_decode($this->_getOrder()->getPayment()->getAdditionalInformation('HTML_ANSWER'));
         }
+
         return null;
     }
 }
