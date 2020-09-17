@@ -37,10 +37,11 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      *
      * @param array $params
      * @param string $url
+     * @param string $proxy
      *
      * @return mixed
      */
-    public function call($params, $url)
+    public function call($params, $url, $proxy = '')
     {
         try {
             $http = new Varien_Http_Adapter_Curl();
@@ -49,6 +50,9 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
                 'verifypeer' => 1,
                 'verifyhost' => 2,
             );
+            if ($proxy !== '') {
+                $config['proxy'] = $proxy;
+            }
             $http->setConfig($config);
             $http->write(Zend_Http_Client::POST, $url, '1.1', array(), http_build_query($params));
             $response = $http->read();
@@ -84,7 +88,7 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
             null,
             $storeId
         );
-        $responseParams = $this->getResponseParams($params, $url);
+        $responseParams = $this->getResponseParams($params, $url, 0, $this->getConfig()->getDirectLinkProxy());
         $helper->log(
             $helper->__(
                 "Direct Link Request/Response in Ingenico ePayments (Ogone) \n\nRequest: %s\nResponse: %s\nMagento-URL: %s\nAPI-URL: %s",
@@ -116,17 +120,18 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
      * @param array $params - request params
      * @param string $url - the url for the request
      * @param int $retryCount - current request count
+     * @param string $proxy - proxy for direct link calls
      * @return array | null - null if requests were not successful, array containing Ingenico ePayments (Ogone) payment data otherwise
      * @throws Mage_Core_Exception
      *
      */
-    protected function getResponseParams($params, $url, $retryCount = 0)
+    protected function getResponseParams($params, $url, $retryCount = 0, $proxy = '')
     {
         $responseParams = null;
         $responseXml = null;
         if ($retryCount < self::MAX_RETRY_COUNT) {
             try {
-                $responseXml = $this->call($params, $url);
+                $responseXml = $this->call($params, $url, $proxy);
                 $responseParams = $this->getParamArrFromXmlString($responseXml);
             } catch (Exception $e) {
                 try {
@@ -150,7 +155,7 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
                             $responseXml
                         )
                     );
-                    $responseParams = $this->getResponseParams($params, $url, ++$retryCount);
+                    $responseParams = $this->getResponseParams($params, $url, ++$retryCount, $proxy);
                 }
             }
         } else {
@@ -236,5 +241,13 @@ class Netresearch_OPS_Model_Api_DirectLink extends Mage_Core_Model_Abstract
                 )
             );
         }
+    }
+
+    /**
+     * @return Netresearch_OPS_Model_Config
+     */
+    protected function getConfig()
+    {
+        return Mage::getModel('ops/config');
     }
 }

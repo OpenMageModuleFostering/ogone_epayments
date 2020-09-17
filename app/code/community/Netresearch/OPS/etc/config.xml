@@ -334,6 +334,7 @@
                 <directlink_gateway>https://secure.ogone.com/ncol/test/maintenancedirect.asp</directlink_gateway>
                 <directlink_gateway_order>https://secure.ogone.com/ncol/test/orderdirect.asp</directlink_gateway_order>
                 <directlink_maintenance_api>https://secure.ogone.com/ncol/test/querydirect.asp</directlink_maintenance_api>
+                <directlink_proxy></directlink_proxy>
                 <ops_alias_gateway_test>https://ogone.test.v-psp.com/Tokenization/HostedPage</ops_alias_gateway_test>
                 <showcatalogbutton>1</showcatalogbutton>
                 <showhomebutton>1</showhomebutton>
