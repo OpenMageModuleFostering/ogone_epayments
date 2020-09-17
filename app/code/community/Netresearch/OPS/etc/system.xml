@@ -175,6 +175,15 @@
                             <show_in_store>1</show_in_store>
                             <depends><mode>custom</mode></depends>
                         </directlink_maintenance_api>
+                        <directlink_proxy translate="label comment">
+                            <label>DirectLink Proxy URL</label>
+                            <frontend_type>text</frontend_type>
+                            <comment><![CDATA[If your server is behind a proxy, then enter the URL here: e.g. http://x.y.z.x:8080/]]></comment>
+                            <sort_order>75</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </directlink_proxy>
                         <api_userid translate="label tooltip">
                             <label>API User</label>
                             <tooltip><![CDATA[Special user for API must be created in the Ingenico ePayments (Ogone) backend in section <em>Users</em>.]]></tooltip>

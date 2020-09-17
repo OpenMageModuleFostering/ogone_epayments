@@ -701,6 +701,17 @@ class Netresearch_OPS_Model_Config extends Mage_Payment_Model_Config
     }
 
     /**
+     * returns the proxy (if set in config) for the maintenance api calls
+     *
+     * @param null $storeId
+     *
+     * @return string - the proxy for the maintenance api calls
+     */
+    public function getDirectLinkProxy($storeId = null)
+    {
+        return $this->getConfigData('directlink_proxy', $storeId);
+    }
+    /**
      * getter for the iDeal issuers
      *
      * @return array
